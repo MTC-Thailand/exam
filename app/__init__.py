@@ -14,6 +14,7 @@ admin = Admin()
 def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
     db.init_app(app)
     migrate.init_app(app, db)
     admin.init_app(app)
