@@ -1,6 +1,6 @@
 from . import webadmin
 from app.exambank.models import *
-from flask import redirect, url_for, render_template
+from flask import redirect, url_for, render_template, flash
 
 
 @webadmin.route('/banks')
@@ -20,3 +20,13 @@ def preview(item_id):
     item = Item.query.get(item_id)
     answer = Choice.query.get(item.answer_id)
     return render_template('webadmin/preview.html', item=item, answer=answer)
+
+
+@webadmin.route('/<int:item_id>/submit')
+def submit(item_id):
+    item = Item.query.get(item_id)
+    item.status = 'submit'
+    db.session.add(item)
+    db.session.commit()
+    flash('บันทึกข้อสอบเรียบร้อยแล้ว', 'success')
+    return redirect(url_for('webadmin.list_questions', bank_id=item.bank.id))

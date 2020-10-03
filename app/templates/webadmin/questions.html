@@ -4,6 +4,7 @@
 {% block page_content %}
 <section class="section">
     <div class="container" id="app">
+        {% include "messages.html" %}
         <div class="columns">
             <div class="column box">
                 <h1 class="title has-text-centered">{{ bank.name }}</h1>
@@ -12,13 +13,15 @@
                     <col width="20%">
                     <col width="20%">
                     <col width="30%">
-                    <col width="10%">
+                    <col width="5%">
+                    <col width="5%">
                     <thead>
                     <th>หมวดสมรรถนะ</th>
                     <th>สมรรถนะ</th>
                     <th>สมรรถนะย่อย</th>
                     <th>โจทย์</th>
                     <th>เพิ่มเมื่อ</th>
+                    <th>สถานะ</th>
                     </thead>
                     <tbody>
                     {% for q in bank.items %}
@@ -33,6 +36,9 @@
                         </td>
                         <td>
                             {{ q.created_at|localdatetime }}
+                        </td>
+                        <td>
+                            {{ q.status }}
                         </td>
                     </tr>
                     {% endfor %}
