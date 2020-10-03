@@ -33,8 +33,11 @@ def save(bank_id):
     form = request.form
     preview = request.args.get('preview', False)
     category = Category.query.get(int(form['category_id']))
-    subcategory = SubCategory.query.get(int(form['category_id']))
-    subsubcategory = SubSubCategory.query.get(int(form['category_id']))
+    subcategory = SubCategory.query.get(int(form['subcategory_id']))
+    if form.get('subsubcategory_id'):
+        subsubcategory = SubSubCategory.query.get(int(form['subsubcategory_id']))
+    else:
+        subsubcategory = None
     item = Item(bank=bank,
                 question=form['question'],
                 desc=form['desc'],
