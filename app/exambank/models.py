@@ -17,6 +17,8 @@ class Bank(db.Model):
     name = db.Column('name', db.String(), nullable=False)
     subject = db.relationship('Subject', backref=db.backref('banks'))
 
+    categories = db.relationship('Category', secondary='bank_categories')
+
     def __str__(self):
         return self.name
 
@@ -42,14 +44,26 @@ class SubCategory(db.Model):
         return self.name
 
 
+class SubSubCategory(db.Model):
+    __tablename__ = 'sub_sub_categories'
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column('name', db.Text(), nullable=False)
+    subcategory_id = db.Column('category_id', db.ForeignKey('sub_categories.id'))
+    subcategory = db.relationship('SubCategory', backref=db.backref('subsubcategories'))
+    ref_no = db.Column('ref_no', db.String(), nullable=False)
+
+    def __str__(self):
+        return self.name
+
+
 class BankCategory(db.Model):
     __tablename__ = 'bank_categories'
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     category_id = db.Column('category_id', db.ForeignKey('categories.id'))
     bank_id = db.Column('bank_in', db.ForeignKey('banks.id'))
-    category = db.relationship('Category', backref=db.backref('banks',
+    category = db.relationship('Category', backref=db.backref('bank_categories',
                                                               cascade='all, delete-orphan'))
-    bank = db.relationship('Bank', backref=db.backref('categories',
+    bank = db.relationship('Bank', backref=db.backref('bank_categories',
                                                       cascade='all, delete-orphan'))
 
 
@@ -82,3 +96,9 @@ class Choice(db.Model):
 
     def __str__(self):
         return self.desc[:40]
+
+
+class NumChoice(db.Model):
+    __tablename__ = 'number_choice'
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    num = db.Column('num', db.Integer, default=5)

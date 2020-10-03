@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Exam Bank Page{% endblock %}
+
+{% block page_content %}
+<section class="section">
+    <div class="container">
+        <div class="columns">
+            <div class="column is-one-third is-offset-4">
+                <div class="box">
+                    <nav class="panel">
+                        <p class="panel-heading">
+                            Bank
+                        </p>
+                        {% for bank in banks %}
+                        <a class="panel-block" href="{{ url_for('exambank.list_categories', bank_id=bank.id) }}">
+                            {{ bank.subject.name }}
+                        </a>
+                        {% endfor %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

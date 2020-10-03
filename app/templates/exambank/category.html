@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}Exam Bank: Category{% endblock %}
+
+{% block page_content %}
+<section class="section">
+    <div class="container" id="app">
+        <div class="columns">
+            <div class="column is-two-fifths">
+                <aside class="menu">
+                    <p class="menu-label">
+                        กลุ่มสมรรถนะ
+                    </p>
+                    <ul class="menu-list" v-for="cat in categories">
+                        <li><a @click="fetchSubCategories(cat)"><% cat.name %></a></li>
+                    </ul>
+                    <p class="menu-label">
+                        สมรรถนะ
+                    </p>
+                    <ul class="menu-list" v-for="subcat in subcategories">
+                        <li><a @click="fetchSubSubCategories(subcat)"><% subcat.name %></a></li>
+                    </ul>
+                </aside>
+            </div>
+            <div class="column">
+                <div class="box">
+                    <form method="post" action="{{ url_for('exambank.preview') }}">
+                        <input type="hidden" name="category_id" v-model="category.id" v-if="category !== null">
+                        <input type="hidden" name="subcategory_id" v-model="subcategory.id" v-if="subcategory !== null">
+                        <label class="label">หัวข้อกลุ่มสมรรถนะ</label>
+                        <div v-if="category !== null">
+                            <% category.name %>
+                        </div>
+                        <div v-else>-</div>
+                        <label class="label">หัวข้อสมรรถนะ</label>
+                        <div v-if="subcategory !== null">
+                            <% subcategory.name %>
+                        </div>
+                        <div v-else>-</div>
+                        <div class="field">
+                            <label class="label">หัวข้อสมรรถนะย่อย</label>
+                            <div class="select"
+                                 v-if="subsubcategories.length>0">
+                                <select v-model="subsubcategoryId" name="subsubcategory_id">
+                                    <option v-for="subc in subsubcategories"
+                                            :value="subc.id"><% subc.name %>
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div v-if="subsubcategoryId !== null">
+                            <% subsubcategoryId %>
+                        </div>
+                        <div v-else>-</div>
+                        <div class="field">
+                            <div class="control">
+                                <textarea name="question"
+                                          placeholder="โจทย์ข้อสอบ"
+                                          required
+                                          class="textarea is-danger"></textarea>
+                            </div>
+                        </div>
+                        {% for i in choices %}
+                        <div class="field">
+                            <div class="control">
+                                <input type="text"
+                                       name="choice_{{loop.index}}"
+                                       class="input is-danger"
+                                       placeholder="ตัวเลือกคำตอบที่ {{ loop.index }}">
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <div class="field">
+                            <div class="control">
+                                <textarea name="desc"
+                                          placeholder="คำอธิบาย"
+                                          class="textarea"></textarea>
+                            </div>
+                            <p class="help is-info">Optional</p>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <input type="text"
+                                       name="ref"
+                                       class="input"
+                                       placeholder="อ้างอิง">
+                            </div>
+                            <p class="help is-info">Optional</p>
+                        </div>
+                        <div class="field is-grouped">
+                            <div class="control">
+                                <a href="" class="button is-light">Cancel</a>
+                                <button class="button is-success">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script>
+    new Vue({
+        el: '#app',
+        delimiters: ['<%', '%>'],
+        data() {
+            return {
+                categories: {{ categories|tojson|safe }},
+                subcategories: [],
+                subsubcategories: [],
+                category: null,
+                subcategory: null,
+                subsubcategoryId: null
+            }
+        },
+        methods: {
+            fetchSubCategories(cat) {
+                let self = this
+                self.subcategories = []
+                self.subsubcategories = []
+                self.category = cat
+                axios.get('/bank/api/categories/' + cat.id + '/subcategories').then((resp)=>{
+                    resp.data.forEach((item)=>{
+                        self.subcategories.push(item)
+                    })
+                })
+            },
+            fetchSubSubCategories(subcat) {
+                let self = this
+                self.subsubcategories = []
+                self.subcategory = subcat
+                axios.get('/bank/api/subcategories/' + subcat.id + '/subsubcategories').then((resp)=>{
+                    resp.data.forEach((item)=>{
+                        self.subsubcategories.push(item)
+                    })
+                })
+            },
+            setSubSubCategory(cat) {
+                this.subsubcategory = cat
+            }
+        }
+    })
+</script>
+{% endblock %}

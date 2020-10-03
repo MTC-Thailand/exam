@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Exam Bank: Category{% endblock %}
+
+{% block page_content %}
+<section class="section">
+    <div class="container" id="app">
+        <h1 class="title">Preview</h1>
+        <div class="columns">
+            <div class="column">
+                <p>หมวดสมรรถนะ</p>
+                <p>{{ category.name }}</p>
+                <p>สมรรถนะ</p>
+                <p>{{ subcategory.name }}</p>
+                <p>สมรรถนะย่อย</p>
+                <p>{{ subsubcategory.name }}</p>
+                <p>โจทย์คำถาม</p>
+                <p>
+                    {{ form['question'] }}
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

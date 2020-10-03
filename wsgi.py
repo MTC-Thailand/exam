@@ -13,8 +13,10 @@ admin.add_views(ModelView(Subject, db.session, category='ExamBank'))
 admin.add_views(ModelView(Bank, db.session, category='ExamBank'))
 admin.add_views(ModelView(Category, db.session, category='ExamBank'))
 admin.add_views(ModelView(SubCategory, db.session, category='ExamBank'))
+admin.add_views(ModelView(SubSubCategory, db.session, category='ExamBank'))
 admin.add_views(ModelView(Item, db.session, category='ExamBank'))
 admin.add_views(ModelView(Choice, db.session, category='ExamBank'))
+admin.add_views(ModelView(NumChoice, db.session, category='ExamBank'))
 
 
 @app.route('/')
