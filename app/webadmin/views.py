@@ -18,8 +18,7 @@ def list_questions(bank_id):
 @webadmin.route('/questions/<int:item_id>/preview')
 def preview(item_id):
     item = Item.query.get(item_id)
-    answer = Choice.query.get(item.answer_id)
-    return render_template('webadmin/preview.html', item=item, answer=answer)
+    return render_template('webadmin/preview.html', item=item)
 
 
 @webadmin.route('/<int:item_id>/submit')

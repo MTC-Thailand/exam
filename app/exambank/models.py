@@ -73,16 +73,17 @@ class Item(db.Model):
     question = db.Column('question', db.Text(), nullable=False)
     desc = db.Column('desc', db.Text())
     ref = db.Column('ref', db.String())
-    answer_id = db.Column('answer_id', db.ForeignKey('choices.id'))
-    # answer = db.relationship('Choice', uselist=False, foreign_keys=[answer_id])
     bank_id = db.Column('bank_id', db.ForeignKey('banks.id'))
     category_id = db.Column('category_id', db.ForeignKey('categories.id'))
     subcategory_id = db.Column('subcategory_id', db.ForeignKey('sub_categories.id'))
     subsubcategory_id = db.Column('subsubcategory_id', db.ForeignKey('sub_sub_categories.id'))
-    bank = db.relationship('Bank', backref=db.backref('items'))
-    category = db.relationship('Category', backref=db.backref('items'))
-    subcategory = db.relationship('SubCategory', backref=db.backref('items'))
-    subsubcategory = db.relationship('SubSubCategory', backref=db.backref('items'))
+    bank = db.relationship('Bank', backref=db.backref('items', cascade='all, delete-orphan'))
+    category = db.relationship('Category', backref=db.backref('items',
+                                                              cascade='all, delete-orphan'))
+    subcategory = db.relationship('SubCategory', backref=db.backref('items',
+                                                                    cascade='all, delete-orphan'))
+    subsubcategory = db.relationship('SubSubCategory', backref=db.backref('items',
+                                                                          cascade='all, delete-orphan'))
     created_at = db.Column('created_at', db.DateTime(timezone=True))
     updated_at = db.Column('updated_at', db.DateTime(timezone=True))
     status = db.Column('status', db.String(), default='draft')
@@ -90,13 +91,22 @@ class Item(db.Model):
     def __str__(self):
         return self.question[:40]
 
+    @property
+    def answer(self):
+        for choice in self.choices:
+            if choice.answer:
+                return choice
+
 
 class Choice(db.Model):
     __tablename__ = 'choices'
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     desc = db.Column('desc', db.Text(), nullable=False)
     item_id = db.Column('item_id', db.ForeignKey('items.id'))
-    item = db.relationship('Item', backref=db.backref('choices'), foreign_keys=[item_id])
+    item = db.relationship('Item',
+                           backref=db.backref('choices', cascade='all, delete-orphan'),
+                           foreign_keys=[item_id])
+    answer = db.Column('answer', db.Boolean(), default=False)
 
     def __str__(self):
         return self.desc[:40]

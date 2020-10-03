@@ -30,7 +30,7 @@
                         <tbody>
                         {% for choice in item.choices %}
                         <tr
-                            {% if choice.id == answer.id %}
+                            {% if choice.answer %}
                             bgcolor="#7fff00"
                             {% endif %}
                         >
@@ -41,7 +41,7 @@
                         </tbody>
                     </table>
                     <p class="label">คำตอบ</p>
-                    <p>{{ answer.desc }}</p>
+                    <p>{{ item.answer.desc }}</p>
                 </div>
                 <div class="buttons is-centered">
                     <a href=""

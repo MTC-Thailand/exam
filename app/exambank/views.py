@@ -53,7 +53,7 @@ def save(bank_id):
             db.session.add(choice)
             db.session.commit()
             if 'choice_{}'.format(form['answer_id']) == key:
-                item.answer_id = choice.id
+                choice.answer = True
     db.session.add(item)
     db.session.commit()
 
@@ -64,8 +64,7 @@ def save(bank_id):
 @exambank.route('/<int:item_id>/preview', methods=['GET'])
 def preview(item_id):
     item = Item.query.get(item_id)
-    answer = Choice.query.get(item.answer_id)
-    return render_template('exambank/preview.html', item=item, answer=answer)
+    return render_template('exambank/preview.html', item=item)
 
 
 @exambank.route('/<int:item_id>/submit')
