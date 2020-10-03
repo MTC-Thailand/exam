@@ -74,14 +74,18 @@ class Item(db.Model):
     desc = db.Column('desc', db.Text())
     ref = db.Column('ref', db.String())
     answer_id = db.Column('answer_id', db.ForeignKey('choices.id'))
-    answer = db.relationship('Choice', uselist=False, foreign_keys=[answer_id])
+    # answer = db.relationship('Choice', uselist=False, foreign_keys=[answer_id])
     bank_id = db.Column('bank_id', db.ForeignKey('banks.id'))
     category_id = db.Column('category_id', db.ForeignKey('categories.id'))
     subcategory_id = db.Column('subcategory_id', db.ForeignKey('sub_categories.id'))
+    subsubcategory_id = db.Column('subsubcategory_id', db.ForeignKey('sub_sub_categories.id'))
     bank = db.relationship('Bank', backref=db.backref('items'))
     category = db.relationship('Category', backref=db.backref('items'))
     subcategory = db.relationship('SubCategory', backref=db.backref('items'))
+    subsubcategory = db.relationship('SubSubCategory', backref=db.backref('items'))
     created_at = db.Column('created_at', db.DateTime(timezone=True))
+    updated_at = db.Column('updated_at', db.DateTime(timezone=True))
+    status = db.Column('status', db.String(), default='draft')
 
     def __str__(self):
         return self.question[:40]

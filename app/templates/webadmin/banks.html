@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Admin: Exam Banks{% endblock %}
+
+{% block page_content %}
+<section class="section">
+    <div class="container" id="app">
+        <div class="columns">
+            <div class="column is-two-thirds is-offset-2 box">
+                <table class="table is-fullwidth">
+                    <thead>
+                    <th>Subject</th>
+                    <th>Bank</th>
+                    <th>Questions</th>
+                    <th></th>
+                    </thead>
+                    <tbody>
+                    {% for bank in banks %}
+                    <tr>
+                        <td>{{ bank.subject }}</td>
+                        <td>{{ bank.name }}</td>
+                        <td>
+                            <a href="{{ url_for('webadmin.list_questions', bank_id=bank.id) }}">
+                                {{ bank.items|length }}
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Exam Bank: Category{% endblock %}
+{% block title %}Exam Bank: Edit Question{% endblock %}
 
 {% block page_content %}
 <section class="section">
@@ -22,9 +22,8 @@
                 </aside>
             </div>
             <div class="column">
-                {% include "messages.html" %}
                 <div class="box">
-                    <form method="post" action="{{ url_for('exambank.save', bank_id=bank.id, preview=True) }}">
+                    <form method="post" action="{{ url_for('exambank.preview') }}">
                         <input type="hidden" name="category_id" v-model="category.id" v-if="category !== null">
                         <input type="hidden" name="subcategory_id" v-model="subcategory.id" v-if="subcategory !== null">
                         <label class="label">หัวข้อกลุ่มสมรรถนะ</label>
@@ -48,6 +47,10 @@
                                 </select>
                             </div>
                         </div>
+                        <div v-if="subsubcategoryId !== null">
+                            <% subsubcategoryId %>
+                        </div>
+                        <div v-else>-</div>
                         <div class="field">
                             <div class="control">
                                 <textarea name="question"
@@ -121,12 +124,12 @@
         data() {
             return {
                 categories: {{ categories|tojson|safe }},
-                subcategories: [],
+            subcategories: [],
                 subsubcategories: [],
                 category: null,
                 subcategory: null,
                 subsubcategoryId: null
-            }
+        }
         },
         methods: {
             fetchSubCategories(catId) {
@@ -155,6 +158,17 @@
                 })
             }
         },
+        mounted() {
+            let categoryId = {{ category_id|tojson|safe }}
+            let subcategoryId = {{ subcategory_id|tojson|safe }}
+            this.subsubcategoryId = {{ subsubcategory_id|tojson|safe }}
+            if (categoryId !== null) {
+                this.fetchSubCategories(categoryId)
+            }
+            if (subcategoryId !== null) {
+                this.fetchSubSubCategories(subcategoryId)
+            }
+        }
     })
 </script>
 {% endblock %}

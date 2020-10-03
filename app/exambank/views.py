@@ -1,4 +1,6 @@
-from flask import render_template, jsonify, request
+from flask import render_template, jsonify, request, redirect, url_for, flash
+from app import db
+import arrow
 from . import exambank
 from .models import *
 
@@ -25,16 +27,52 @@ def list_categories(bank_id):
                            choices=range(num_choice.num))
 
 
-@exambank.route('/preview', methods=['POST'])
-def preview():
+@exambank.route('/<int:bank_id>/save', methods=['POST'])
+def save(bank_id):
+    bank = Bank.query.get(bank_id)
     form = request.form
+    preview = request.args.get('preview', False)
     category = Category.query.get(int(form['category_id']))
     subcategory = SubCategory.query.get(int(form['category_id']))
     subsubcategory = SubSubCategory.query.get(int(form['category_id']))
-    return render_template('exambank/preview.html', form=form,
-                           category=category,
-                           subsubcategory=subsubcategory,
-                           subcategory=subcategory)
+    item = Item(bank=bank,
+                question=form['question'],
+                desc=form['desc'],
+                ref=form['ref'],
+                category=category,
+                subcategory=subcategory,
+                subsubcategory=subsubcategory,
+                created_at=arrow.now(tz='Asia/Bangkok').datetime,
+                )
+    for key in form:
+        if key.startswith('choice'):
+            choice = Choice(desc=form[key], item=item)
+            db.session.add(choice)
+            db.session.commit()
+            if 'choice_{}'.format(form['answer_id']) == key:
+                item.answer_id = choice.id
+    db.session.add(item)
+    db.session.commit()
+
+    if preview:
+        return redirect(url_for('exambank.preview', item_id=item.id))
+
+
+@exambank.route('/<int:item_id>/preview', methods=['GET'])
+def preview(item_id):
+    item = Item.query.get(item_id)
+    answer = Choice.query.get(item.answer_id)
+    return render_template('exambank/preview.html', item=item, answer=answer)
+
+
+@exambank.route('/<int:item_id>/submit')
+def submit(item_id):
+    item = Item.query.get(item_id)
+    item.status = 'submit'
+    db.session.add(item)
+    db.session.commit()
+    flash('บันทึกข้อสอบเรียบร้อยแล้ว', 'success')
+    return redirect(url_for('exambank.list_categories', bank_id=item.bank.id))
 
 
 @exambank.route('/api/categories/<int:category_id>/subcategories')

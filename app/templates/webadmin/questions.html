@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Admin: Questions{% endblock %}
+
+{% block page_content %}
+<section class="section">
+    <div class="container" id="app">
+        <div class="columns">
+            <div class="column box">
+                <h1 class="title has-text-centered">{{ bank.name }}</h1>
+                <table class="table is-fullwidth">
+                    <col width="20%">
+                    <col width="20%">
+                    <col width="20%">
+                    <col width="30%">
+                    <col width="10%">
+                    <thead>
+                    <th>หมวดสมรรถนะ</th>
+                    <th>สมรรถนะ</th>
+                    <th>สมรรถนะย่อย</th>
+                    <th>โจทย์</th>
+                    <th>เพิ่มเมื่อ</th>
+                    </thead>
+                    <tbody>
+                    {% for q in bank.items %}
+                    <tr>
+                        <td>{{ q.category }}</td>
+                        <td>{{ q.subcategory }}</td>
+                        <td>{{ q.subsubcategory or '-' }}</td>
+                        <td>
+                            <a href="{{ url_for('webadmin.preview', item_id=q.id) }}">
+                                {{ q.question }}
+                            </a>
+                        </td>
+                        <td>
+                            {{ q.created_at|localdatetime }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
