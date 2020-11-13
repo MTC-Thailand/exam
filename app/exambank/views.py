@@ -24,7 +24,7 @@ def list_categories(bank_id):
     return render_template('exambank/category.html',
                            bank=bank,
                            categories=categories,
-                           choices=range(num_choice.num))
+                           choices=list(range(num_choice.num)))
 
 
 @exambank.route('/<int:bank_id>/save', methods=['POST'])
@@ -52,7 +52,7 @@ def save(bank_id):
             choice = Choice(desc=form[key], item=item)
             db.session.add(choice)
             db.session.commit()
-            if 'choice_{}'.format(form['answer_id']) == key:
+            if key == 'choice_1':
                 choice.answer = True
     db.session.add(item)
     db.session.commit()
