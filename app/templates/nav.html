@@ -34,12 +34,15 @@
     <div class="navbar-end">
       <div class="navbar-item">
         <div class="buttons">
-          <a class="button is-info">
-            <strong>Sign up</strong>
+        {% if current_user.is_authenticated %}
+          <a class="button is-info" href="{{ url_for('main.logout') }}">
+            <strong>Log out</strong>
           </a>
-          <a class="button is-success">
+        {% else %}
+          <a class="button is-success" href="{{ url_for('main.login') }}">
             Log in
           </a>
+        {% endif %}
         </div>
       </div>
     </div>

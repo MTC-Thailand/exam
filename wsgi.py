@@ -1,10 +1,11 @@
-from flask import redirect, url_for
+from flask import redirect, url_for, abort
 from flask_admin.contrib.sqla import ModelView
-from app import create_app, admin
+from app import create_app, admin, login
 from app.main import mainbp as main_blueprint
 from app.exambank import exambank as exambank_blueprint
 from app.webadmin import webadmin as webadmin_blueprint
 from app.exambank.models import *
+from app.main.models import User
 from pytz import timezone
 
 app = create_app()
@@ -20,6 +21,15 @@ admin.add_views(ModelView(SubSubCategory, db.session, category='ExamBank'))
 admin.add_views(ModelView(Item, db.session, category='ExamBank'))
 admin.add_views(ModelView(Choice, db.session, category='ExamBank'))
 admin.add_views(ModelView(NumChoice, db.session, category='ExamBank'))
+
+
+@login.user_loader
+def load_user(user_id):
+    user = User.query.get(int(user_id))
+    if not user:
+        abort(500)
+    else:
+        return user
 
 
 @app.route('/')

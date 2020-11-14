@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block page_content %}
+<section class="section">
+    <div class="container has-text-centered">
+        <div class="columns">
+            <div class="column is-half is-offset-one-quarter">
+                {% for message in get_flashed_messages() %}
+                <div class="notification is-warning">
+                    {{ message }}
+                </div>
+                {% endfor %}
+                <div class="box">
+                    <h1 class="title">ลงชื่อเข้าระบบ</h1>
+                    <form action="{{ url_for('main.login') }}" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <div class="field">
+                            <div class="control has-icons-left is-expanded">
+                                {{ form.username(placeholder='ใช้ username ของสถาบัน', class='input') }}
+                                <span class="icon is-small is-left">
+                                  <i class="fas fa-envelope"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control has-icons-left is-expanded">
+                                {{ form.password(placeholder='Password', class='input') }}
+                                <span class="icon is-small is-left">
+                                  <i class="fas fa-lock"></i>
+                                </span>
+                            </div>
+                        </div>
+                        {{ form.remember_me.label() }}
+                        {{ form.remember_me() }}
+                        <br>
+                        <br>
+                        <div class="field is-grouped is-grouped-centered">
+                            <div class="control">
+                                {{ form.submit(class='button is-info') }}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
