@@ -12,7 +12,7 @@
                             คลังข้อสอบ
                         </p>
                         {% for bank in banks %}
-                        <a class="panel-block" href="{{ url_for('exambank.list_categories', bank_id=bank.id) }}">
+                        <a class="panel-block" href="{{ url_for('exambank.list_questions', bank_id=bank.id) }}">
                             <span class="icon">
                                 <i class="fas fa-folder"></i>
                             </span>

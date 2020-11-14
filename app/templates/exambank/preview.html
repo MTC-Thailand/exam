@@ -43,9 +43,8 @@
                     </table>
                 </div>
                 <div class="buttons is-centered">
-                    <a href=""
-                       class="button is-light"
-                    >
+                    <a href="{{ url_for('exambank.edit', item_id=item.id) }}"
+                       class="button is-light">
                         <span class="icon">
                             <i class="fas fa-pencil-alt"></i>
                         </span>

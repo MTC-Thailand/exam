@@ -5,25 +5,35 @@ from . import exambank
 from .models import *
 
 
-@exambank.route('/')
-def index():
-    banks = Bank.query.all()
-    return render_template('exambank/index.html', banks=banks)
-
-
-@exambank.route('/<int:bank_id>/categories')
-def list_categories(bank_id):
-    bank = Bank.query.get(bank_id)
-    num_choice = NumChoice.query.first()
+def get_categories(bank):
     categories = []
     for cat in bank.categories:
         categories.append({
             'id': cat.id,
             'name': cat.name
         })
+    return categories
+
+
+@exambank.route('/')
+def index():
+    banks = Bank.query.all()
+    return render_template('exambank/index.html', banks=banks)
+
+
+@exambank.route('/<int:bank_id>/questions')
+def list_questions(bank_id):
+    bank = Bank.query.get(bank_id)
+    return render_template('exambank/questions.html', bank=bank)
+
+
+@exambank.route('/<int:bank_id>/categories')
+def list_categories(bank_id):
+    bank = Bank.query.get(bank_id)
+    num_choice = NumChoice.query.first()
     return render_template('exambank/category.html',
                            bank=bank,
-                           categories=categories,
+                           categories=get_categories(bank),
                            choices=list(range(num_choice.num)))
 
 
@@ -67,6 +77,36 @@ def preview(item_id):
     return render_template('exambank/preview.html', item=item)
 
 
+@exambank.route('/<int:item_id>/edit', methods=['GET', 'POST'])
+def edit(item_id):
+    item = Item.query.get(item_id)
+    if request.method == 'POST':
+        form = request.form
+        preview = request.args.get('preview', False)
+        item.question = form['question']
+        item.desc = form['desc']
+        item.ref = form['ref']
+        item.updated_at = arrow.now(tz='Asia/Bangkok').datetime
+        for key in form:
+            if key.startswith('choice'):
+                choice_id = int(key.replace('choice_', ''))
+                choice = Choice.query.get(choice_id)
+                choice.desc = form[key]
+                db.session.add(choice)
+        db.session.add(item)
+        db.session.commit()
+
+        if preview:
+            return redirect(url_for('exambank.preview', item_id=item.id))
+        else:
+            return redirect(url_for('exambank.list_questions', bank_id=item.bank.id))
+
+    return render_template('exambank/edit_question.html',
+                           categories=get_categories(item.bank),
+                           choices=[c.id for c in item.choices],
+                           item=item)
+
+
 @exambank.route('/<int:item_id>/submit')
 def submit(item_id):
     item = Item.query.get(item_id)
@@ -74,7 +114,7 @@ def submit(item_id):
     db.session.add(item)
     db.session.commit()
     flash('บันทึกข้อสอบเรียบร้อยแล้ว', 'success')
-    return redirect(url_for('exambank.list_categories', bank_id=item.bank.id))
+    return redirect(url_for('exambank.list_questions', bank_id=item.bank.id))
 
 
 @exambank.route('/api/categories/<int:category_id>/subcategories')
