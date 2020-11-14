@@ -8,59 +8,42 @@
         <div class="columns">
             <div class="column is-two-thirds is-offset-2">
                 <div class="box">
-                    <div class="notification is-light is-warning">
-                        <strong>Status:</strong> {{ item.status }}
+                    <div class="notification is-warning has-text-centered">
+                        <strong>{{ item.status|upper }}</strong>
                     </div>
                     <p class="label">หมวดสมรรถนะ</p>
-                    <p>{{ item.category.name }}</p>
+                    <div class="notification">{{ item.category.name }}</div>
                     <p class="label">สมรรถนะ</p>
-                    <p>{{ item.subcategory.name }}</p>
+                    <div class="notification">{{ item.subcategory.name }}</div>
                     <p class="label">สมรรถนะย่อย</p>
-                    <p>{{ item.subsubcategory.name }}</p>
+                    <div class="notification">{{ item.subsubcategory.name }}</div>
                     <p class="label">โจทย์คำถาม</p>
-                    <p>
-                        {{ item.question }}
-                    </p>
-                    <p class="label">ตัวเลือกคำตอบ</p>
+                    <div class="notification">
+                        {{ item.question|safe }}
+                    </div>
                     <table class="table is-fullwidth">
                         <thead>
                         <th>ข้อที่</th>
                         <th>คำตอบ</th>
                         </thead>
                         <tbody>
-                        {% for choice in item.choices %}
-                        <tr
-                            {% if choice.answer %}
-                            bgcolor="#7fff00"
-                            {% endif %}
-                        >
+                        <p class="label">คำตอบ</p>
+                        <div class="notification is-light is-success">
+                            {{ item.answer.desc|safe }}
+                        </div>
+                        <p class="label">ตัวเลือกลวง</p>
+                        {% for choice in item.choices if not choice.answer %}
+                        <tr>
                             <td>{{ loop.index }}</td>
-                            <td>{{ choice.desc }}</td>
+                            <td>{{ choice.desc|safe }}</td>
                         </tr>
                         {% endfor %}
                         </tbody>
                     </table>
-                    <p class="label">คำตอบ</p>
-                    <p>{{ item.answer.desc }}</p>
                 </div>
                 <div class="buttons is-centered">
-                    <a href=""
-                       class="button is-light"
-                    >
-                        <span class="icon">
-                            <i class="fas fa-pencil-alt"></i>
-                        </span>
-                        <span>
-                            Edit
-                        </span>
-                    </a>
-                    <a href="{{ url_for('webadmin.submit', item_id=item.id) }}"
-                       class="button is-success"
-                    >
-                        <span class="icon">
-                            <i class="fas fa-check"></i>
-                        </span>
-                        <span>Submit</span>
+                    <a href="{{ url_for('webadmin.list_questions', bank_id=item.bank.id) }}" class="button is-light">
+                        <span>Back</span>
                     </a>
                 </div>
             </div>
