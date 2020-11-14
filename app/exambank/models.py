@@ -68,6 +68,17 @@ class BankCategory(db.Model):
                                                       cascade='all, delete-orphan'))
 
 
+class Figure(db.Model):
+    __tablename__ = 'figures'
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    url = db.Column('url', db.String(), nullable=False)
+    filename = db.Column('filename', db.String(), nullable=False)
+    desc = db.Column('desc', db.Text())
+    ref = db.Column('reference', db.Text())
+    item_id = db.Column('item_id', db.ForeignKey('items.id'))
+    item = db.relationship('Item', backref=db.backref('figure', uselist=False))
+
+
 class Item(db.Model):
     __tablename__ = 'items'
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
@@ -90,6 +101,7 @@ class Item(db.Model):
     status = db.Column('status', db.String(), default='draft')
     user_id = db.Column('user_id', db.ForeignKey('users.id'))
     user = db.relationship(User, backref=db.backref('questions'))
+
 
     def __str__(self):
         return self.question[:40]
