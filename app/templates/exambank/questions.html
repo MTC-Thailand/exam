@@ -16,12 +16,14 @@
                         <span>เพิ่มข้อสอบ</span></a>
                 </div>
                 <table class="table is-fullwidth">
-                    <col width="20%">
-                    <col width="20%">
-                    <col width="20%">
+                    <col width="10%">
+                    <col width="10%">
+                    <col width="10%">
                     <col width="30%">
-                    <col width="5%">
-                    <col width="5%">
+                    <col width="10%">
+                    <col width="10%">
+                    <col width="10%">
+                    <col width="10%">
                     <thead>
                     <th>หมวดสมรรถนะ</th>
                     <th>สมรรถนะ</th>
@@ -30,6 +32,7 @@
                     <th>เพิ่มเมื่อ</th>
                     <th>แก้ไขล่าสุด</th>
                     <th>สถานะ</th>
+                    <th></th>
                     </thead>
                     <tbody>
                     {% for q in bank.items %}
@@ -59,6 +62,20 @@
                                     {{ q.status }}
                                 </span>
                                 {% endif %}
+                            </td>
+                            <td>
+                                <div class="buttons">
+                                    <a href="{{ url_for('exambank.edit', item_id=q.id) }}" class="button is-light">
+                                        <span class="icon">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </span>
+                                    </a>
+                                    <a href="{{ url_for('exambank.discard', item_id=q.id) }}" class="button is-danger">
+                                        <span class="icon">
+                                            <i class="far fa-trash-alt"></i>
+                                        </span>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         {% endif %}

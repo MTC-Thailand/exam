@@ -43,10 +43,14 @@
                         <div class="notification is-light is-warning">
                             <div class="field">
                                 <label class="label">รูปภาพประกอบ</label>
+                                {% if item.figure %}
                                 <img src="https://drive.google.com/uc?id={{ item.figure.url }}" width="700">
+                                {% endif %}
                                 <div class="control">
                                     <input type="file" name="figure">
+                                    {% if item.figure %}
                                     <p class="help is-danger">ภาพเก่าจะถูกแทนที่ด้วยภาพใหม่</p>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="field">

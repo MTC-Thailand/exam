@@ -201,3 +201,16 @@ def get_subsubcategories(subcategory_id):
         })
 
     return jsonify(subsubcategories)
+
+
+@exambank.route('/<int:item_id>/discard', methods=['GET', 'POST'])
+@login_required
+def discard(item_id):
+    item = Item.query.get(item_id)
+    if item:
+        item.status = 'discarded'
+        db.session.add(item)
+        db.session.commit()
+        flash('The item has been discarded.', 'success')
+    else:
+        flash('The item does not exists.', 'warning')

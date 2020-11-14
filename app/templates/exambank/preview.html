@@ -23,6 +23,7 @@
                         {{ item.question|safe }}
                     </div>
                     <p class="label">ภาพประกอบ</p>
+                    {% if item.figure %}
                     <div class="notification is-white">
                         <img src="https://drive.google.com/uc?id={{ item.figure.url }}" width="700">
                         <p class="label">คำอธิบายภาพ</p>
@@ -30,6 +31,9 @@
                         <p class="label">ที่มาของภาพ</p>
                         <p>{{ item.figure.ref }}</p>
                     </div>
+                    {% else %}
+                        N/A
+                    {% endif %}
                     <p class="label">คำตอบ</p>
                     <div class="notification is-light is-success">
                         {{ item.answer.desc|safe }}
@@ -52,6 +56,15 @@
                 </div>
                 {% if item.status != 'submit' %}
                 <div class="buttons is-centered">
+                    <a href="{{ url_for('exambank.list_questions', bank_id=item.bank.id) }}"
+                       class="button is-light is-danger">
+                        <span class="icon">
+                            <i class="far fa-times-circle"></i>
+                        </span>
+                        <span>
+                            Close
+                        </span>
+                    </a>
                     <a href="{{ url_for('exambank.edit', item_id=item.id) }}"
                        class="button is-light">
                         <span class="icon">
