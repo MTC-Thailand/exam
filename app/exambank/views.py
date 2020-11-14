@@ -1,4 +1,5 @@
 from flask import render_template, jsonify, request, redirect, url_for, flash
+from flask_login import login_required, current_user
 from app import db
 import arrow
 from . import exambank
@@ -16,18 +17,21 @@ def get_categories(bank):
 
 
 @exambank.route('/')
+@login_required
 def index():
     banks = Bank.query.all()
     return render_template('exambank/index.html', banks=banks)
 
 
 @exambank.route('/<int:bank_id>/questions')
+@login_required
 def list_questions(bank_id):
     bank = Bank.query.get(bank_id)
     return render_template('exambank/questions.html', bank=bank)
 
 
 @exambank.route('/<int:bank_id>/categories')
+@login_required
 def list_categories(bank_id):
     bank = Bank.query.get(bank_id)
     num_choice = NumChoice.query.first()
@@ -38,6 +42,7 @@ def list_categories(bank_id):
 
 
 @exambank.route('/<int:bank_id>/save', methods=['POST'])
+@login_required
 def save(bank_id):
     bank = Bank.query.get(bank_id)
     form = request.form
@@ -56,6 +61,7 @@ def save(bank_id):
                 subcategory=subcategory,
                 subsubcategory=subsubcategory,
                 created_at=arrow.now(tz='Asia/Bangkok').datetime,
+                user=current_user
                 )
     for key in form:
         if key.startswith('choice'):
@@ -72,12 +78,14 @@ def save(bank_id):
 
 
 @exambank.route('/<int:item_id>/preview', methods=['GET'])
+@login_required
 def preview(item_id):
     item = Item.query.get(item_id)
     return render_template('exambank/preview.html', item=item)
 
 
 @exambank.route('/<int:item_id>/edit', methods=['GET', 'POST'])
+@login_required
 def edit(item_id):
     item = Item.query.get(item_id)
     if request.method == 'POST':
@@ -108,6 +116,7 @@ def edit(item_id):
 
 
 @exambank.route('/<int:item_id>/submit')
+@login_required
 def submit(item_id):
     item = Item.query.get(item_id)
     item.status = 'submit'
@@ -118,6 +127,7 @@ def submit(item_id):
 
 
 @exambank.route('/api/categories/<int:category_id>/subcategories')
+@login_required
 def get_subcategories(category_id):
     category = Category.query.get(category_id)
     subcategories = []
@@ -131,6 +141,7 @@ def get_subcategories(category_id):
 
 
 @exambank.route('/api/subcategories/<int:subcategory_id>/subsubcategories')
+@login_required
 def get_subsubcategories(subcategory_id):
     subcategory = SubCategory.query.get(subcategory_id)
     subsubcategories = []

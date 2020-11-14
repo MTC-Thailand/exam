@@ -21,26 +21,32 @@
                     <th>สมรรถนะย่อย</th>
                     <th>โจทย์</th>
                     <th>เพิ่มเมื่อ</th>
+                    <th>แก้ไขล่าสุด</th>
                     <th>สถานะ</th>
                     </thead>
                     <tbody>
                     {% for q in bank.items %}
-                    <tr>
-                        <td>{{ q.category }}</td>
-                        <td>{{ q.subcategory }}</td>
-                        <td>{{ q.subsubcategory or '-' }}</td>
-                        <td>
-                            <a href="{{ url_for('webadmin.preview', item_id=q.id) }}">
-                                {{ q.question }}
-                            </a>
-                        </td>
-                        <td>
-                            {{ q.created_at|localdatetime }}
-                        </td>
-                        <td>
-                            {{ q.status }}
-                        </td>
-                    </tr>
+                        {% if q.status == 'submit' %}
+                        <tr>
+                            <td>{{ q.category }}</td>
+                            <td>{{ q.subcategory }}</td>
+                            <td>{{ q.subsubcategory or '-' }}</td>
+                            <td>
+                                <a href="{{ url_for('webadmin.preview', item_id=q.id) }}">
+                                    {{ q.question|safe }}
+                                </a>
+                            </td>
+                            <td>
+                                {{ q.created_at|localdatetime }}
+                            </td>
+                            <td>
+                                {{ q.updated_at|localdatetime }}
+                            </td>
+                            <td>
+                                {{ q.status }}
+                            </td>
+                        </tr>
+                        {% endif %}
                     {% endfor %}
                     </tbody>
                 </table>

@@ -12,6 +12,7 @@
             <div class="column">
                 <div class="box">
                     <form method="post" action="{{ url_for('exambank.edit', item_id=item.id, preview=True) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <label class="label">หัวข้อกลุ่มสมรรถนะ</label>
                         <div class="notification is-white">
                             {{ item.category.name }}

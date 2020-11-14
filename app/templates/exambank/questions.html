@@ -33,33 +33,35 @@
                     </thead>
                     <tbody>
                     {% for q in bank.items %}
-                    <tr>
-                        <td>{{ q.category }}</td>
-                        <td>{{ q.subcategory }}</td>
-                        <td>{{ q.subsubcategory or '-' }}</td>
-                        <td>
-                            <a href="{{ url_for('exambank.preview', item_id=q.id) }}">
-                                {{ q.question|safe }}
-                            </a>
-                        </td>
-                        <td>
-                            {{ q.created_at|localdatetime }}
-                        </td>
-                        <td>
-                            {{ q.updated_at|localdatetime or q.created_at|localdatetime }}
-                        </td>
-                        <td>
-                            {% if q.status == 'submit' %}
-                            <span class="tag is-success">
-                                {{ q.status }}
-                            </span>
-                            {% else %}
-                                <span class="tag is-warning">
-                                {{ q.status }}
-                            </span>
-                            {% endif %}
-                        </td>
-                    </tr>
+                        {% if q.user == current_user %}
+                        <tr>
+                            <td>{{ q.category }}</td>
+                            <td>{{ q.subcategory }}</td>
+                            <td>{{ q.subsubcategory or '-' }}</td>
+                            <td>
+                                <a href="{{ url_for('exambank.preview', item_id=q.id) }}">
+                                    {{ q.question|safe }}
+                                </a>
+                            </td>
+                            <td>
+                                {{ q.created_at|localdatetime }}
+                            </td>
+                            <td>
+                                {{ q.updated_at|localdatetime or q.created_at|localdatetime }}
+                            </td>
+                            <td>
+                                {% if q.status == 'submit' %}
+                                <span class="tag is-success">
+                                    {{ q.status }}
+                                </span>
+                                {% else %}
+                                    <span class="tag is-warning">
+                                    {{ q.status }}
+                                </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endif %}
                     {% endfor %}
                     </tbody>
                 </table>
