@@ -83,7 +83,7 @@
                         </div>
                         <div class="field is-grouped is-grouped-centered">
                             <div class="control">
-                                <a href="" class="button is-light">Cancel</a>
+                                <a href="{{ url_for('exambank.list_questions', bank_id=item.bank.id) }}" class="button is-light">Cancel</a>
                                 <button class="button is-success">Save</button>
                             </div>
                         </div>

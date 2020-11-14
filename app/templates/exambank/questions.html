@@ -28,6 +28,7 @@
                     <th>สมรรถนะย่อย</th>
                     <th>โจทย์</th>
                     <th>เพิ่มเมื่อ</th>
+                    <th>แก้ไขล่าสุด</th>
                     <th>สถานะ</th>
                     </thead>
                     <tbody>
@@ -45,7 +46,18 @@
                             {{ q.created_at|localdatetime }}
                         </td>
                         <td>
-                            {{ q.status }}
+                            {{ q.updated_at|localdatetime or q.created_at|localdatetime }}
+                        </td>
+                        <td>
+                            {% if q.status == 'submit' %}
+                            <span class="tag is-success">
+                                {{ q.status }}
+                            </span>
+                            {% else %}
+                                <span class="tag is-warning">
+                                {{ q.status }}
+                            </span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
