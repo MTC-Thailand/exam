@@ -27,7 +27,9 @@
             <div class="column">
                 {% include "messages.html" %}
                 <div class="box">
-                    <form method="post" action="{{ url_for('exambank.save', bank_id=bank.id, preview=True) }}">
+                    <form method="post"
+                          enctype="multipart/form-data"
+                          action="{{ url_for('exambank.save', bank_id=bank.id, preview=True) }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <input type="hidden" name="category_id" v-model="category.id" v-if="category !== null">
                         <input type="hidden" name="subcategory_id" v-model="subcategory.id" v-if="subcategory !== null">
@@ -60,6 +62,23 @@
                                           required
                                           class="textarea is-danger"></textarea>
                                 <p class="help is-danger">* required</p>
+                            </div>
+                        </div>
+                        <div class="notification is-light is-warning">
+                            <div class="field">
+                                <label class="label">เพิ่มรูปภาพประกอบ</label>
+                                <div class="control">
+                                    <input type="file" name="figure">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label">คำอธิบายภาพ</label>
+                                <textarea class="textarea" name="figdesc"></textarea>
+                            </div>
+                            <div class="field">
+                                <label class="label">ที่มาของภาพ</label>
+                                <textarea class="textarea" name="figref"></textarea>
+                                <p class="help is-info">กรุณาระบุที่มาของภาพเพื่อการอ้างอิงเรื่องลิขสิทธิ์</p>
                             </div>
                         </div>
                         {% for i in choices %}

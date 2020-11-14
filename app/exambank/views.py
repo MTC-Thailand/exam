@@ -1,9 +1,24 @@
+import os
+import arrow
+import requests
 from flask import render_template, jsonify, request, redirect, url_for, flash
 from flask_login import login_required, current_user
+from pydrive.auth import ServiceAccountCredentials, GoogleAuth
+from pydrive.drive import GoogleDrive
+from werkzeug.utils import secure_filename
+
 from app import db
-import arrow
 from . import exambank
 from .models import *
+
+
+gauth = GoogleAuth()
+keyfile_dict = requests.get(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')).json()
+scopes = ['https://www.googleapis.com/auth/drive']
+gauth.credentials = ServiceAccountCredentials.from_json_keyfile_dict(keyfile_dict, scopes)
+drive = GoogleDrive(gauth)
+
+ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'tiff'}
 
 
 def get_categories(bank):
@@ -53,6 +68,7 @@ def save(bank_id):
         subsubcategory = SubSubCategory.query.get(int(form['subsubcategory_id']))
     else:
         subsubcategory = None
+
     item = Item(bank=bank,
                 question=form['question'],
                 desc=form['desc'],
@@ -63,6 +79,22 @@ def save(bank_id):
                 created_at=arrow.now(tz='Asia/Bangkok').datetime,
                 user=current_user
                 )
+    if 'figure' in request.files:
+        upfile = request.files.get('figure')
+        filename = secure_filename(upfile.filename)
+        upfile.save(filename)
+        file_drive = drive.CreateFile({'title': filename})
+        file_drive.SetContentFile(filename)
+        file_drive.Upload()
+        permission = file_drive.InsertPermission({'type': 'anyone',
+                                                  'value': 'anyone',
+                                                  'role': 'reader'})
+        fig = Figure(url=file_drive['id'],
+                     filename=filename,
+                     desc=form.get('figdesc'),
+                     ref=form.get('figref'),
+                     item=item)
+        db.session.add(fig)
     for key in form:
         if key.startswith('choice'):
             choice = Choice(desc=form[key], item=item)
@@ -95,6 +127,23 @@ def edit(item_id):
         item.desc = form['desc']
         item.ref = form['ref']
         item.updated_at = arrow.now(tz='Asia/Bangkok').datetime
+
+        if 'figure' in request.files:
+            upfile = request.files.get('figure')
+            filename = secure_filename(upfile.filename)
+            upfile.save(filename)
+            file_drive = drive.CreateFile({'title': filename})
+            file_drive.SetContentFile(filename)
+            file_drive.Upload()
+            permission = file_drive.InsertPermission({'type': 'anyone',
+                                                      'value': 'anyone',
+                                                      'role': 'reader'})
+            fig = Figure(url=file_drive['id'],
+                         filename=filename,
+                         desc=form.get('figdesc'),
+                         ref=form.get('figref'),
+                         item=item)
+            db.session.add(fig)
         for key in form:
             if key.startswith('choice'):
                 choice_id = int(key.replace('choice_', ''))

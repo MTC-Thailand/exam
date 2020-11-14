@@ -11,7 +11,9 @@
         <div class="columns">
             <div class="column">
                 <div class="box">
-                    <form method="post" action="{{ url_for('exambank.edit', item_id=item.id, preview=True) }}">
+                    <form method="post"
+                          enctype="multipart/form-data"
+                          action="{{ url_for('exambank.edit', item_id=item.id, preview=True) }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <label class="label">หัวข้อกลุ่มสมรรถนะ</label>
                         <div class="notification is-white">
@@ -38,6 +40,25 @@
                             </div>
                         </div>
                     </div>
+                        <div class="notification is-light is-warning">
+                            <div class="field">
+                                <label class="label">รูปภาพประกอบ</label>
+                                <img src="https://drive.google.com/uc?id={{ item.figure.url }}" width="700">
+                                <div class="control">
+                                    <input type="file" name="figure">
+                                    <p class="help is-danger">ภาพเก่าจะถูกแทนที่ด้วยภาพใหม่</p>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label">คำอธิบายภาพ</label>
+                                <textarea class="textarea" name="figdesc">{{ item.figure.desc }}</textarea>
+                            </div>
+                            <div class="field">
+                                <label class="label">ที่มาของภาพ</label>
+                                <textarea class="textarea" name="figref">{{ item.figure.ref }}</textarea>
+                                <p class="help is-info">กรุณาระบุที่มาของภาพเพื่อการอ้างอิงเรื่องลิขสิทธิ์</p>
+                            </div>
+                        </div>
                     <div class="notification is-light is-success">
                         <div class="field">
                             <label class="label">คำตอบ</label>

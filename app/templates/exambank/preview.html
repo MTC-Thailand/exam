@@ -22,6 +22,14 @@
                     <div class="notification is-light is-info">
                         {{ item.question|safe }}
                     </div>
+                    <p class="label">ภาพประกอบ</p>
+                    <div class="notification is-white">
+                        <img src="https://drive.google.com/uc?id={{ item.figure.url }}" width="700">
+                        <p class="label">คำอธิบายภาพ</p>
+                        <p>{{ item.figure.desc }}</p>
+                        <p class="label">ที่มาของภาพ</p>
+                        <p>{{ item.figure.ref }}</p>
+                    </div>
                     <p class="label">คำตอบ</p>
                     <div class="notification is-light is-success">
                         {{ item.answer.desc|safe }}
