@@ -5,24 +5,34 @@
 <section class="section">
     <div class="container" id="app">
         {% include "messages.html" %}
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="{{ url_for('exambank.index') }}">คลังข้อสอบชุด{{ bank.name }}</a></li>
+                <li class="is-active"><a href="#">วิชา{{ bank.subject }}</a></li>
+            </ul>
+        </nav>
         <div class="columns">
-            <div class="column box">
-                <h1 class="title has-text-centered">{{ bank.name }}</h1>
-                <table class="table is-fullwidth">
-                    <col width="20%">
-                    <col width="20%">
-                    <col width="20%">
+            <div class="column">
+                {% include "messages.html" %}
+                <h1 class="title has-text-centered is-size-4">{{ bank.subject }}</h1>
+                <table class="table is-striped is-fullwidth">
+                    <col width="10%">
+                    <col width="10%">
+                    <col width="10%">
                     <col width="30%">
-                    <col width="5%">
-                    <col width="5%">
+                    <col width="10%">
+                    <col width="10%">
+                    <col width="10%">
+                    <col width="10%">
                     <thead>
                     <th>หมวดสมรรถนะ</th>
                     <th>สมรรถนะ</th>
                     <th>สมรรถนะย่อย</th>
                     <th>โจทย์</th>
+                    <th>โดย</th>
                     <th>เพิ่มเมื่อ</th>
                     <th>แก้ไขล่าสุด</th>
-                    <th>สถานะ</th>
+                    <th>ส่งเมื่อ</th>
                     </thead>
                     <tbody>
                     {% for q in bank.items %}
@@ -37,13 +47,16 @@
                                 </a>
                             </td>
                             <td>
+                                {{ q.user.username }}
+                            </td>
+                            <td>
                                 {{ q.created_at|localdatetime }}
                             </td>
                             <td>
                                 {{ q.updated_at|localdatetime }}
                             </td>
                             <td>
-                                {{ q.status }}
+                                {{ q.submitted_at|localdatetime }}
                             </td>
                         </tr>
                         {% endif %}

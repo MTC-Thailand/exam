@@ -14,6 +14,7 @@ def index():
 @main.route('/logout')
 def logout():
     logout_user()
+    flash('Logged out successfully', 'success')
     return redirect(url_for('main.index'))
 
 @main.route('/login', methods=['GET', 'POST'])
@@ -28,10 +29,10 @@ def login():
                     status = login_user(user, form.remember_me.data)
                     if status:
                         print(current_user.username)
-                        flash('Login success.')
+                        flash('Logged in successfully.', 'success')
                         return redirect(nextUrl or url_for('main.index'))
                     else:
-                        flash('Failed to login.')
+                        flash('Failed to login.', 'danger')
                         return redirect(url_for('main.login'))
                 else:
                     flash('User does not exist.', 'danger')

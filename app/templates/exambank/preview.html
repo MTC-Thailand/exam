@@ -4,9 +4,17 @@
 {% block page_content %}
 <section class="section">
     <div class="container" id="app">
+    <nav class="breadcrumb" aria-label="breadcrumbs">
+      <ul>
+        <li><a href="{{ url_for('exambank.index') }}">คลังข้อสอบชุด{{ item.bank.name }}</a></li>
+        <li><a href="{{ url_for('exambank.list_questions', bank_id=item.bank.id) }}">วิชา{{ item.bank.subject }}</a></li>
+        <li class="is-active"><a href="#" aria-current="page">Preview</a></li>
+      </ul>
+    </nav>
         <h1 class="title has-text-centered">Preview</h1>
         <div class="columns">
             <div class="column is-two-thirds is-offset-2">
+                {% include "messages.html" %}
                 <div class="box">
                     <div class="notification is-warning has-text-centered">
                         <strong>{{ item.status|upper }}</strong>

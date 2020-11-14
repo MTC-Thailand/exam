@@ -98,6 +98,7 @@ class Item(db.Model):
                                                                           cascade='all, delete-orphan'))
     created_at = db.Column('created_at', db.DateTime(timezone=True))
     updated_at = db.Column('updated_at', db.DateTime(timezone=True))
+    submitted_at = db.Column('submitted_at', db.DateTime(timezone=True))
     status = db.Column('status', db.String(), default='draft')
     user_id = db.Column('user_id', db.ForeignKey('users.id'))
     user = db.relationship(User, backref=db.backref('questions'))

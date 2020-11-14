@@ -2,11 +2,19 @@ from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
+class Role(db.Model):
+    __tablename__ = 'roles'
+    id = db.Column('id', db.Integer(), primary_key=True, autoincrement=True)
+    role = db.Column('role', db.String(), nullable=False)
+
+
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column('id', db.Integer(), primary_key=True, autoincrement=True)
     username = db.Column('username', db.String(), nullable=False, unique=True)
     password_hash = db.Column('password_hash', db.String(), nullable=True)
+    role_id = db.Column('role_id', db.ForeignKey('roles.id'))
+    role = db.relationship(Role, backref=db.backref('users'))
 
     @property
     def has_password(self):

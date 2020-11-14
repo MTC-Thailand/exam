@@ -1,27 +1,32 @@
 from . import webadmin
 from app.exambank.models import *
+from app import superuser
 from flask import redirect, url_for, render_template, flash
 
 
 @webadmin.route('/banks')
+@superuser
 def list_banks():
     banks = Bank.query.all()
     return render_template('webadmin/banks.html', banks=banks)
 
 
 @webadmin.route('/banks/<int:bank_id>/questions')
+@superuser
 def list_questions(bank_id):
     bank = Bank.query.get(bank_id)
     return render_template('webadmin/questions.html', bank=bank)
 
 
 @webadmin.route('/questions/<int:item_id>/preview')
+@superuser
 def preview(item_id):
     item = Item.query.get(item_id)
     return render_template('webadmin/preview.html', item=item)
 
 
 @webadmin.route('/<int:item_id>/submit')
+@superuser
 def submit(item_id):
     item = Item.query.get(item_id)
     item.status = 'submit'

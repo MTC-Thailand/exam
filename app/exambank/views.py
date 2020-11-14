@@ -82,19 +82,20 @@ def save(bank_id):
     if 'figure' in request.files:
         upfile = request.files.get('figure')
         filename = secure_filename(upfile.filename)
-        upfile.save(filename)
-        file_drive = drive.CreateFile({'title': filename})
-        file_drive.SetContentFile(filename)
-        file_drive.Upload()
-        permission = file_drive.InsertPermission({'type': 'anyone',
-                                                  'value': 'anyone',
-                                                  'role': 'reader'})
-        fig = Figure(url=file_drive['id'],
-                     filename=filename,
-                     desc=form.get('figdesc'),
-                     ref=form.get('figref'),
-                     item=item)
-        db.session.add(fig)
+        if filename:
+            upfile.save(filename)
+            file_drive = drive.CreateFile({'title': filename})
+            file_drive.SetContentFile(filename)
+            file_drive.Upload()
+            permission = file_drive.InsertPermission({'type': 'anyone',
+                                                      'value': 'anyone',
+                                                      'role': 'reader'})
+            fig = Figure(url=file_drive['id'],
+                         filename=filename,
+                         desc=form.get('figdesc'),
+                         ref=form.get('figref'),
+                         item=item)
+            db.session.add(fig)
     for key in form:
         if key.startswith('choice'):
             choice = Choice(desc=form[key], item=item)
@@ -131,19 +132,20 @@ def edit(item_id):
         if 'figure' in request.files:
             upfile = request.files.get('figure')
             filename = secure_filename(upfile.filename)
-            upfile.save(filename)
-            file_drive = drive.CreateFile({'title': filename})
-            file_drive.SetContentFile(filename)
-            file_drive.Upload()
-            permission = file_drive.InsertPermission({'type': 'anyone',
-                                                      'value': 'anyone',
-                                                      'role': 'reader'})
-            fig = Figure(url=file_drive['id'],
-                         filename=filename,
-                         desc=form.get('figdesc'),
-                         ref=form.get('figref'),
-                         item=item)
-            db.session.add(fig)
+            if filename:
+                upfile.save(filename)
+                file_drive = drive.CreateFile({'title': filename})
+                file_drive.SetContentFile(filename)
+                file_drive.Upload()
+                permission = file_drive.InsertPermission({'type': 'anyone',
+                                                          'value': 'anyone',
+                                                          'role': 'reader'})
+                fig = Figure(url=file_drive['id'],
+                             filename=filename,
+                             desc=form.get('figdesc'),
+                             ref=form.get('figref'),
+                             item=item)
+                db.session.add(fig)
         for key in form:
             if key.startswith('choice'):
                 choice_id = int(key.replace('choice_', ''))
@@ -169,6 +171,7 @@ def edit(item_id):
 def submit(item_id):
     item = Item.query.get(item_id)
     item.status = 'submit'
+    item.submitted_at = arrow.now(tz='Asia/Bangkok').datetime
     db.session.add(item)
     db.session.commit()
     flash('บันทึกข้อสอบเรียบร้อยแล้ว', 'success')

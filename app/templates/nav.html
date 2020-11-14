@@ -16,6 +16,7 @@
           ระบบคลังข้อสอบ
       </a>
 
+        {% if current_user.is_authenticated and current_user.role.role == 'admin' %}
       <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">
             Admin
@@ -24,14 +25,22 @@
           <a class="navbar-item" href="{{ url_for('webadmin.list_banks') }}">
               Banks
           </a>
-          <a class="navbar-item">
-              Questions
-          </a>
         </div>
       </div>
+        {% endif %}
     </div>
 
     <div class="navbar-end">
+        {% if current_user.is_authenticated %}
+        <div class="navbar-item">
+            <span class="icon">
+                <i class="fas fa-user-circle"></i>
+            </span>
+            <span>
+                {{ current_user.username }}
+            </span>
+        </div>
+        {% endif %}
       <div class="navbar-item">
         <div class="buttons">
         {% if current_user.is_authenticated %}

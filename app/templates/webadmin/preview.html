@@ -21,6 +21,18 @@
                     <div class="notification">
                         {{ item.question|safe }}
                     </div>
+                    <p class="label">ภาพประกอบ</p>
+                    {% if item.figure %}
+                        <div class="notification is-white">
+                            <img src="https://drive.google.com/uc?id={{ item.figure.url }}" width="700">
+                            <p class="label">คำอธิบายภาพ</p>
+                            <p>{{ item.figure.desc }}</p>
+                            <p class="label">ที่มาของภาพ</p>
+                            <p>{{ item.figure.ref }}</p>
+                        </div>
+                    {% else %}
+                        N/A
+                    {% endif %}
                     <table class="table is-fullwidth">
                         <thead>
                         <th>ข้อที่</th>

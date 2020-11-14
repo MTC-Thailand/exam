@@ -1,10 +1,12 @@
 import os
+from functools import wraps
+
 from flask_admin import Admin
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from flask_wtf.csrf import CSRFProtect
-from flask import Flask
+from flask import Flask, flash, redirect
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -27,3 +29,13 @@ def create_app():
     csrf.init_app(app)
 
     return app
+
+
+def superuser(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role.role != 'admin':
+            flash('You do not have permission to access this page.', 'warning')
+            return redirect('/')
+        return f(*args, **kwargs)
+    return decorated_function
