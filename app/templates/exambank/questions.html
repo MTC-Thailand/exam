@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Admin: Questions{% endblock %}
+{% block head %}
+{{ super() }}
+    <link href="//cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" rel="stylesheet">
+{% endblock %}
 
 {% block page_content %}
 <section class="section">
@@ -21,7 +25,7 @@
                         </span>
                         <span>เพิ่มข้อสอบ</span></a>
                 </div>
-                <table class="table is-striped is-fullwidth">
+                <table id="qTable" class="table is-striped is-fullwidth">
                     <col width="10%">
                     <col width="10%">
                     <col width="10%">
@@ -70,6 +74,7 @@
                                 {% endif %}
                             </td>
                             <td>
+                                {% if not q.submitted_at %}
                                 <div class="buttons">
                                     <a href="{{ url_for('exambank.edit', item_id=q.id) }}" class="button is-light">
                                         <span class="icon">
@@ -82,14 +87,25 @@
                                         </span>
                                     </a>
                                 </div>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endif %}
                     {% endfor %}
                     </tbody>
-                </table>
+                </tableis>
             </div>
         </div>
     </div>
 </section>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
+    <script src="//cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready( function () {
+            $('#qTable').DataTable();
+        } );
+    </script>
 {% endblock %}
