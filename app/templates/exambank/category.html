@@ -14,13 +14,28 @@
                         กลุ่มสมรรถนะ
                     </p>
                     <ul class="menu-list" v-for="cat in categories">
-                        <li><a @click="fetchSubCategories(cat.id)"><% cat.name %></a></li>
+                        <li v-if="cat==category">
+                            <a class="is-active" @click="fetchSubCategories(cat.id)">
+                                <% cat.name %>
+                            </a>
+                        </li>
+                        <li v-else><a @click="fetchSubCategories(cat.id)">
+                                <% cat.name %>
+                            </a>
+                        </li>
                     </ul>
                     <p class="menu-label">
                         สมรรถนะ
                     </p>
                     <ul class="menu-list" v-for="subcat in subcategories">
-                        <li><a @click="fetchSubSubCategories(subcat.id)"><% subcat.name %></a></li>
+                        <li v-if="subcat==subcategory">
+                            <a class="is-active" @click="fetchSubSubCategories(subcat.id)">
+                                <% subcat.name %></a>
+                        </li>
+                        <li v-else>
+                            <a @click="fetchSubSubCategories(subcat.id)">
+                                <% subcat.name %></a>
+                        </li>
                     </ul>
                 </aside>
             </div>
@@ -44,14 +59,17 @@
                         </div>
                         <div v-else>-</div>
                         <div class="field">
-                            <label class="label">หัวข้อสมรรถนะย่อย</label>
-                            <div class="select"
-                                 v-if="subsubcategories.length>0">
-                                <select v-model="subsubcategoryId" name="subsubcategory_id">
-                                    <option v-for="subc in subsubcategories"
-                                            :value="subc.id"><% subc.name %>
-                                    </option>
-                                </select>
+                            <div class="contarol">
+                                <label class="label">หัวข้อสมรรถนะย่อย</label>
+                                <div class="select is-primary"
+                                     v-if="subsubcategories.length>0">
+                                    <select v-model="subsubcategoryId" name="subsubcategory_id">
+                                        <option v-for="subc in subsubcategories"
+                                                :value="subc.id">
+                                            <% subc.name %>
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div class="field">
@@ -176,6 +194,8 @@
                 let self = this
                 self.subcategories = []
                 self.subsubcategories = []
+                self.subcategory = null
+                self.subsubcategoryId = null
                 self.category = self.categories.filter((item)=>{
                     return item.id === catId
                 })[0]
@@ -195,6 +215,7 @@
                     resp.data.forEach((item)=>{
                         self.subsubcategories.push(item)
                     })
+                    self.subsubcategoryId = self.subsubcategories[0].id
                 })
             }
         },
