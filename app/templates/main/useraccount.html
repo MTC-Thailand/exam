@@ -1,10 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}User Account{% endblock %}
+{% block page_content %}
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-one-third is-offset-4 box">
+                    {% include "messages.html" %}
+                    <h1 class="title has-text-centered">ตั้งค่ารหัสผ่าน</h1>
+                    <form method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <div class="field">
+                            <div class="control">
+                                {{ form.password(placeholder="New Password", class="input") }}
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                {{ form.confirm(placeholder="Confirm Password", class="input") }}
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                {{ form.email(placeholder="Email", class="input") }}
+                                <p class="help is-danger">หากลืมรหัสผ่านระบบจะส่งลิงค์เพื่อตั้งค่ารหัสผ่านให้ในอีเมลนี้</p>
+                            </div>
+                        </div>
+                        <div class="buttons is-centered">
+                            <a href="{{ url_for('main.index') }}" class="button is-light">Back</a>
+                            <button class="button is-success">Submit</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
