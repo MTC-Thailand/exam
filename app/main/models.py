@@ -7,6 +7,9 @@ class Role(db.Model):
     id = db.Column('id', db.Integer(), primary_key=True, autoincrement=True)
     role = db.Column('role', db.String(), nullable=False)
 
+    def __str__(self):
+        return self.role
+
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -40,6 +43,10 @@ class User(db.Model):
     @property
     def is_active(self):
         return True
+
+    @property
+    def is_admin(self):
+        return self.role == 'adminview'
 
     @property
     def is_anonymous(self):
