@@ -6,7 +6,7 @@ from app.main import mainbp as main_blueprint
 from app.exambank import exambank as exambank_blueprint
 from app.webadmin import webadmin as webadmin_blueprint
 from app.exambank.models import *
-from app.main.models import User
+from app.main.models import User, Role
 from pytz import timezone
 
 app = create_app()
@@ -24,6 +24,7 @@ admin.add_views(ModelView(Choice, db.session, category='ExamBank'))
 admin.add_views(ModelView(NumChoice, db.session, category='ExamBank'))
 
 admin.add_views(UserAdminView(User, db.session, category='Main'))
+admin.add_views(ModelView(Role, db.session, category='Main'))
 
 
 
@@ -48,5 +49,3 @@ def local_datetime(dt):
     bangkok = timezone('Asia/Bangkok')
     datetime_format = '%d/%m/%Y %H:%M'
     return dt.astimezone(bangkok).strftime(datetime_format)
-
-
