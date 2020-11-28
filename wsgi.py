@@ -1,7 +1,7 @@
 from flask import redirect, url_for, abort
 from flask_admin.contrib.sqla import ModelView
 from app import create_app, admin, login
-from app.adminview.views import UserAdminView
+from app.adminview.views import UserAdminView, UploadUserView
 from app.main import mainbp as main_blueprint
 from app.exambank import exambank as exambank_blueprint
 from app.webadmin import webadmin as webadmin_blueprint
@@ -25,6 +25,7 @@ admin.add_views(ModelView(NumChoice, db.session, category='ExamBank'))
 
 admin.add_views(UserAdminView(User, db.session, category='Main'))
 admin.add_views(ModelView(Role, db.session, category='Main'))
+admin.add_views(UploadUserView(name='User upload', endpoint='user_upload', category='Main'))
 
 
 

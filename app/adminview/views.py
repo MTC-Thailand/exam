@@ -1,9 +1,13 @@
-from flask import flash, redirect, url_for
-from flask_login import current_user
+from flask import flash, redirect, url_for, render_template, request
+from flask_admin import BaseView, expose
 from flask_admin.form import rules
 from flask_admin.contrib.sqla import ModelView
 from werkzeug.security import generate_password_hash
 from wtforms import PasswordField
+import pandas as pd
+
+from app import db
+from app.main.models import User, Role
 
 
 class UserAdminView(ModelView):
@@ -50,3 +54,32 @@ class UserAdminView(ModelView):
         self.session.commit()
         return redirect(url_for("user.index_view"))
 
+
+class UploadUserView(BaseView):
+    @expose('/')
+    def index(self):
+        return self.render('adminview/upload_user.html')
+
+    @expose('/upload', methods=['POST'])
+    def upload(self):
+        if request.method == 'POST':
+            if 'file' in request.files:
+                file = request.files['file']
+                if file.filename == '':
+                    flash('No file selected.')
+                    return redirect(url_for('user_upload.index'))
+                df = pd.read_excel(request.files['file'])
+                for idx, row in df.iterrows():
+                    user = User.query.filter_by(username=row['username']).first()
+                    role = Role.query.filter_by(role=row['role']).first()
+                    if not user:
+                        user = User(username=row['username'],
+                                    password=row['password'],
+                                    role=role,
+                                    name=row['university'])
+                        db.session.add(user)
+                db.session.commit()
+
+                return redirect(url_for('user_upload.index'))
+            flash('File not uploaded.')
+        return redirect(url_for('user_upload.index'))

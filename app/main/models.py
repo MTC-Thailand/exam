@@ -21,6 +21,13 @@ class User(db.Model):
     email = db.Column('email', db.String())
     name = db.Column('name', db.String())
 
+    def __init__(self, username, password, role, email=None, name=None):
+        self.username = username
+        self.password = password
+        self.role = role
+        self.email = email
+        self.name = name
+
     @property
     def has_password(self):
         return self.password_hash != None
