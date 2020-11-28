@@ -20,3 +20,17 @@ class UserForm(FlaskForm):
     email = EmailField('E-mail', validators=[Email(), DataRequired()])
     remember_me = BooleanField('Keep me logged in')
     submit = SubmitField('Log in')
+
+
+class NewPasswordForm(FlaskForm):
+    password = PasswordField('New Password',
+                             validators=[DataRequired()])
+    confirm = PasswordField('Confirm Password',
+                            validators=[DataRequired(),
+                                        EqualTo('password', message='Password must match.')])
+    submit = SubmitField('Save')
+
+
+class ResetPasswordForm(FlaskForm):
+    email = EmailField('E-mail', validators=[Email(), DataRequired()])
+    submit = SubmitField('Send')

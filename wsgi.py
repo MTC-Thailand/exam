@@ -1,7 +1,5 @@
 from flask import redirect, url_for, abort
 from flask_admin.contrib.sqla import ModelView
-from flask_login import current_user
-
 from app import create_app, admin, login
 from app.adminview.views import UserAdminView
 from app.main import mainbp as main_blueprint
@@ -50,3 +48,5 @@ def local_datetime(dt):
     bangkok = timezone('Asia/Bangkok')
     datetime_format = '%d/%m/%Y %H:%M'
     return dt.astimezone(bangkok).strftime(datetime_format)
+
+
