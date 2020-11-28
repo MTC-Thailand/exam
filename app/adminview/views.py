@@ -1,4 +1,4 @@
-from flask import flash
+from flask import flash, redirect, url_for
 from flask_login import current_user
 from flask_admin.form import rules
 from flask_admin.contrib.sqla import ModelView
@@ -12,11 +12,11 @@ class UserAdminView(ModelView):
     column_exclude_list = ('password_hash',)
     form_excluded_columns = ('password_hash', 'questions')
     form_edit_rules = ('username',
-                       'role',
+                       'role', 'name', 'email',
                        rules.Header('Reset Password'),
                        'new_password', 'confirm'
                        )
-    form_create_rules = ('username', 'role', 'password')
+    form_create_rules = ('username', 'role', 'password', 'confirm', 'name', 'email')
 
     def scaffold_form(self):
         form_class = super(UserAdminView, self).scaffold_form()
@@ -28,9 +28,16 @@ class UserAdminView(ModelView):
     def create_model(self, form):
         model = self.model()
         form.populate_obj(model)
+        if form.password.data:
+            if form.password.data == form.confirm.data:
+                model.password_hash = generate_password_hash(form.password.data)
+            else:
+                flash('Password must match!')
+                return redirect(url_for('user.create_view', url=url_for('user.index_view')))
         self.session.add(model)
         self._on_model_change(form, model, True)
         self.session.commit()
+        return redirect(url_for('user.index_view'))
 
     def update_model(self, form, model):
         form.populate_obj(model)
@@ -38,7 +45,8 @@ class UserAdminView(ModelView):
             if form.new_password.data != form.confirm.data:
                 flash('Password must match!')
             model.password_hash = generate_password_hash(form.new_password.data)
-            self.session.add(model)
-            self._on_model_change(form, model, False)
-            self.session.commit()
+        self.session.add(model)
+        self._on_model_change(form, model, False)
+        self.session.commit()
+        return redirect(url_for("user.index_view"))
 
