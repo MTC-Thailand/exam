@@ -19,6 +19,7 @@ class User(db.Model):
     role_id = db.Column('role_id', db.ForeignKey('roles.id'))
     role = db.relationship(Role, backref=db.backref('users'))
     email = db.Column('email', db.String())
+    name = db.Column('name', db.String())
 
     @property
     def has_password(self):
