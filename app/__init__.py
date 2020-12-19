@@ -45,7 +45,7 @@ def create_app():
 def superuser(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated or current_user.role.role != 'adminview':
+        if not current_user.is_authenticated or current_user.role.role != 'admin':
             flash('You do not have permission to access this page.', 'warning')
             return redirect('/')
         return f(*args, **kwargs)
