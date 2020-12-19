@@ -30,8 +30,11 @@ class UserAdminView(ModelView):
         return form_class
 
     def create_model(self, form):
-        model = self.model()
-        form.populate_obj(model)
+        model = self.model(username=form.username.data,
+                           password=form.password.data,
+                           role=form.role.data,
+                           name=form.name.data,
+                           email=form.email.data)
         if form.password.data:
             if form.password.data == form.confirm.data:
                 model.password_hash = generate_password_hash(form.password.data)

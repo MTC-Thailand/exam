@@ -2,7 +2,7 @@ import os
 from functools import wraps
 
 from flask_mail import Message
-from flask_admin import Admin
+from flask_admin import Admin, AdminIndexView
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user
@@ -11,10 +11,16 @@ from flask import Flask, flash, redirect, current_app
 from flask_mail import Mail
 from dotenv import load_dotenv
 
+
+class MyAdminIndexView(AdminIndexView):
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.role.role == 'admin'
+
+
 load_dotenv()
 db = SQLAlchemy()
 migrate = Migrate()
-admin = Admin()
+admin = Admin(index_view=MyAdminIndexView())
 login = LoginManager()
 login.login_view = 'main.login'
 csrf = CSRFProtect()
@@ -45,7 +51,7 @@ def create_app():
 def superuser(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated or current_user.role.role != 'admin':
+        if not (current_user.is_authenticated and current_user.role.role == 'admin'):
             flash('You do not have permission to access this page.', 'warning')
             return redirect('/')
         return f(*args, **kwargs)
