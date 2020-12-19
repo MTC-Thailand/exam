@@ -23,6 +23,16 @@ class Bank(db.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def drafted_items(self):
+        return [item for item in self.items
+                if item.status == 'draft' and item.status != 'discarded']
+
+    @property
+    def submitted_items(self):
+        return [item for item in self.items
+                if item.status == 'submit' and item.status != 'discarded']
+
 
 class Category(db.Model):
     __tablename__ = 'categories'
