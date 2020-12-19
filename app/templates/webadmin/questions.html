@@ -36,7 +36,7 @@
                     </thead>
                     <tbody>
                     {% for q in bank.items %}
-                        {% if q.status == 'submit' %}
+                        {% if q.status == 'submit' or q.status == 'draft' %}
                         <tr>
                             <td>{{ q.category }}</td>
                             <td>{{ q.subcategory }}</td>
@@ -47,7 +47,7 @@
                                 </a>
                             </td>
                             <td>
-                                {{ q.user.username }}
+                                {{ q.user.username + ": " + q.user.name }}
                             </td>
                             <td>
                                 {{ q.created_at|localdatetime }}
@@ -56,7 +56,7 @@
                                 {{ q.updated_at|localdatetime }}
                             </td>
                             <td>
-                                {{ q.submitted_at|localdatetime }}
+                                {{ q.submitted_at|localdatetime or 'draft' }}
                             </td>
                         </tr>
                         {% endif %}
