@@ -217,3 +217,4 @@ def discard(item_id):
         flash('The item has been discarded.', 'success')
     else:
         flash('The item does not exists.', 'warning')
+    return redirect(url_for('exambank.list_questions', bank_id=item.bank.id))

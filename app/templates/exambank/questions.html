@@ -59,9 +59,15 @@
                             <td>{{ q.subcategory }}</td>
                             <td>{{ q.subsubcategory or '-' }}</td>
                             <td>
+                                {% if q.status != 'discarded' %}
                                 <a href="{{ url_for('exambank.preview', item_id=q.id) }}">
                                     {{ q.question|safe }}
                                 </a>
+                                {% else %}
+                                    <strike>
+                                        {{ q.question|safe }}
+                                    </strike>
+                                {% endif %}
                             </td>
                             <td>
                                 {{ q.created_at|localdatetime }}
@@ -75,13 +81,13 @@
                                     {{ q.status }}
                                 </span>
                                 {% else %}
-                                    <span class="tag is-warning">
+                                    <span class="tag is-danger">
                                     {{ q.status }}
                                 </span>
                                 {% endif %}
                             </td>
                             <td>
-                                {% if not q.submitted_at %}
+                                {% if not q.submitted_at and q.status != 'discarded' %}
                                 <div class="buttons">
                                     <a href="{{ url_for('exambank.edit', item_id=q.id) }}" class="button is-light">
                                         <span class="icon">
