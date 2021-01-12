@@ -1,3 +1,4 @@
+from collections import defaultdict
 from flask import render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_user, current_user, login_required, logout_user
 from werkzeug.security import generate_password_hash
@@ -7,13 +8,25 @@ from app import send_email
 from . import mainbp as main
 from .forms import LoginForm, UserForm, ResetPasswordForm, NewPasswordForm
 from .models import User
+from app.exambank.models import Item
 from .. import db
 
 
 @main.route('/')
 @login_required
 def index():
-    return render_template('main/index.html')
+    submitted_items = defaultdict(int)
+    items = defaultdict(int)
+    for item in Item.query.all():
+        items[item.status] += 1
+        if item.status == 'submit':
+            submitted_items[item.bank.subject.name] += 1
+
+    submitted_items = [pair for pair in submitted_items.items()]
+    submitted_items = [['Subject', 'Count']] + submitted_items
+    items = [pair for pair in items.items()]
+    items = [['Status', 'Count']] + items
+    return render_template('main/index.html', items=items, submitted_items=submitted_items)
 
 
 @main.route('/logout')

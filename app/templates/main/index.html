@@ -34,6 +34,14 @@
             </div>
             </div>
         </div>
+        <div class="columns">
+            <div class="column is-one-third is-offset-2">
+                <div id="statuschart" style="width: 600px; height: 500px;"></div>
+            </div>
+            <div class="column is-one-third">
+                <div id="submitchart" style="width: 600px; height: 500px;"></div>
+            </div>
+        </div>
     </div>
 </section>
 <footer class="footer">
@@ -47,4 +55,24 @@
         </p>
     </div>
 </footer>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+  google.charts.load('current', {packages: ['corechart']});
+  google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+
+        var submitted_items = google.visualization.arrayToDataTable({{ submitted_items|tojson|safe }});
+        var status_items = google.visualization.arrayToDataTable({{ items|tojson|safe }});
+
+        var submitted_items_chart = new google.visualization.PieChart(document.getElementById('submitchart'));
+        var status_items_chart = new google.visualization.PieChart(document.getElementById('statuschart'));
+
+        submitted_items_chart.draw(submitted_items, {title: 'Submitted Questions'});
+        status_items_chart.draw(status_items, {title: 'All Questions'});
+      }
+</script>
 {% endblock %}
