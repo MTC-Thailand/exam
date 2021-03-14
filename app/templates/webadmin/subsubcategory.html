@@ -19,16 +19,15 @@
             <div class="columns">
                 <div class="column">
                     {% include "messages.html" %}
-                    <h1 class="title has-text-centered is-size-5">{{ subsubcategory.name }}</h1>
+                    <h1 class="title has-text-centered is-size-6">สมรรถนะหลัก: {{ subsubcategory.subcategory.name }}</h1>
+                    <h1 class="subtitle has-text-centered is-size-6">สมรรถนะย่อย: {{ subsubcategory.name }}</h1>
                     <table id="myTable" class="table is-striped is-fullwidth">
-                        <col width="10%">
                         <col width="30%">
                         <col width="10%">
                         <col width="10%">
                         <col width="10%">
                         <col width="10%">
                         <thead>
-                        <th>สมรรถนะ</th>
                         <th>โจทย์</th>
                         <th>โดย</th>
                         <th>ส่งเมื่อ</th>
@@ -38,18 +37,19 @@
                             {% if q.status == 'submit' or q.status == 'draft' %}
                                 <tr>
                                     <td>
-                                        {% if q.subcategory %}
-                                            <a href="{{ url_for('webadmin.show_subcategory', subcategory_id=q.subcategory.id, bank_id=bank.id) }}">
-                                                {{ q.subcategory }}
-                                            </a>
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </td>
-                                    <td>
                                         <a href="{{ url_for('webadmin.preview', item_id=q.id) }}">
                                             {{ q.question|safe }}
                                         </a>
+                                        <span class="tag">
+                                            comments: {{ q.approvals|length }}
+                                        </span>
+                                        {% for approval in q.approvals %}
+                                            {% if approval.user == current_user %}
+                                                <span class="tag is-warning">
+                                                    your thought: {{ approval.status }}
+                                                </span>
+                                            {% endif %}
+                                        {% endfor %}
                                     </td>
                                     <td>
                                         {{ q.user.username + ": " + q.user.name }}

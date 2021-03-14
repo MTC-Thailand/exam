@@ -43,14 +43,20 @@
                     {% for q in bank.items %}
                         {% if q.status == 'submit' or q.status == 'draft' %}
                         <tr>
-                            <td>{{ q.category }}</td>
+                            <td><small>{{ q.category }}</small></td>
                             <td>
-                                <a href="{{ url_for('webadmin.show_subcategory', subcategory_id=q.subcategory.id, bank_id=bank.id) }}">{{ q.subcategory }}</a>
+                                <a href="{{ url_for('webadmin.show_subcategory', subcategory_id=q.subcategory.id, bank_id=bank.id) }}">
+                                    <small>
+                                        {{ q.subcategory }}
+                                    </small>
+                                </a>
                             </td>
                             <td>
                                 {% if q.subsubcategory %}
                                     <a href="{{ url_for('webadmin.show_subsubcategory', subsubcategory_id=q.subsubcategory.id, bank_id=bank.id) }}">
+                                    <small>
                                         {{ q.subsubcategory }}
+                                    </small>
                                     </a>
                                 {% else %}
                                     -
@@ -60,6 +66,16 @@
                                 <a href="{{ url_for('webadmin.preview', item_id=q.id) }}">
                                     {{ q.question|safe }}
                                 </a>
+                                <span class="tag">
+                                    comments: {{ q.approvals|length }}
+                                </span>
+                                {% for approval in q.approvals %}
+                                    {% if approval.user == current_user %}
+                                        <span class="tag is-warning">
+                                            your thought: {{ approval.status }}
+                                        </span>
+                                    {% endif %}
+                                {% endfor %}
                             </td>
                             <td>
                                 {{ q.user.username + ": " + q.user.name }}

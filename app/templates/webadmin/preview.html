@@ -7,6 +7,7 @@
         <h1 class="title has-text-centered">Preview</h1>
         <div class="columns">
             <div class="column is-two-thirds is-offset-2">
+                {% include "messages.html" %}
                 <div class="box">
                     <div class="notification is-warning has-text-centered">
                         <strong>{{ item.status|upper }}</strong>
@@ -54,10 +55,114 @@
                     </table>
                 </div>
                 <div class="buttons is-centered">
-                    <a href="{{ url_for('webadmin.list_questions', bank_id=item.bank.id) }}" class="button is-light">
-                        <span>Back</span>
+                    <a href="{{ url_for('webadmin.list_questions', bank_id=item.bank.id) }}"
+                       class="button is-light">
+                        <span class="icon">
+                            <i class="fas fa-chevron-left"></i>
+                        </span>
+                        <span>คลังข้อสอบ</span>
                     </a>
+                    <a href="{{ url_for('webadmin.show_subcategory', subcategory_id=item.subcategory_id, bank_id=item.bank.id) }}" class="button is-light">
+                        <span class="icon">
+                            <i class="fas fa-chevron-left"></i>
+                        </span>
+                        <span>สมรรถนะ</span>
+                    </a>
+                    {% if item.subsubcategory %}
+                    <a href="{{ url_for('webadmin.show_subsubcategory', subsubcategory_id=item.subsubcategory_id, bank_id=item.bank.id) }}" class="button is-light">
+                        <span class="icon">
+                            <i class="fas fa-chevron-left"></i>
+                        </span>
+                        <span>สมรรถนะย่อย</span>
+                    </a>
+                    {% endif %}
                 </div>
+            </div>
+        </div>
+        <div class="columns">
+            <div class="column is-two-thirds is-offset-2">
+                <form method="post" action="{{ url_for('webadmin.preview', item_id=item.id, next=url_for('webadmin.preview', item_id=item.id)) }}">
+                    {{ form.hidden_tag() }}
+                    <div class="field">
+                        <label class="label">{{ form.status.label }}</label>
+                        <div class="select">
+                            {{ form.status(class="select") }}
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">{{ form.comment.label }}</label>
+                        <div class="control">
+                            {{ form.comment(class="textarea") }}
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input type="submit" value="Submit" class="button is-success" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="columns">
+            <div class="column is-two-thirds is-offset-2">
+            <h1 class="title is-size-3">Comments</h1>
+                {% for approval in item.approvals %}
+                    <article class="media">
+                        <div class="media-left">
+                            <p>
+                                <span class="icon">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <span class="title is-size-6">
+                                    {{ approval.user.name }}
+                                </span>
+                            </p>
+                            <p>
+                                <span class="icon">
+                                    <i class="far fa-clock"></i>
+                                </span>
+                                <span class="subtitle is-size-7">
+                                    {{ approval.approved_at | localdatetime }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="media-content">
+                            <div class="content">
+                                <p class="message is-link">
+                                    <div class="message-body">
+                                        <p>
+                                            <span class="title is-size-6">
+                                                ความเห็นเบื้องต้น
+                                            </span>
+                                            {{ approval.status }}
+                                        </p>
+                                        <p>
+                                            {% if approval.comment %}
+                                            <span class="icon">
+                                                <i class="fas fa-quote-left"></i>
+                                            </span>
+                                            <span>{{ approval.comment }}</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </p>
+                                {% if approval.user == current_user %}
+                                <p class="level">
+                                    <div class="level-right">
+                                        <a href="{{ url_for('webadmin.delete_comment', approval_id=approval.id) }}">
+                                                <span class="icon">
+                                                    <i class="fas fa-trash"></i>
+                                                </span>
+                                            <span>ลบ</span>
+                                        </a>
+                                    </div>
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </article>
+                    <hr>
+                {% endfor %}
             </div>
         </div>
     </div>

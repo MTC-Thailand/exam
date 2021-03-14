@@ -18,7 +18,6 @@
             </nav>
             <div class="columns">
                 <div class="column">
-                    {% include "messages.html" %}
                     <h1 class="title has-text-centered is-size-5">{{ subcategory.name }}</h1>
                     <table id="myTable" class="table is-striped is-fullwidth">
                         <col width="10%">
@@ -40,7 +39,9 @@
                                     <td>
                                         {% if q.subsubcategory %}
                                             <a href="{{ url_for('webadmin.show_subsubcategory', subsubcategory_id=q.subsubcategory.id, bank_id=bank.id) }}">
-                                                {{ q.subsubcategory }}
+                                                <small>
+                                                    {{ q.subsubcategory }}
+                                                </small>
                                             </a>
                                         {% else %}
                                             -
@@ -50,6 +51,16 @@
                                         <a href="{{ url_for('webadmin.preview', item_id=q.id) }}">
                                             {{ q.question|safe }}
                                         </a>
+                                        <span class="tag">
+                                            comments: {{ q.approvals|length }}
+                                        </span>
+                                        {% for approval in q.approvals %}
+                                            {% if approval.user == current_user %}
+                                                <span class="tag is-warning">
+                                                    your thought: {{ approval.status }}
+                                                </span>
+                                            {% endif %}
+                                        {% endfor %}
                                     </td>
                                     <td>
                                         {{ q.user.username + ": " + q.user.name }}
