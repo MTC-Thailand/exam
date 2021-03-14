@@ -34,3 +34,21 @@ def submit(item_id):
     db.session.commit()
     flash('บันทึกข้อสอบเรียบร้อยแล้ว', 'success')
     return redirect(url_for('webadmin.list_questions', bank_id=item.bank.id))
+
+
+@webadmin.route('/banks/<int:bank_id>/subcategories/<int:subcategory_id>/questions')
+@superuser
+def show_subcategory(bank_id, subcategory_id):
+    subcategory = SubCategory.query.get(subcategory_id)
+    bank = Bank.query.get(bank_id)
+    return render_template('webadmin/subcategory.html',
+                           subcategory=subcategory, bank=bank)
+
+
+@webadmin.route('/banks/<int:bank_id>/subsubcategories/<int:subsubcategory_id>/questions')
+@superuser
+def show_subsubcategory(bank_id, subsubcategory_id):
+    subsubcategory = SubSubCategory.query.get(subsubcategory_id)
+    bank = Bank.query.get(bank_id)
+    return render_template('webadmin/subsubcategory.html',
+                           subsubcategory=subsubcategory, bank=bank)

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Admin: Questions{% endblock %}
+{% block head %}
+    {{ super() }}
+    <link href="//cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" rel="stylesheet" />
+{% endblock %}
+
+{% block page_content %}
+    <section class="section">
+        <div class="container" id="app">
+            {% include "messages.html" %}
+            <nav class="breadcrumb" aria-label="breadcrumbs">
+                <ul>
+                    <li><a href="{{ url_for('webadmin.list_banks') }}">คลังข้อสอบ</a></li>
+                    <li><a href="{{ url_for('webadmin.list_questions', bank_id=bank.id) }}">คลังข้อสอบชุด{{ bank.name }}</a></li>
+                    <li class="is-active"><a href="#">วิชา{{ bank.subject }}</a></li>
+                </ul>
+            </nav>
+            <div class="columns">
+                <div class="column">
+                    {% include "messages.html" %}
+                    <h1 class="title has-text-centered is-size-5">{{ subcategory.name }}</h1>
+                    <table id="myTable" class="table is-striped is-fullwidth">
+                        <col width="10%">
+                        <col width="30%">
+                        <col width="10%">
+                        <col width="10%">
+                        <col width="10%">
+                        <col width="10%">
+                        <thead>
+                        <th>สมรรถนะย่อย</th>
+                        <th>โจทย์</th>
+                        <th>โดย</th>
+                        <th>ส่งเมื่อ</th>
+                        </thead>
+                        <tbody>
+                        {% for q in subcategory.items %}
+                            {% if q.status == 'submit' or q.status == 'draft' %}
+                                <tr>
+                                    <td>
+                                        {% if q.subsubcategory %}
+                                            <a href="{{ url_for('webadmin.show_subsubcategory', subsubcategory_id=q.subsubcategory.id, bank_id=bank.id) }}">
+                                                {{ q.subsubcategory }}
+                                            </a>
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('webadmin.preview', item_id=q.id) }}">
+                                            {{ q.question|safe }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {{ q.user.username + ": " + q.user.name }}
+                                    </td>
+                                    <td>
+                                        {{ q.submitted_at|localdatetime or 'draft' }}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script src="//cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready( function () {
+            $('#myTable').DataTable();
+        } );
+    </script>
+{% endblock %}
