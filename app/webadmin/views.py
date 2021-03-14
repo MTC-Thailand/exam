@@ -1,7 +1,11 @@
+import arrow
+from flask_login import current_user
+
 from . import webadmin
 from app.exambank.models import *
 from app import superuser
-from flask import redirect, url_for, render_template, flash
+from flask import redirect, url_for, render_template, flash, request
+from .forms import ApprovalForm
 
 
 @webadmin.route('/banks')
@@ -18,11 +22,38 @@ def list_questions(bank_id):
     return render_template('webadmin/questions.html', bank=bank)
 
 
-@webadmin.route('/questions/<int:item_id>/preview')
+@webadmin.route('/questions/<int:item_id>/preview', methods=['GET', 'POST'])
 @superuser
 def preview(item_id):
+    form = ApprovalForm()
     item = Item.query.get(item_id)
-    return render_template('webadmin/preview.html', item=item)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            new_approval = ItemApproval()
+            form.populate_obj(new_approval)
+            new_approval.user = current_user
+            new_approval.item = item
+            new_approval.approved_at = arrow.now(tz='Asia/Bangkok').datetime,
+            db.session.add(new_approval)
+            db.session.commit()
+            flash('Your approval has been submitted.', 'success')
+            if request.args.get('next'):
+                return redirect(request.args.get('next'))
+    return render_template('webadmin/preview.html', item=item, form=form)
+
+@webadmin.route('/approvals/<int:approval_id>/delete')
+@superuser
+def delete_comment(approval_id):
+    approval = ItemApproval.query.get(approval_id)
+    if approval:
+        item_id = approval.item.id
+        db.session.delete(approval)
+        db.session.commit()
+        flash('You comment has been deleted.', 'success')
+        return redirect(url_for('webadmin.preview', item_id=item_id))
+    else:
+        flash('The comment is not found.', 'warning')
+        return redirect(request.referrer)
 
 
 @webadmin.route('/<int:item_id>/submit')
