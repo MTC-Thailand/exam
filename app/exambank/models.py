@@ -142,3 +142,17 @@ class NumChoice(db.Model):
     __tablename__ = 'number_choice'
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     num = db.Column('num', db.Integer, default=5)
+
+
+class ItemApproval(db.Model):
+    __tablename__ = 'item_approvals'
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    item_id = db.Column('item_id', db.ForeignKey('items.id'))
+    item = db.relationship(Item, backref=db.backref('approvals'))
+    user_id = db.Column('user_id', db.ForeignKey('users.id'))
+    user = db.relationship(User, backref=db.backref('approved_items'))
+    comment = db.Column('comment', db.Text())
+    approved_at = db.Column(db.DateTime(timezone=True))
+    status = db.Column(db.String(), info={'label': 'สถานะการรับรอง',
+                                          'choices': [(c, c) for c in
+                                                      ('ไม่เหมาะสม', 'รอพิจารณาเพิ่มเติม', 'เหมาะสม')]})
