@@ -155,4 +155,7 @@ class ItemApproval(db.Model):
     approved_at = db.Column(db.DateTime(timezone=True))
     status = db.Column(db.String(), info={'label': 'สถานะการรับรอง',
                                           'choices': [(c, c) for c in
-                                                      ('ไม่เหมาะสม', 'รอพิจารณาเพิ่มเติม', 'เหมาะสม')]})
+                                                      ('ไม่เหมาะสม',
+                                                       'รอพิจารณาเพิ่มเติม',
+                                                       'เหมาะสม',
+                                                       'เหมาะสมแต่ควรย้ายหมวด')]})
