@@ -18,6 +18,19 @@
         </nav>
         <div class="columns">
             <div class="column">
+            <h1 class="title is-size-5">สมรรถนะ</h1>
+                <div class="select">
+                    <select class="subcategory">
+                        <option value="-1">ทั้งหมด</option>
+                        {% for subcate in subcategories %}
+                            <option value="{{ subcate.id }}">{{  subcate.name|truncate(150, end='...') }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="columns">
+            <div class="column">
                 {% include "messages.html" %}
                 <h1 class="title has-text-centered is-size-4">{{ bank.subject }}</h1>
                 <table id="myTable" class="table is-striped is-fullwidth">
@@ -105,6 +118,10 @@
     <script>
         $(document).ready( function () {
             $('#myTable').DataTable();
+            $('select.subcategory').change(()=>{
+                let selectedCategory = $('.subcategory').find(":selected").val();
+                window.location.href = '/webadmin/banks/{{ bank.id }}/subcategories/' + selectedCategory + '/questions'
+            })
         } );
     </script>
 {% endblock %}

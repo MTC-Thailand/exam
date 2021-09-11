@@ -19,7 +19,8 @@ def list_banks():
 @superuser
 def list_questions(bank_id):
     bank = Bank.query.get(bank_id)
-    return render_template('webadmin/questions.html', bank=bank)
+    subcategories = set([item.subcategory for item in bank.items])
+    return render_template('webadmin/questions.html', bank=bank, subcategories=subcategories)
 
 
 @webadmin.route('/questions/<int:item_id>/preview', methods=['GET', 'POST'])
