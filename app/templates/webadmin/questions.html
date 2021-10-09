@@ -84,9 +84,19 @@
                                 </span>
                                 {% for approval in q.approvals %}
                                     {% if approval.user == current_user %}
+                                        {% if approval.status == 'เหมาะสม' %}
+                                        <span class="tag is-success">
+                                            your thought: {{ approval.status }}
+                                        </span>
+                                        {% elif approval.status == 'ไม่เหมาะสม' %}
+                                        <span class="tag is-danger">
+                                            your thought: {{ approval.status }}
+                                        </span>
+                                        {% else %}
                                         <span class="tag is-warning">
                                             your thought: {{ approval.status }}
                                         </span>
+                                        {% endif %}
                                     {% endif %}
                                 {% endfor %}
                             </td>
