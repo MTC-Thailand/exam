@@ -82,6 +82,7 @@ def edit_question(item_id):
                 new_choice.answer = choice.answer
                 new_choice.item = new_item
                 db.session.add(new_choice)
+        new_item.created_at = arrow.now(tz='Asia/Bangkok').datetime
         db.session.add(new_item)
         db.session.commit()
         flash('บันทึกข้อสอบใหม่แล้ว', 'success')

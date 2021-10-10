@@ -95,15 +95,9 @@
                         <strong>{{ child.status|upper }}</strong>
                     </div>
                     <p class="label">เพิ่มโดย</p>
-                    <div class="notification">{{ child.user.username }}</div>
-                    <p class="label">วิชา</p>
-                    <div class="notification">{{ child.bank.subject }}</div>
-                    <p class="label">หมวดสมรรถนะ</p>
-                    <div class="notification">{{ child.category.name }}</div>
-                    <p class="label">สมรรถนะ</p>
-                    <div class="notification">{{ child.subcategory.name }}</div>
-                    <p class="label">สมรรถนะย่อย</p>
-                    <div class="notification">{{ child.subsubcategory.name }}</div>
+                    <div class="notification">{{ child.user.name }}</div>
+                    <p class="label">เพิ่มเมื่อ</p>
+                    <div class="notification">{{ child.created_at|localdatetime }}</div>
                     <p class="label">โจทย์คำถาม</p>
                     <div class="notification">
                         {{ child.question|safe }}
