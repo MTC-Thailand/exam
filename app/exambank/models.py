@@ -100,19 +100,23 @@ class Item(db.Model):
     subcategory_id = db.Column('subcategory_id', db.ForeignKey('sub_categories.id'))
     subsubcategory_id = db.Column('subsubcategory_id', db.ForeignKey('sub_sub_categories.id'))
     bank = db.relationship('Bank', backref=db.backref('items', cascade='all, delete-orphan'))
-    category = db.relationship('Category', backref=db.backref('items',
-                                                              cascade='all, delete-orphan'))
-    subcategory = db.relationship('SubCategory', backref=db.backref('items',
-                                                                    cascade='all, delete-orphan'))
-    subsubcategory = db.relationship('SubSubCategory', backref=db.backref('items',
-                                                                          cascade='all, delete-orphan'))
+    category = db.relationship('Category',
+                               backref=db.backref('items', cascade='all, delete-orphan'))
+    subcategory = db.relationship('SubCategory',
+                                  backref=db.backref('items', cascade='all, delete-orphan'))
+    subsubcategory = db.relationship('SubSubCategory',
+                                     backref=db.backref('items', cascade='all, delete-orphan'))
     created_at = db.Column('created_at', db.DateTime(timezone=True))
     updated_at = db.Column('updated_at', db.DateTime(timezone=True))
     submitted_at = db.Column('submitted_at', db.DateTime(timezone=True))
     status = db.Column('status', db.String(), default='draft')
     user_id = db.Column('user_id', db.ForeignKey('users.id'))
     user = db.relationship(User, backref=db.backref('questions'))
-
+    parent_id = db.Column('parent_id', db.ForeignKey('items.id'))
+    children = db.relationship('Item', backref=db.backref('parent',
+                                                          remote_side=[id],
+                                                          lazy='dynamic',
+                                                          uselist=True))
 
     def __str__(self):
         return self.question[:40]
@@ -133,6 +137,11 @@ class Choice(db.Model):
                            backref=db.backref('choices', cascade='all, delete-orphan'),
                            foreign_keys=[item_id])
     answer = db.Column('answer', db.Boolean(), default=False)
+    parent_id = db.Column('parent_id', db.ForeignKey('choices.id'))
+    children = db.relationship('Choice', backref=db.backref('parent',
+                                                            lazy='dynamic',
+                                                            remote_side=[id],
+                                                            uselist=True))
 
     def __str__(self):
         return self.desc[:40]

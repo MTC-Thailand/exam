@@ -78,9 +78,79 @@
                         <span>สมรรถนะย่อย</span>
                     </a>
                     {% endif %}
+                    <a class="button is-primary" href="{{ url_for('webadmin.edit_question', bank_id=item.bank_id, item_id=item.id) }}">
+                        <span class="icon">
+                            <i class="fas fa-pencil-alt"></i>
+                        </span>
+                        <span>แก้ไขข้อสอบ</span>
+                    </a>
                 </div>
             </div>
         </div>
+        {% for child in item.children %}
+        <div class="columns">
+            <div class="column is-two-thirds is-offset-2">
+                <div class="box">
+                    <div class="notification is-light is-warning has-text-centered">
+                        <strong>{{ child.status|upper }}</strong>
+                    </div>
+                    <p class="label">เพิ่มโดย</p>
+                    <div class="notification">{{ child.user.username }}</div>
+                    <p class="label">วิชา</p>
+                    <div class="notification">{{ child.bank.subject }}</div>
+                    <p class="label">หมวดสมรรถนะ</p>
+                    <div class="notification">{{ child.category.name }}</div>
+                    <p class="label">สมรรถนะ</p>
+                    <div class="notification">{{ child.subcategory.name }}</div>
+                    <p class="label">สมรรถนะย่อย</p>
+                    <div class="notification">{{ child.subsubcategory.name }}</div>
+                    <p class="label">โจทย์คำถาม</p>
+                    <div class="notification">
+                        {{ child.question|safe }}
+                    </div>
+                    <p class="label">ภาพประกอบ</p>
+                    {% if child.figure %}
+                        <div class="notification is-white">
+                            <img src="https://drive.google.com/uc?id={{ child.figure.url }}" width="700">
+                            <p class="label">คำอธิบายภาพ</p>
+                            <p>{{ child.figure.desc }}</p>
+                            <p class="label">ที่มาของภาพ</p>
+                            <p>{{ child.figure.ref }}</p>
+                        </div>
+                    {% else %}
+                        N/A
+                    {% endif %}
+                    <table class="table is-fullwidth">
+                        <thead>
+                        <th>ข้อที่</th>
+                        <th>คำตอบ</th>
+                        </thead>
+                        <tbody>
+                        <p class="label">คำตอบ</p>
+                        <div class="notification is-light is-success">
+                            {{ child.answer.desc|safe }}
+                        </div>
+                        <p class="label">ตัวเลือกลวง</p>
+                        {% for choice in child.choices if not choice.answer %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ choice.desc|safe }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="buttons is-centered">
+                        <a href="{{ url_for('webadmin.delete_question', item_id=child.id) }}" class="button is-light is-danger">
+                            <span class="icon">
+                                <i class="fas fa-trash"></i>
+                            </span>
+                            <span>ลบ</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
         <div class="columns">
             <div class="column is-two-thirds is-offset-2">
                 <form method="post" action="{{ url_for('webadmin.preview', item_id=item.id, next=url_for('webadmin.preview', item_id=item.id)) }}">

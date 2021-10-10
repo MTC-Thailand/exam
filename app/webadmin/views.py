@@ -1,11 +1,27 @@
+import os
+
 import arrow
+import requests
 from flask_login import current_user
+from werkzeug.utils import secure_filename
 
 from . import webadmin
 from app.exambank.models import *
 from app import superuser
+from app.exambank.views import get_categories
 from flask import redirect, url_for, render_template, flash, request
 from .forms import ApprovalForm
+from pydrive.auth import ServiceAccountCredentials, GoogleAuth
+from pydrive.drive import GoogleDrive
+
+gauth = GoogleAuth()
+keyfile_dict = requests.get(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')).json()
+scopes = ['https://www.googleapis.com/auth/drive']
+gauth.credentials = ServiceAccountCredentials.from_json_keyfile_dict(keyfile_dict, scopes)
+drive = GoogleDrive(gauth)
+
+ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'tiff'}
+
 
 
 @webadmin.route('/banks')
@@ -21,6 +37,70 @@ def list_questions(bank_id):
     bank = Bank.query.get(bank_id)
     subcategories = set([item.subcategory for item in bank.items])
     return render_template('webadmin/questions.html', bank=bank, subcategories=subcategories)
+
+
+@webadmin.route('/questions/<int:item_id>/edit', methods=['GET', 'POST'])
+@superuser
+def edit_question(item_id):
+    item = Item.query.get(item_id)
+    if request.method == 'POST':
+        new_item = Item(parent_id=item_id,
+                        user=current_user,
+                        category_id=item.category_id,
+                        subcategory_id=item.subcategory_id,
+                        subsubcategory_id=item.subsubcategory_id,
+                        bank_id=item.bank_id)
+        form = request.form
+        new_item.question = form['question']
+        new_item.desc = form['desc']
+        new_item.ref = form['ref']
+        new_item.updated_at = arrow.now(tz='Asia/Bangkok').datetime
+
+        if 'figure' in request.files:
+            upfile = request.files.get('figure')
+            filename = secure_filename(upfile.filename)
+            if filename:
+                upfile.save(filename)
+                file_drive = drive.CreateFile({'title': filename})
+                file_drive.SetContentFile(filename)
+                file_drive.Upload()
+                permission = file_drive.InsertPermission({'type': 'anyone',
+                                                          'value': 'anyone',
+                                                          'role': 'reader'})
+                fig = Figure(url=file_drive['id'],
+                             filename=filename,
+                             desc=form.get('figdesc'),
+                             ref=form.get('figref'),
+                             item=new_item)
+                db.session.add(fig)
+        for key in form:
+            if key.startswith('choice'):
+                choice_id = int(key.replace('choice_', ''))
+                choice = Choice.query.get(choice_id)
+                new_choice = Choice(parent_id=choice_id)
+                new_choice.desc = form[key]
+                new_choice.answer = choice.answer
+                new_choice.item = new_item
+                db.session.add(new_choice)
+        db.session.add(new_item)
+        db.session.commit()
+        flash('บันทึกข้อสอบใหม่แล้ว', 'success')
+        return redirect(url_for('webadmin.preview', item_id=item_id))
+    return render_template('webadmin/item_edit.html',
+                           categories=get_categories(item.bank),
+                           choices=[c.id for c in item.choices],
+                           item=item)
+
+
+@webadmin.route('/questions/<int:item_id>/delete')
+@superuser
+def delete_question(item_id):
+    item = Item.query.get(item_id)
+    parent_id = item.parent_id
+    db.session.delete(item)
+    db.session.commit()
+    flash('ลบคำถามเรียบร้อยแล้ว', 'success')
+    return redirect(url_for('webadmin.preview', item_id=parent_id))
 
 
 @webadmin.route('/questions/<int:item_id>/preview', methods=['GET', 'POST'])
