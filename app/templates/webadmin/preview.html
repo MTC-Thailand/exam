@@ -133,6 +133,7 @@
                         {% endfor %}
                         </tbody>
                     </table>
+                    {% if child.user == current_user %}
                     <div class="buttons is-centered">
                         <a href="{{ url_for('webadmin.delete_question', item_id=child.id) }}" class="button is-light is-danger">
                             <span class="icon">
@@ -141,6 +142,7 @@
                             <span>ลบ</span>
                         </a>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
