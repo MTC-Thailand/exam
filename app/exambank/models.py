@@ -195,6 +195,10 @@ class Specification(db.Model):
     user_id = db.Column('user_id', db.ForeignKey('users.id'))
     user = db.relationship(User, backref=db.backref('specifications'))
 
+    @staticmethod
+    def to_dict():
+        return [{'name': s.name, 'id': s.id} for s in Specification.query.all()]
+
 
 class ItemGroup(db.Model):
     __tablename__ = 'item_groups'
@@ -207,7 +211,8 @@ class ItemGroup(db.Model):
     subject = db.relationship(Subject, backref=db.backref('item_groups'))
     is_active = db.Column('is_active', db.Boolean(), default=True)
     spec_id = db.Column('spec_id', db.ForeignKey('specifications.id'))
-    spec = db.relationship(Specification, backref=db.backref('groups'))
+    spec = db.relationship(Specification,
+                           backref=db.backref('groups', lazy='dynamic'))
     items = db.relationship(Item,
                             secondary=assoc_group_items,
                             backref=db.backref('groups'))
