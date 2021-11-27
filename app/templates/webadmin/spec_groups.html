@@ -11,6 +11,7 @@
                         <th>Name</th>
                         <th>Subject</th>
                         <th>Total Questions</th>
+                        <th></th>
                         </thead>
                         <tbody>
                         {% for group in spec.groups %}
@@ -21,6 +22,15 @@
                                 </td>
                                 <td>
                                     {{ group.items|length }}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('webadmin.edit_group', group_id=group.id) }}"
+                                       class="button is-light is-primary">
+                                        <span class="icon">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </span>
+                                        <span>แก้ไข</span>
+                                    </a>
                                 </td>
                             </tr>
                         {% endfor %}

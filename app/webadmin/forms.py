@@ -32,7 +32,7 @@ class SpecificationForm(ModelForm):
 class GroupForm(ModelForm):
     class Meta:
         model = ItemGroup
-        only = ['name']
+        only = ['name', 'desc']
     subject = QuerySelectField('Subject',
                                blank_text='Select subject',
                                get_label='name',

@@ -216,3 +216,4 @@ class ItemGroup(db.Model):
     items = db.relationship(Item,
                             secondary=assoc_group_items,
                             backref=db.backref('groups'))
+    desc = db.Column('desc', db.Text(), info={'label': 'Description'})

@@ -258,6 +258,33 @@ def add_group_to_item(item_id):
     return render_template('webadmin/add_group_item.html', specs=specs, item=item)
 
 
+@webadmin.route('/groups/<int:group_id>/edit', methods=['GET', 'POST'])
+@superuser
+def edit_group(group_id):
+    group = ItemGroup.query.get(group_id)
+    form = GroupForm(obj=group)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            form.populate_obj(group)
+            db.session.add(group)
+            db.session.commit()
+            return redirect(url_for('webadmin.list_groups', spec_id=group.spec_id))
+    return render_template('webadmin/group_form_edit.html',
+                           form=form,
+                           spec_id=group.spec_id,
+                           group_id=group.id)
+
+
+@webadmin.route('/groups/<int:group_id>/remove')
+@superuser
+def remove_group(group_id):
+    group = ItemGroup.query.get(group_id)
+    spec_id = group.spec_id
+    db.session.delete(group)
+    db.session.commit()
+    return redirect(url_for('webadmin.list_groups', spec_id=spec_id))
+
+
 @webadmin.route('/items/<int:item_id>/groups/<int:group_id>')
 @superuser
 def add_group(item_id, group_id):
