@@ -33,6 +33,11 @@ class Bank(db.Model):
         return [item for item in self.items
                 if item.status == 'submit' and item.status != 'discarded']
 
+    @property
+    def accepted_items(self):
+        return [item for item in self.items
+                if item.peer_decision == 'Accepted']
+
 
 class Category(db.Model):
     __tablename__ = 'categories'

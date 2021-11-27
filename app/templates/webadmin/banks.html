@@ -12,7 +12,7 @@
                     <th>Bank</th>
                     <th>Draft</th>
                     <th>Submitted</th>
-                    <th></th>
+                    <th>Accepted</th>
                     </thead>
                     <tbody>
                     {% for bank in banks %}
@@ -28,6 +28,9 @@
                             <a href="{{ url_for('webadmin.list_questions', bank_id=bank.id) }}">
                                 {{ bank.submitted_items|length }}
                             </a>
+                        </td>
+                        <td>
+                            {{ bank.accepted_items|length }}
                         </td>
                     </tr>
                     {% endfor %}
