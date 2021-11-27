@@ -144,6 +144,7 @@
         }
         let choices = {{ choices|tojson|safe }}
             $(document).ready(function() {
+                $('#question').summernote(options)
                 $('#desc').summernote(options)
                 $('#references').summernote(options)
                 choices.forEach((ch)=>{
