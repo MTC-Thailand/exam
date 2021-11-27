@@ -1,5 +1,12 @@
+from sqlalchemy import Table
+
 from app import db
 from app.main.models import User
+
+assoc_group_items = db.Table('assoc_group_items',
+    db.Column('group_id', db.Integer, db.ForeignKey('item_groups.id')),
+    db.Column('item_id', db.Integer, db.ForeignKey('items.id'))
+)
 
 
 class Subject(db.Model):
@@ -201,3 +208,6 @@ class ItemGroup(db.Model):
     is_active = db.Column('is_active', db.Boolean(), default=True)
     spec_id = db.Column('spec_id', db.ForeignKey('specifications.id'))
     spec = db.relationship(Specification, backref=db.backref('groups'))
+    items = db.relationship(Item,
+                            secondary=assoc_group_items,
+                            backref=db.backref('groups'))
