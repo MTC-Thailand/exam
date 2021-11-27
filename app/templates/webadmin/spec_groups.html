@@ -19,7 +19,9 @@
                                 <td>
                                     {{ group.subject }}
                                 </td>
-                                <td></td>
+                                <td>
+                                    {{ group.items|length }}
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>

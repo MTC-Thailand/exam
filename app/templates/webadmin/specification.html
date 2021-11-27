@@ -21,7 +21,7 @@
                                     </a>
                                 </td>
                                 <td>
-                                    {{ spec.groups|length }}
+                                    {{ spec.groups.all()|length }}
                                 </td>
                                 <td>
                                     <a class="button is-primary" href="{{ url_for('webadmin.add_item_group', spec_id=spec.id) }}">
