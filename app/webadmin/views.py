@@ -9,7 +9,7 @@ from . import webadmin
 from app.exambank.models import *
 from app import superuser
 from app.exambank.views import get_categories
-from flask import redirect, url_for, render_template, flash, request
+from flask import redirect, url_for, render_template, flash, request, jsonify
 from .forms import ApprovalForm, EvaluationForm, SpecificationForm, GroupForm
 from pydrive.auth import ServiceAccountCredentials, GoogleAuth
 from pydrive.drive import GoogleDrive
@@ -248,3 +248,37 @@ def add_item_group(spec_id):
 def list_groups(spec_id):
     specification = Specification.query.get(spec_id)
     return render_template('webadmin/spec_groups.html', spec=specification)
+
+
+@webadmin.route('/items/<int:item_id>/groups')
+@superuser
+def add_group_to_item(item_id):
+    item = Item.query.get(item_id)
+    specs = Specification.to_dict()
+    return render_template('webadmin/add_group_item.html', specs=specs, item=item)
+
+
+@webadmin.route('/items/<int:item_id>/groups/<int:group_id>')
+@superuser
+def add_group(item_id, group_id):
+    group = ItemGroup.query.get(group_id)
+    item = Item.query.get(item_id)
+    item.groups.append(group)
+    db.session.add(item)
+    db.session.commit()
+    return redirect(url_for('webadmin.preview', item_id=item.id))
+
+
+@webadmin.route('/api/specs/<int:spec_id>/items/<int:item_id>')
+@superuser
+def get_groups(spec_id, item_id):
+    groups = []
+    item = Item.query.get(item_id)
+    for gr in ItemGroup.query.filter_by(spec_id=spec_id,
+                                        subject_id=item.bank.subject_id):
+        if gr not in item.groups:
+            groups.append({
+                'id': gr.id,
+                'name': gr.name
+            })
+    return jsonify(groups)

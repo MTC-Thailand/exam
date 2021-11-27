@@ -55,6 +55,26 @@
                         {% endfor %}
                         </tbody>
                     </table>
+                    <p class="label">กล่องข้อสอบ</p>
+                    <table class="table is-fullwidth">
+                        <thead>
+                        <th>กลุ่ม</th>
+                        <th></th>
+                        </thead>
+                        <tbody>
+                        {% for group in item.groups %}
+                            <tr>
+                                <td>{{ group.name }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="buttons is-centered">
+                        <a class="button is-link"
+                           href="{{ url_for('webadmin.add_group_to_item', item_id=item.id) }}">
+                            เพิ่มกล่อง
+                        </a>
+                    </div>
                 </div>
                 <div class="buttons is-centered">
                     {% if not item.peer_evaluated_at %}
