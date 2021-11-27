@@ -30,7 +30,9 @@
                             </a>
                         </td>
                         <td>
-                            {{ bank.accepted_items|length }}
+                            <a href="{{ url_for('webadmin.list_accepted_questions', bank_id=bank.id) }}">
+                                {{ bank.accepted_items|length }}
+                            </a>
                         </td>
                     </tr>
                     {% endfor %}

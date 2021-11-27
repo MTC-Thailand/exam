@@ -188,3 +188,11 @@ def peer_evaluate(item_id):
             else:
                 return redirect(url_for('webadmin.preview', item_id=item_id))
     return render_template('webadmin/peer_evaluation_form.html', form=form, item=item)
+
+
+@webadmin.route('/banks/<int:bank_id>/questions/accepted')
+@superuser
+def list_accepted_questions(bank_id):
+    bank = Bank.query.get(bank_id)
+    subcategories = set([item.subcategory for item in bank.items])
+    return render_template('webadmin/accepted_questions.html', bank=bank, subcategories=subcategories)
