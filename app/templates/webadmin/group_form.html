@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Exam Bank: Add Item Group{% endblock %}
+
+{% block page_content %}
+    <section class="section">
+        <div class="container" id="app">
+            <div class="columns">
+                <div class="column is-one-third is-offset-4">
+                    <div class="box">
+                        <form method="post">
+                            {{ form.hidden_tag() }}
+                            <div class="field">
+                                <label class="label">{{ form.name.label }}</label>
+                                <div class="control">
+                                    {{ form.name(class="input") }}
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label">{{ form.subject.label }}</label>
+                                <div class="select">
+                                    {{ form.subject() }}
+                                </div>
+                            </div>
+                            <div class="field is-grouped is-grouped-centered">
+                                <div class="control">
+                                    <a href="{{ url_for('main.index') }}"
+                                       class="button is-light">Cancel</a>
+                                    <button class="button is-success">Save</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

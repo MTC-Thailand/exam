@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Admin: Specification{% endblock %}
+
+{% block page_content %}
+    <section class="section">
+        <div class="container" id="app">
+            <div class="columns">
+                <div class="column is-two-thirds is-offset-2 box">
+                    <table class="table is-fullwidth">
+                        <thead>
+                        <th>Name</th>
+                        <th>Total Groups</th>
+                        <th></th>
+                        </thead>
+                        <tbody>
+                        {% for spec in specifications %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('webadmin.list_groups', spec_id=spec.id) }}">
+                                        {{ spec.name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {{ spec.groups|length }}
+                                </td>
+                                <td>
+                                    <a class="button is-primary" href="{{ url_for('webadmin.add_item_group', spec_id=spec.id) }}">
+                                        <span class="icon">
+                                            <i class="fas fa-plus"></i>
+                                        </span>
+                                        <span>
+                                            Group
+                                        </span>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                <div class="buttons is-centered">
+                    <a class="button is-link" href="{{ url_for('webadmin.add_specification') }}">Add</a>
+                </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Admin: Specification Groups{% endblock %}
+
+{% block page_content %}
+    <section class="section">
+        <div class="container" id="app">
+            <div class="columns">
+                <div class="column is-two-thirds is-offset-2 box">
+                    <table class="table is-fullwidth">
+                        <thead>
+                        <th>Name</th>
+                        <th>Subject</th>
+                        <th>Total Questions</th>
+                        </thead>
+                        <tbody>
+                        {% for group in spec.groups %}
+                            <tr>
+                                <td>{{ group.name }}</td>
+                                <td>
+                                    {{ group.subject }}
+                                </td>
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="buttons is-centered">
+                        <a class="button is-link" href="{{ url_for('webadmin.add_item_group', spec_id=spec.id) }}">Add</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

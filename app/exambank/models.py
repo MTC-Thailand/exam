@@ -178,3 +178,26 @@ class ItemApproval(db.Model):
                                                        'รอพิจารณาเพิ่มเติม',
                                                        'เหมาะสม',
                                                        'เหมาะสมแต่ควรย้ายหมวด')]})
+
+
+class Specification(db.Model):
+    __tablename__ = 'specifications'
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column('name', db.String(), nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False)
+    user_id = db.Column('user_id', db.ForeignKey('users.id'))
+    user = db.relationship(User, backref=db.backref('specifications'))
+
+
+class ItemGroup(db.Model):
+    __tablename__ = 'item_groups'
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column('name', db.String(), nullable=False, info={'label': 'Group Name'})
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False)
+    user_id = db.Column('user_id', db.ForeignKey('users.id'))
+    user = db.relationship(User, backref=db.backref('item_groups'))
+    subject_id = db.Column('subject_id', db.ForeignKey('subjects.id'))
+    subject = db.relationship(Subject, backref=db.backref('item_groups'))
+    is_active = db.Column('is_active', db.Boolean(), default=True)
+    spec_id = db.Column('spec_id', db.ForeignKey('specifications.id'))
+    spec = db.relationship(Specification, backref=db.backref('groups'))

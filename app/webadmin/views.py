@@ -10,7 +10,7 @@ from app.exambank.models import *
 from app import superuser
 from app.exambank.views import get_categories
 from flask import redirect, url_for, render_template, flash, request
-from .forms import ApprovalForm, EvaluationForm
+from .forms import ApprovalForm, EvaluationForm, SpecificationForm, GroupForm
 from pydrive.auth import ServiceAccountCredentials, GoogleAuth
 from pydrive.drive import GoogleDrive
 
@@ -196,3 +196,55 @@ def list_accepted_questions(bank_id):
     bank = Bank.query.get(bank_id)
     subcategories = set([item.subcategory for item in bank.items])
     return render_template('webadmin/accepted_questions.html', bank=bank, subcategories=subcategories)
+
+
+@webadmin.route('/specification')
+@superuser
+def specification():
+    specifications = Specification.query.all()
+    return render_template('webadmin/specification.html',
+                           specifications=specifications)
+
+
+@webadmin.route('/specification/new', methods=['GET', 'POST'])
+@superuser
+def add_specification():
+    form = SpecificationForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            spec = Specification()
+            form.populate_obj(spec)
+            spec.created_at = arrow.now(tz='Asia/Bangkok').datetime
+            spec.user = current_user
+            db.session.add(spec)
+            db.session.commit()
+            flash('New specification added.', 'success')
+            return redirect(url_for('webadmin.specification'))
+    return render_template('webadmin/specification_form.html', form=form)
+
+
+@webadmin.route('/specification/<int:spec_id>/group/new', methods=['GET', 'POST'])
+@superuser
+def add_item_group(spec_id):
+    form = GroupForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            group = ItemGroup()
+            form.populate_obj(group)
+            group.created_at = arrow.now(tz='Asia/Bangkok').datetime
+            group.user = current_user
+            group.spec_id = spec_id
+            db.session.add(group)
+            db.session.commit()
+            flash('New group has been added.', 'success')
+            return redirect(url_for('webadmin.specification'))
+        else:
+            flash('Error', 'danger')
+    return render_template('webadmin/group_form.html', form=form, spec_id=spec_id)
+
+
+@webadmin.route('/specification/<int:spec_id>/groups')
+@superuser
+def list_groups(spec_id):
+    specification = Specification.query.get(spec_id)
+    return render_template('webadmin/spec_groups.html', spec=specification)
