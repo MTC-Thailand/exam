@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Exam Item: Peer Evaluation Form{% endblock %}
+
+{% block page_content %}
+    <section class="section">
+        <div class="container" id="app">
+            <div class="columns">
+                <div class="column is-one-third is-offset-4">
+                    <div class="box">
+                        <form method="post">
+                            {{ form.hidden_tag() }}
+                            <div class="field">
+                                <label class="label">{{ form.peer_decision.label }}</label>
+                                <div class="select">
+                                    {{ form.peer_decision() }}
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label">{{ form.peer_summary.label }}</label>
+                                {{ form.peer_summary(class="textarea") }}
+                            </div>
+                            <div class="field is-grouped is-grouped-centered">
+                                <div class="control">
+                                    <a href="{{ url_for('webadmin.preview', item_id=item.id) }}"
+                                       class="button is-light">Cancel</a>
+                                    <button class="button is-success">Save</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

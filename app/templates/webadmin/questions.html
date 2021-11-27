@@ -48,9 +48,9 @@
                     <th>สมรรถนะย่อย</th>
                     <th>โจทย์</th>
                     <th>โดย</th>
-                    <th>เพิ่มเมื่อ</th>
                     <th>แก้ไขล่าสุด</th>
                     <th>ส่งเมื่อ</th>
+                    <th>decision</th>
                     </thead>
                     <tbody>
                     {% for q in bank.items %}
@@ -99,18 +99,28 @@
                                         {% endif %}
                                     {% endif %}
                                 {% endfor %}
+                                {% if q.peer_evaluated_at %}
+                                    <div class="tags has-addons">
+                                        <span class="tag is-dark">decision</span>
+                                        {% if q.peer_decision == 'Accepted' %}
+                                            <span class="tag is-success">accepted</span>
+                                        {% elif q.peer_decision == 'Rejected' %}
+                                            <span class="tag is-danger">rejected</span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
                             </td>
                             <td>
                                 {{ q.user.username + ": " + q.user.name }}
-                            </td>
-                            <td>
-                                {{ q.created_at|localdatetime }}
                             </td>
                             <td>
                                 {{ q.updated_at|localdatetime }}
                             </td>
                             <td>
                                 {{ q.submitted_at|localdatetime or 'draft' }}
+                            </td>
+                            <td>
+                                {{ q.peer_decision or '' }}
                             </td>
                         </tr>
                         {% endif %}
@@ -127,7 +137,9 @@
     <script src="//cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready( function () {
-            $('#myTable').DataTable();
+            $('#myTable').DataTable({
+                "order": [[7, 'desc'], [6, 'asc']],
+            });
             $('select.subcategory').change(()=>{
                 let selectedCategory = $('.subcategory').find(":selected").val();
                 window.location.href = '/webadmin/banks/{{ bank.id }}/subcategories/' + selectedCategory + '/questions'

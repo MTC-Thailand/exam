@@ -57,6 +57,42 @@
                     </table>
                 </div>
                 <div class="buttons is-centered">
+                    {% if not item.peer_evaluated_at %}
+                    <a class="button is-primary" href="{{ url_for('webadmin.edit_question', bank_id=item.bank_id, item_id=item.id) }}">
+                        <span class="icon">
+                            <i class="fas fa-pencil-alt"></i>
+                        </span>
+                        <span>แก้ไขข้อสอบ</span>
+                    </a>
+                    <a class="button is-warning" href="{{ url_for('webadmin.peer_evaluate', item_id=item.id) }}">
+                        <span class="icon">
+                            <i class="fas fa-gavel"></i>
+                        </span>
+                        <span>บันทึกผลการตัดสิน</span>
+                    </a>
+                    {% else %}
+                        {% if item.peer_decision == 'Accepted' %}
+                        <span class="notification is-light is-success">
+                            <span class="icon">
+                                <i class="fas fa-check-circle"></i>
+                            </span>
+                            <span>
+                                Accepted at {{ item.peer_evaluated_at|localdatetime }}.
+                            </span>
+                        </span>
+                        {% else %}
+                        <span class="notification is-danger">
+                            <span class="icon">
+                                <i class="fas fa-times-circle"></i>
+                            </span>
+                            <span>
+                                Rejected at {{ item.peer_evaluated_at|localdatetime }}.
+                            </span>
+                        </span>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <div class="buttons is-centered">
                     <a href="{{ url_for('webadmin.list_questions', bank_id=item.bank.id) }}"
                        class="button is-light">
                         <span class="icon">
@@ -78,12 +114,6 @@
                         <span>สมรรถนะย่อย</span>
                     </a>
                     {% endif %}
-                    <a class="button is-primary" href="{{ url_for('webadmin.edit_question', bank_id=item.bank_id, item_id=item.id) }}">
-                        <span class="icon">
-                            <i class="fas fa-pencil-alt"></i>
-                        </span>
-                        <span>แก้ไขข้อสอบ</span>
-                    </a>
                 </div>
             </div>
         </div>
