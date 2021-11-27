@@ -172,12 +172,19 @@ def show_subsubcategory(bank_id, subsubcategory_id):
 def peer_evaluate(item_id):
     form = EvaluationForm()
     item = Item.query.get(item_id)
+    parent_id = request.args.get('parent_id')
     if request.method == 'POST':
         if form.validate_on_submit():
             form.populate_obj(item)
             item.peer_evaluated_at = arrow.now(tz='Asia/Bangkok').datetime
+            if not item.submitted_at:
+                item.status = 'submit'
+                item.submitted_at = arrow.now(tz='Asia/Bangkok').datetime
             db.session.add(item)
             db.session.commit()
             flash('Peer evaluation added.', 'success')
-            return redirect(url_for('webadmin.preview', item_id=item.id))
+            if parent_id:
+                return redirect(url_for('webadmin.preview', item_id=int(parent_id)))
+            else:
+                return redirect(url_for('webadmin.preview', item_id=item_id))
     return render_template('webadmin/peer_evaluation_form.html', form=form, item=item)

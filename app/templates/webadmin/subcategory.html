@@ -62,6 +62,11 @@
                                                 </span>
                                             {% endif %}
                                         {% endfor %}
+                                        {% if q.parent_id %}
+                                        <span class="icon">
+                                            <i class="fas fa-code-branch"></i>
+                                        </span>
+                                        {% endif %}
                                         {% if q.peer_evaluated_at %}
                                             <div class="tags has-addons">
                                                 <span class="tag is-dark">decision</span>

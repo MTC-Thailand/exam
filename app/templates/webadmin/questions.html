@@ -82,6 +82,11 @@
                                 <span class="tag">
                                     comments: {{ q.approvals|length }}
                                 </span>
+                                {% if q.parent_id %}
+                                    <span class="icon">
+                                        <i class="fas fa-code-branch"></i>
+                                    </span>
+                                {% endif %}
                                 {% for approval in q.approvals %}
                                     {% if approval.user == current_user %}
                                         {% if approval.status == 'เหมาะสม' %}
