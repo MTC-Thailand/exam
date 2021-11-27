@@ -117,6 +117,11 @@ class Item(db.Model):
                                                           remote_side=[id],
                                                           lazy='dynamic',
                                                           uselist=True))
+    peer_evaluated_at = db.Column('approved_at', db.DateTime(timezone=True))
+    peer_summary = db.Column('peer_summary', db.Text(), info={'label': 'Peer Summary'})
+    peer_decision = db.Column('peer_decision', db.String(),
+                                        info={'label': 'Decision',
+                                        'choices': [(c,c) for c in ['Accepted', 'Rejected']]})
 
     def __str__(self):
         return self.question[:40]
