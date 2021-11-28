@@ -34,14 +34,6 @@
                 {% include "messages.html" %}
                 <h1 class="title has-text-centered is-size-4">{{ bank.subject }}</h1>
                 <table id="myTable" class="table is-striped is-fullwidth">
-                    <col width="10%">
-                    <col width="10%">
-                    <col width="10%">
-                    <col width="30%">
-                    <col width="10%">
-                    <col width="10%">
-                    <col width="10%">
-                    <col width="10%">
                     <thead>
                     <th>หมวดสมรรถนะ</th>
                     <th>สมรรถนะ</th>
@@ -51,6 +43,7 @@
                     <th>แก้ไขล่าสุด</th>
                     <th>ส่งเมื่อ</th>
                     <th>decision</th>
+                    <th>กล่อง</th>
                     </thead>
                     <tbody>
                     {% for q in bank.items %}
@@ -82,6 +75,11 @@
                                 <span class="tag">
                                     comments: {{ q.approvals|length }}
                                 </span>
+                                {% for gr in q.groups %}
+                                <span class="tag">
+                                    กล่อง: {{ gr.name|truncate(10) }}
+                                </span>
+                                {% endfor %}
                                 {% if q.parent_id %}
                                     <span class="icon">
                                         <i class="fas fa-code-branch"></i>
@@ -126,6 +124,16 @@
                             </td>
                             <td>
                                 {{ q.peer_decision or '' }}
+                            </td>
+                            <td>
+                                {% for gr in q.groups %}
+                                    <span class="icon">
+                                        <i class="fas fa-box-open has-text-info"></i>
+                                    </span>
+                                    <span>
+                                        <small>{{ gr.name|truncate(10) }}</small>
+                                    </span>
+                                {% endfor %}
                             </td>
                         </tr>
                         {% endif %}

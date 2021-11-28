@@ -22,17 +22,12 @@
                     <h1 class="title has-text-centered is-size-6">สมรรถนะหลัก: {{ subsubcategory.subcategory.name }}</h1>
                     <h1 class="subtitle has-text-centered is-size-6">สมรรถนะย่อย: {{ subsubcategory.name }}</h1>
                     <table id="myTable" class="table is-striped is-fullwidth">
-                        <col width="30%">
-                        <col width="10%">
-                        <col width="10%">
-                        <col width="10%">
-                        <col width="10%">
-                        <col width="10%">
                         <thead>
                         <th>โจทย์</th>
                         <th>โดย</th>
                         <th>ส่งเมื่อ</th>
                         <th>decision</th>
+                        <th>กล่อง</th>
                         </thead>
                         <tbody>
                         {% for q in subsubcategory.items %}
@@ -76,6 +71,16 @@
                                     </td>
                                     <td>
                                         {{ q.user.username + ": " + q.user.name }}
+                                    </td>
+                                    <td>
+                                        {% for gr in q.groups %}
+                                            <span class="icon">
+                                        <i class="fas fa-box-open has-text-info"></i>
+                                    </span>
+                                            <span>
+                                        <small>{{ gr.name|truncate(10) }}</small>
+                                    </span>
+                                        {% endfor %}
                                     </td>
                                 </tr>
                             {% endif %}

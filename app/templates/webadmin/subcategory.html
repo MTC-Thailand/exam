@@ -32,6 +32,7 @@
                         <th>โดย</th>
                         <th>ส่งเมื่อ</th>
                         <th>decision</th>
+                        <th>กล่อง</th>
                         </thead>
                         <tbody>
                         {% for q in subcategory.items %}
@@ -86,6 +87,16 @@
                                     </td>
                                     <td>
                                         {{ q.peer_decision or '' }}
+                                    </td>
+                                    <td>
+                                        {% for gr in q.groups %}
+                                            <span class="icon">
+                                                <i class="fas fa-box-open has-text-info"></i>
+                                            </span>
+                                            <span>
+                                                <small>{{ gr.name|truncate(10) }}</small>
+                                            </span>
+                                        {% endfor %}
                                     </td>
                                 </tr>
                             {% endif %}
