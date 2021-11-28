@@ -4,9 +4,9 @@ from app import db
 from app.main.models import User
 
 assoc_group_items = db.Table('assoc_group_items',
-    db.Column('group_id', db.Integer, db.ForeignKey('item_groups.id')),
-    db.Column('item_id', db.Integer, db.ForeignKey('items.id'))
-)
+                             db.Column('group_id', db.Integer, db.ForeignKey('item_groups.id')),
+                             db.Column('item_id', db.Integer, db.ForeignKey('items.id'))
+                             )
 
 
 class Subject(db.Model):
@@ -132,11 +132,22 @@ class Item(db.Model):
     peer_evaluated_at = db.Column('approved_at', db.DateTime(timezone=True))
     peer_summary = db.Column('peer_summary', db.Text(), info={'label': 'Peer Summary'})
     peer_decision = db.Column('peer_decision', db.String(),
-                                        info={'label': 'Decision',
-                                        'choices': [(c,c) for c in ['Accepted', 'Rejected']]})
+                              info={'label': 'Decision',
+                                    'choices': [(c, c) for c in ['Accepted', 'Rejected']]})
 
     def __str__(self):
         return self.question[:40]
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'question': self.question,
+            'bankId': self.bank.id,
+            'bank': self.bank.name,
+            'subjectId': self.bank.subject.id,
+            'subject': self.bank.subject.name,
+            'decision': self.peer_decision
+        }
 
     @property
     def answer(self):
@@ -215,5 +226,7 @@ class ItemGroup(db.Model):
                            backref=db.backref('groups', lazy='dynamic'))
     items = db.relationship(Item,
                             secondary=assoc_group_items,
-                            backref=db.backref('groups'))
+                            lazy='dynamic',
+                            backref=db.backref('groups', lazy='dynamic'))
     desc = db.Column('desc', db.Text(), info={'label': 'Description'})
+

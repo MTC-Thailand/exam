@@ -123,6 +123,7 @@ def preview(item_id):
                 return redirect(request.args.get('next'))
     return render_template('webadmin/preview.html', item=item, form=form)
 
+
 @webadmin.route('/approvals/<int:approval_id>/delete')
 @superuser
 def delete_comment(approval_id):
@@ -337,3 +338,36 @@ def get_groups(spec_id, item_id):
                 'name': gr.name
             })
     return jsonify(groups)
+
+
+@webadmin.route('/groups/<int:group_id>/items')
+def list_items_in_group(group_id):
+    return render_template('webadmin/group_questions.html', group_id=group_id)
+
+
+@webadmin.route('/api/specs/groups/<int:group_id>/questions', methods=['GET'])
+@superuser
+def get_items_in_group(group_id):
+    group = ItemGroup.query.get(group_id)
+    start = request.args.get('start', type=int)
+    length = request.args.get('length', type=int)
+    search = request.args.get('search[value]')
+
+    query = group.items
+
+    total_filtered = query.count()
+
+    # search filter
+    if search:
+        query = query.filter(Item.question.like(f'%{search}%'))
+        total_filtered = query.count()
+
+    # pagination
+    query = query.offset(start).limit(length)
+
+    # response
+    return jsonify({'data': [item.to_dict() for item in query],
+                    'draw': request.args.get('draw', type=int),
+                    'recordsTotal': group.items.count(),
+                    'recordsFiltered': total_filtered
+                    })

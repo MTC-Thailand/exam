@@ -43,7 +43,9 @@
                                     {{ group.subject }}
                                 </td>
                                 <td>
-                                    {{ group.items|length }}
+                                    <a href="{{ url_for('webadmin.list_items_in_group', group_id=group.id) }}">
+                                        {{ group.items.count() }}
+                                    </a>
                                 </td>
                                 <td>
                                     <a href="{{ url_for('webadmin.edit_group', group_id=group.id) }}"

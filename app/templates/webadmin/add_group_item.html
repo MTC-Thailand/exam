@@ -21,14 +21,25 @@
                 <div class="column">
                     <nav class="panel">
                         <p class="panel-heading">
-                            กล่อง
+                            <span class="icon">
+                                <i class="fas fa-box-open"></i>
+                            </span>
+                            <span>
+                                กล่อง
+                            </span>
                         </p>
                         <a class="panel-block is-active" v-for="gr in groups"
                            :href="'/webadmin/items/' + itemId + '/groups/' + gr.id + '?child=' + child">
                             <span class="panel-icon">
-                                <i class="fas fa-plus" aria-hidden="true"></i>
+                                <i class="fas fa-arrow-circle-right" aria-hidden="true"></i>
                             </span>
                             <% gr.name %>
+                        </a>
+                        <a class="panel-block" v-if="(groups.length === 0) && (specId !== null)">
+                            ไม่มีรายการกล่อง
+                        </a>
+                        <a class="panel-block" v-if="(groups.length === 0) && (specId === null)">
+                            กรุณาเลือก specification จากเมนูทางซ้ายมือ
                         </a>
                     </nav>
                 </div>
@@ -48,11 +59,13 @@
                     itemId: {{ item.id|tojson|safe }},
                     specs: {{ specs|tojson|safe }},
                     child: {{ child|tojson|safe }},
+                    specId: null,
                     groups: [],
                 }
             },
             methods: {
                 fetchGroups(specId) {
+                    this.specId = specId
                     this.groups = []
                     axios.get('/webadmin/api/specs/' + specId + '/items/' + this.itemId).then((resp)=>{
                         resp.data.forEach((item)=>{

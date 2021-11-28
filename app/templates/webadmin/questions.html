@@ -127,12 +127,14 @@
                             </td>
                             <td>
                                 {% for gr in q.groups %}
+                                    <a href="{{ url_for('webadmin.list_items_in_group', group_id=gr.id) }}">
                                     <span class="icon">
                                         <i class="fas fa-box-open has-text-info"></i>
                                     </span>
                                     <span>
-                                        <small>{{ gr.name|truncate(10) }}</small>
+                                        <small>{{ gr.name|truncate(10, end='..') }}</small>
                                     </span>
+                                    </a>
                                 {% endfor %}
                             </td>
                         </tr>

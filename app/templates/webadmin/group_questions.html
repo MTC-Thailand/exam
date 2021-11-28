@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Admin: Questions{% endblock %}
+{% block head %}
+    {{ super() }}
+    <link href="//cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" rel="stylesheet" />
+{% endblock %}
+
+{% block page_content %}
+    <section class="section">
+        <div class="container" id="app">
+            {% include "messages.html" %}
+            <nav class="breadcrumb" aria-label="breadcrumbs">
+                <ul>
+                    <li><a href="{{ url_for('webadmin.list_banks') }}">คลังข้อสอบ</a></li>
+                </ul>
+            </nav>
+            <div class="columns">
+                <div class="column">
+                    <table id="myTable" class="table is-striped is-fullwidth">
+                        <thead>
+                        <tr>
+                            <th>โจทย์</th>
+                            <th>Bank</th>
+                            <th>รายวิชา</th>
+                            <th>decision</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script src="//cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready( function () {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-Token': {{ csrf_token()|tojson|safe }}
+                }
+            })
+            $('#myTable').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: "{{ url_for('webadmin.get_items_in_group', group_id=group_id) }}",
+                    },
+                    columns: [
+                        {"data": "question", "searchable": true},
+                        {"data": "bank"},
+                        {"data": "subject"},
+                        {"data": "decision"}
+                    ]
+                }
+            );
+        } );
+    </script>
+{% endblock %}
