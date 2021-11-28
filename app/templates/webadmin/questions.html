@@ -35,112 +35,17 @@
                 <h1 class="title has-text-centered is-size-4">{{ bank.subject }}</h1>
                 <table id="myTable" class="table is-striped is-fullwidth">
                     <thead>
-                    <th>หมวดสมรรถนะ</th>
-                    <th>สมรรถนะ</th>
-                    <th>สมรรถนะย่อย</th>
-                    <th>โจทย์</th>
-                    <th>โดย</th>
-                    <th>แก้ไขล่าสุด</th>
-                    <th>ส่งเมื่อ</th>
-                    <th>decision</th>
-                    <th>กล่อง</th>
+                    <tr>
+                        <th>หมวดสมรรถนะ</th>
+                        <th>สมรรถนะ</th>
+                        <th>สมรรถนะย่อย</th>
+                        <th>โจทย์</th>
+                        <th>โดย</th>
+                        <th>ส่งเมื่อ</th>
+                        <th>decision</th>
+                        <th>กล่อง</th>
+                    </tr>
                     </thead>
-                    <tbody>
-                    {% for q in bank.items %}
-                        {% if q.status == 'submit' or q.status == 'draft' %}
-                        <tr>
-                            <td><small>{{ q.category }}</small></td>
-                            <td>
-                                <a href="{{ url_for('webadmin.show_subcategory', subcategory_id=q.subcategory.id, bank_id=bank.id) }}">
-                                    <small>
-                                        {{ q.subcategory }}
-                                    </small>
-                                </a>
-                            </td>
-                            <td>
-                                {% if q.subsubcategory %}
-                                    <a href="{{ url_for('webadmin.show_subsubcategory', subsubcategory_id=q.subsubcategory.id, bank_id=bank.id) }}">
-                                    <small>
-                                        {{ q.subsubcategory }}
-                                    </small>
-                                    </a>
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </td>
-                            <td>
-                                <a href="{{ url_for('webadmin.preview', item_id=q.id) }}">
-                                    {{ q.question|safe }}
-                                </a>
-                                <span class="tag">
-                                    comments: {{ q.approvals|length }}
-                                </span>
-                                {% for gr in q.groups %}
-                                <span class="tag">
-                                    กล่อง: {{ gr.name|truncate(10) }}
-                                </span>
-                                {% endfor %}
-                                {% if q.parent_id %}
-                                    <span class="icon">
-                                        <i class="fas fa-code-branch"></i>
-                                    </span>
-                                {% endif %}
-                                {% for approval in q.approvals %}
-                                    {% if approval.user == current_user %}
-                                        {% if approval.status == 'เหมาะสม' %}
-                                        <span class="tag is-success">
-                                            your thought: {{ approval.status }}
-                                        </span>
-                                        {% elif approval.status == 'ไม่เหมาะสม' %}
-                                        <span class="tag is-danger">
-                                            your thought: {{ approval.status }}
-                                        </span>
-                                        {% else %}
-                                        <span class="tag is-warning">
-                                            your thought: {{ approval.status }}
-                                        </span>
-                                        {% endif %}
-                                    {% endif %}
-                                {% endfor %}
-                                {% if q.peer_evaluated_at %}
-                                    <div class="tags has-addons">
-                                        <span class="tag is-dark">decision</span>
-                                        {% if q.peer_decision == 'Accepted' %}
-                                            <span class="tag is-success">accepted</span>
-                                        {% elif q.peer_decision == 'Rejected' %}
-                                            <span class="tag is-danger">rejected</span>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {{ q.user.username + ": " + q.user.name }}
-                            </td>
-                            <td>
-                                {{ q.updated_at|localdatetime }}
-                            </td>
-                            <td>
-                                {{ q.submitted_at|localdatetime or 'draft' }}
-                            </td>
-                            <td>
-                                {{ q.peer_decision or '' }}
-                            </td>
-                            <td>
-                                {% for gr in q.groups %}
-                                    <a href="{{ url_for('webadmin.list_items_in_group', group_id=gr.id) }}">
-                                    <span class="icon">
-                                        <i class="fas fa-box-open has-text-info"></i>
-                                    </span>
-                                    <span>
-                                        <small>{{ gr.name|truncate(10, end='..') }}</small>
-                                    </span>
-                                    </a>
-                                {% endfor %}
-                            </td>
-                        </tr>
-                        {% endif %}
-                    {% endfor %}
-                    </tbody>
                 </table>
             </div>
         </div>
@@ -151,13 +56,31 @@
     {{ super() }}
     <script src="//cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
     <script>
+        let selectedCategory = null
         $(document).ready( function () {
-            $('#myTable').DataTable({
-                "order": [[7, 'desc'], [6, 'asc']],
+            var table = $('#myTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: {{ url_for('webadmin.get_questions', bank_id=bank.id)|tojson|safe }},
+                    data: function(d) {
+                        d.subcategory = selectedCategory
+                    }
+                },
+                columns: [
+                    {"data": "category"},
+                    {"data": "subcategory"},
+                    {"data": "subsubcategory"},
+                    {"data": "question", "searchable": true},
+                    {"data": "user"},
+                    {"data": "submittedAt"},
+                    {"data": "decision"},
+                    {"data": "groups"}
+                ]
             });
             $('select.subcategory').change(()=>{
-                let selectedCategory = $('.subcategory').find(":selected").val();
-                window.location.href = '/webadmin/banks/{{ bank.id }}/subcategories/' + selectedCategory + '/questions'
+                selectedCategory = $('.subcategory').find(":selected").val();
+                table.ajax.reload()
             })
         } );
     </script>

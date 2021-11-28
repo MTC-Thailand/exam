@@ -372,3 +372,67 @@ def get_items_in_group(group_id):
                     'recordsTotal': group.items.count(),
                     'recordsFiltered': total_filtered
                     })
+
+
+@webadmin.route('/api/banks/<int:bank_id>/questions')
+def get_questions(bank_id):
+    start = request.args.get('start', type=int)
+    length = request.args.get('length', type=int)
+    subcategory_id = request.args.get('subcategory', type=int)
+    if subcategory_id:
+        query = Item.query.filter_by(bank_id=bank_id, status='submit', subcategory_id=subcategory_id)
+    else:
+        query = Item.query.filter_by(bank_id=bank_id, status='submit')
+    total_count = query.count()
+    query = query.offset(start).limit(length)
+
+    data = []
+    for item in query:
+        if item.subcategory:
+            subcategory = f"<a href={url_for('webadmin.show_subcategory', subcategory_id=item.subcategory.id, bank_id=bank_id)}>{item.subcategory.name}</a>"
+        else:
+            subcategory = None
+        if item.subsubcategory:
+            subsubcategory = f"<a href={url_for('webadmin.show_subsubcategory', subsubcategory_id=item.subcategory.id, bank_id=bank_id)}>{item.subcategory.name}</a>"
+        else:
+            subsubcategory = None
+        question = f"<a href={url_for('webadmin.preview', item_id=item.id)}>{item.question}</a>"
+        question += f'<span class="tag">comments: {len(item.approvals)}</span>'
+        if item.parent_id:
+            question += '<span class="icon"><i class="fas fa-code-branch"></i></span>'
+        for comment in item.approvals:
+            if comment.user == current_user:
+                if comment.status == 'เหมาะสม':
+                    status = 'is-success'
+                elif comment.status == 'ไม่เหมาะสม':
+                    status = 'is-danger'
+                else:
+                    status = 'is-warning'
+                question += f'<span class="tag {status}">your thought: {comment.status}</span>'
+        boxes = []
+        for group in item.groups:
+            box = f'<a href={url_for("webadmin.list_items_in_group", group_id=group.id)}><span class ="icon"><i class ="fas fa-box-open has-text-info"></i></span><span><small>{group.name[:10]}</small></span></a>'
+            boxes.append(box)
+
+        data.append({
+            'id': item.id,
+            'question': question,
+            'bankId': item.bank.id,
+            'bank': item.bank.name,
+            'subjectId': item.bank.subject.id,
+            'subject': item.bank.subject.name,
+            'decision': item.peer_decision,
+            'category': item.category.name if item.category else None,
+            'subcategory': subcategory,
+            'subsubcategory': subsubcategory,
+            'submittedAt': item.submitted_at.isoformat() if item.submitted_at else None,
+            'user': item.user.name,
+            'groups': ''.join(boxes)
+            })
+
+    return jsonify({
+        'data': data,
+        'records': total_count,
+        'recordsFiltered': total_count,
+        'draw': request.args.get('draw', type=int)
+    })
