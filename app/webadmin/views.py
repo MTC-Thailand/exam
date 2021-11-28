@@ -296,6 +296,21 @@ def add_group(item_id, group_id):
     return redirect(url_for('webadmin.preview', item_id=item.id))
 
 
+@webadmin.route('/items/<int:item_id>/groups/<int:group_id>/remove')
+@superuser
+def remove_group_from_item(item_id, group_id):
+    group = ItemGroup.query.get(group_id)
+    item = Item.query.get(item_id)
+    if group in item.groups:
+        item.groups.remove(group)
+        db.session.add(item)
+        db.session.commit()
+        flash('นำข้อสอบออกจากกล่องเรียบร้อยแล้ว', 'success')
+    else:
+        flash('ไม่พบกล่อง กรุณาตรวจสอบ', 'danger')
+    return redirect(url_for('webadmin.preview', item_id=item.id))
+
+
 @webadmin.route('/api/specs/<int:spec_id>/items/<int:item_id>')
 @superuser
 def get_groups(spec_id, item_id):

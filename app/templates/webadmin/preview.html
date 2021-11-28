@@ -65,6 +65,17 @@
                         {% for group in item.groups %}
                             <tr>
                                 <td>{{ group.name }}</td>
+                                <td>
+                                    <a href="{{ url_for('webadmin.remove_group_from_item', item_id=item.id, group_id=group.id) }}"
+                                       class="button is-danger">
+                                        <span class="icon">
+                                           <i class="fas fa-trash-alt"></i>
+                                        </span>
+                                        <span>
+                                            นำออก
+                                        </span>
+                                    </a>
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
