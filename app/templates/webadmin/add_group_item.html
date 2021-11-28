@@ -24,7 +24,7 @@
                             กล่อง
                         </p>
                         <a class="panel-block is-active" v-for="gr in groups"
-                           :href="'/webadmin/items/' + itemId + '/groups/' + gr.id">
+                           :href="'/webadmin/items/' + itemId + '/groups/' + gr.id + '?child=' + child">
                             <span class="panel-icon">
                                 <i class="fas fa-plus" aria-hidden="true"></i>
                             </span>
@@ -47,6 +47,7 @@
                 return {
                     itemId: {{ item.id|tojson|safe }},
                     specs: {{ specs|tojson|safe }},
+                    child: {{ child|tojson|safe }},
                     groups: [],
                 }
             },
@@ -58,7 +59,6 @@
                             this.groups.push(item)
                         })
                     })
-                    console.log(this.groups)
                 }
             },
         })

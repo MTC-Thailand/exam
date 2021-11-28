@@ -55,10 +55,19 @@
                         {% endfor %}
                         </tbody>
                     </table>
-                    <p class="label">กล่องข้อสอบ</p>
+                    <div class="notification">
+                    <p class="label">
+                        <span class="icon">
+                        <i class="fas fa-box-open"></i>
+                        </span>
+                        <span>
+                            กล่องข้อสอบ
+                        </span>
+                    </p>
+                    {% if item.groups %}
                     <table class="table is-fullwidth">
                         <thead>
-                        <th>กลุ่ม</th>
+                        <th>กล่อง</th>
                         <th></th>
                         </thead>
                         <tbody>
@@ -67,7 +76,7 @@
                                 <td>{{ group.name }}</td>
                                 <td>
                                     <a href="{{ url_for('webadmin.remove_group_from_item', item_id=item.id, group_id=group.id) }}"
-                                       class="button is-danger">
+                                       class="button is-danger is-light">
                                         <span class="icon">
                                            <i class="fas fa-trash-alt"></i>
                                         </span>
@@ -80,11 +89,15 @@
                         {% endfor %}
                         </tbody>
                     </table>
+                    {% else %}
+                        <h1 class="title is-size-5 has-text-centered">ยังไม่มีการจัดเข้ากล่อง</h1>
+                    {% endif %}
                     <div class="buttons is-centered">
                         <a class="button is-link"
                            href="{{ url_for('webadmin.add_group_to_item', item_id=item.id) }}">
                             เพิ่มกล่อง
                         </a>
+                    </div>
                     </div>
                 </div>
                 <div class="buttons is-centered">
@@ -158,7 +171,14 @@
                     <p class="label">เพิ่มโดย</p>
                     <div class="notification">{{ child.user.name }}</div>
                     <p class="label">Derived from</p>
-                    <div class="notification">{{ child.parent_id }}</div>
+                    <div class="notification">
+                        <span class="icon">
+                           <i class="fas fa-code-branch"></i>
+                        </span>
+                        <span>
+                            Question ID: {{ child.parent_id }}
+                        </span>
+                    </div>
                     <p class="label">เพิ่มเมื่อ</p>
                     <div class="notification">{{ child.created_at|localdatetime }}</div>
                     <p class="label">โจทย์คำถาม</p>
@@ -196,13 +216,60 @@
                         {% endfor %}
                         </tbody>
                     </table>
+                    <div class="notification">
+                    <p class="label">
+                        <span class="icon">
+                        <i class="fas fa-box-open"></i>
+                        </span>
+                        <span>
+                            กล่องข้อสอบ
+                        </span>
+                    </p>
+                    {% if child.groups %}
+                    <table class="table is-fullwidth">
+                        <thead>
+                        <th>กล่อง</th>
+                        <th></th>
+                        </thead>
+                        <tbody>
+                        {% for group in child.groups %}
+                            <tr>
+                                <td>{{ group.name }}</td>
+                                <td>
+                                    <a href="{{ url_for('webadmin.remove_group_from_item', item_id=child.id, group_id=group.id) }}"
+                                       class="button is-danger is-light">
+                                        <span class="icon">
+                                           <i class="fas fa-trash-alt"></i>
+                                        </span>
+                                        <span>
+                                            นำออก
+                                        </span>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                        <h1 class="title is-size-5 has-text-centered">
+                            ยังไม่มีการจัดเข้ากล่อง
+                        </h1>
+                    {% endif %}
+                    <div class="buttons is-centered">
+                        <a class="button is-link"
+                           href="{{ url_for('webadmin.add_group_to_item', item_id=child.id, child="true") }}">
+                            เพิ่มกล่อง
+                        </a>
+                    </div>
+                    </div>
                     <div class="buttons is-centered">
                     {% if child.user == current_user and not child.peer_evaluated_at %}
-                        <a href="{{ url_for('webadmin.delete_question', item_id=child.id) }}" class="button is-light is-danger">
+                        <a href="{{ url_for('webadmin.delete_child_question', item_id=child.id) }}"
+                           class="button is-danger">
                             <span class="icon">
                                 <i class="fas fa-trash"></i>
                             </span>
-                            <span>ลบ</span>
+                            <span>ลบคำถาม</span>
                         </a>
                     {% endif %}
                     {% if not child.peer_evaluated_at %}

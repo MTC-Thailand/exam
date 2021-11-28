@@ -95,7 +95,7 @@ def edit_question(item_id):
 
 @webadmin.route('/questions/<int:item_id>/delete')
 @superuser
-def delete_question(item_id):
+def delete_child_question(item_id):
     item = Item.query.get(item_id)
     parent_id = item.parent_id
     db.session.delete(item)
@@ -258,9 +258,11 @@ def list_groups(spec_id):
 @webadmin.route('/items/<int:item_id>/groups')
 @superuser
 def add_group_to_item(item_id):
+    child = request.args.get('child', 'false')
     item = Item.query.get(item_id)
     specs = Specification.to_dict()
-    return render_template('webadmin/add_group_item.html', specs=specs, item=item)
+    return render_template('webadmin/add_group_item.html',
+                           specs=specs, item=item, child=child)
 
 
 @webadmin.route('/groups/<int:group_id>/edit', methods=['GET', 'POST'])
@@ -298,7 +300,10 @@ def add_group(item_id, group_id):
     item.groups.append(group)
     db.session.add(item)
     db.session.commit()
-    return redirect(url_for('webadmin.preview', item_id=item.id))
+    if item.parent_id:
+        return redirect(url_for('webadmin.preview', item_id=item.parent_id))
+    else:
+        return redirect(url_for('webadmin.preview', item_id=item.id))
 
 
 @webadmin.route('/items/<int:item_id>/groups/<int:group_id>/remove')
@@ -313,7 +318,10 @@ def remove_group_from_item(item_id, group_id):
         flash('นำข้อสอบออกจากกล่องเรียบร้อยแล้ว', 'success')
     else:
         flash('ไม่พบกล่อง กรุณาตรวจสอบ', 'danger')
-    return redirect(url_for('webadmin.preview', item_id=item.id))
+    if item.parent_id:
+        return redirect(url_for('webadmin.preview', item_id=item.parent_id))
+    else:
+        return redirect(url_for('webadmin.preview', item_id=item.id))
 
 
 @webadmin.route('/api/specs/<int:spec_id>/items/<int:item_id>')
