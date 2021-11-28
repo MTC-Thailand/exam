@@ -246,8 +246,13 @@ def add_item_group(spec_id):
 @webadmin.route('/specification/<int:spec_id>/groups')
 @superuser
 def list_groups(spec_id):
+    subject_id = request.args.get('subject_id', -1)
     specification = Specification.query.get(spec_id)
-    return render_template('webadmin/spec_groups.html', spec=specification)
+    subjects = Subject.query.all()
+    return render_template('webadmin/spec_groups.html',
+                           spec=specification,
+                           subject_id=int(subject_id),
+                           subjects=subjects)
 
 
 @webadmin.route('/items/<int:item_id>/groups')
