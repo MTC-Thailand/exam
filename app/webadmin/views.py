@@ -342,7 +342,8 @@ def get_groups(spec_id, item_id):
 
 @webadmin.route('/groups/<int:group_id>/items')
 def list_items_in_group(group_id):
-    return render_template('webadmin/group_questions.html', group_id=group_id)
+    group = ItemGroup.query.get(group_id)
+    return render_template('webadmin/group_questions.html', group=group)
 
 
 @webadmin.route('/api/specs/groups/<int:group_id>/questions', methods=['GET'])
