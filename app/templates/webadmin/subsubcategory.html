@@ -34,7 +34,7 @@
                             {% if q.status == 'submit' or q.status == 'draft' %}
                                 <tr>
                                     <td>
-                                        <a href="{{ url_for('webadmin.preview', item_id=q.id) }}">
+                                        <a href="{{ url_for('webadmin.preview', item_id=q.id, subsubcategory_id=subsubcategory.id) }}">
                                             {{ q.question|safe }}
                                         </a>
                                         <span class="tag">

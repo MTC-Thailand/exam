@@ -16,14 +16,14 @@
                             </span>
                             <span>ข้อก่อนหน้า</span>
                         </a>
-                        {% if next_item_id %}
-                            <a href="{{ url_for('webadmin.preview', item_id=next_item_id) }}" class="button is-success is-light">
-                                <span>ข้อถัดไป</span>
-                                <span class="icon">
-                                    <i class="fas fa-chevron-right"></i>
-                                </span>
-                            </a>
-                            {{ next_item_id }}
+                    {% endif %}
+                    {% if next_item_id %}
+                        <a href="{{ url_for('webadmin.preview', item_id=next_item_id) }}" class="button is-success is-light">
+                            <span>ข้อถัดไป</span>
+                            <span class="icon">
+                                <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
                     {% endif %}
                 </div>
                 <div class="box">
@@ -168,7 +168,6 @@
                         </span>
                         <span>สมรรถนะ</span>
                     </a>
-                    {% endif %}
                     {% if item.subsubcategory %}
                     <a href="{{ url_for('webadmin.show_subsubcategory', subsubcategory_id=item.subsubcategory_id, bank_id=item.bank.id) }}" class="button is-light">
                         <span class="icon">

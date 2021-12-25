@@ -109,8 +109,15 @@ def delete_child_question(item_id):
 def preview(item_id):
     form = ApprovalForm()
     item = Item.query.get(item_id)
-    prev_item = Item.query.order_by(Item.id.desc()).filter(Item.id < item_id).filter(Item.status == 'submit').first()
-    next_item = Item.query.filter(Item.id > item_id).filter(Item.status == 'submit').first()
+    subsubcategory_id = request.args.get('subsubcategory_id')
+    subcategory_id = request.args.get('subcategory_id')
+    query = Item.query.filter_by(bank_id=item.bank_id)
+    if subsubcategory_id:
+        query = query.filter_by(category_id=subsubcategory_id)
+    if subcategory_id:
+        query = query.filter_by(subcategory_id=subcategory_id)
+    prev_item = query.order_by(Item.id.desc()).filter(Item.id < item_id).filter(Item.status == 'submit').first()
+    next_item = query.filter(Item.id > item_id).filter(Item.status == 'submit').first()
     if request.method == 'POST':
         if form.validate_on_submit():
             new_approval = ItemApproval()
@@ -128,8 +135,8 @@ def preview(item_id):
     return render_template('webadmin/preview.html',
                            item=item,
                            form=form,
-                           prev_item_id=prev_item.id,
-                           next_item_id=next_item.id)
+                           prev_item_id=prev_item.id if prev_item else None,
+                           next_item_id=next_item.id if next_item else None)
 
 
 @webadmin.route('/approvals/<int:approval_id>/delete')

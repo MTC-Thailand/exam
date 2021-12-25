@@ -50,7 +50,7 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <a href="{{ url_for('webadmin.preview', item_id=q.id) }}">
+                                        <a href="{{ url_for('webadmin.preview', item_id=q.id, subcategory_id=subcategory.id) }}">
                                             {{ q.question|safe }}
                                         </a>
                                         <span class="tag">
