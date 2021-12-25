@@ -12,7 +12,7 @@
         <nav class="breadcrumb" aria-label="breadcrumbs">
             <ul>
                 <li><a href="{{ url_for('webadmin.list_banks') }}">คลังข้อสอบ</a></li>
-                <li><a href="{{ url_for('webadmin.list_questions', bank_id=bank.id) }}">คลังข้อสอบชุด{{ bank.name }}</a></li>
+                <li><a href="{{ url_for('webadmin.list_questions', bank_id=bank.id, status=status) }}">คลังข้อสอบชุด{{ bank.name }}</a></li>
                 <li class="is-active"><a href="#">วิชา{{ bank.subject }}</a></li>
             </ul>
         </nav>
@@ -43,6 +43,7 @@
                         <th>โดย</th>
                         <th>decision</th>
                         <th>กล่อง</th>
+                        <th>Subject</th>
                     </tr>
                     </thead>
                 </table>
@@ -61,7 +62,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: {{ url_for('webadmin.get_questions', bank_id=bank.id)|tojson|safe }},
+                    url: {{ url_for('webadmin.get_questions', bank_id=bank.id, status=status)|tojson|safe }},
                     data: function(d) {
                         d.subcategory = selectedCategory
                     }
@@ -73,7 +74,8 @@
                     {"data": "question", "searchable": true},
                     {"data": "user", "width": "10%"},
                     {"data": "decision", "width": "10%"},
-                    {"data": "groups"}
+                    {"data": "groups"},
+                    {"data": "subject"}
                 ]
             });
             $('select.subcategory').change(()=>{

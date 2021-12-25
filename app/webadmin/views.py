@@ -2,6 +2,7 @@ import os
 
 import arrow
 import requests
+from sqlalchemy import or_
 from flask_login import current_user
 from werkzeug.utils import secure_filename
 
@@ -23,7 +24,6 @@ drive = GoogleDrive(gauth)
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'tiff'}
 
 
-
 @webadmin.route('/banks')
 @superuser
 def list_banks():
@@ -31,12 +31,14 @@ def list_banks():
     return render_template('webadmin/banks.html', banks=banks)
 
 
-@webadmin.route('/banks/<int:bank_id>/questions')
+@webadmin.route('/banks/<int:bank_id>/questions/<status>')
 @superuser
-def list_questions(bank_id):
+def list_questions(bank_id, status):
     bank = Bank.query.get(bank_id)
     subcategories = set([item.subcategory for item in bank.items])
-    return render_template('webadmin/questions.html', bank=bank, subcategories=subcategories)
+    return render_template('webadmin/questions.html',
+                           bank=bank, subcategories=subcategories,
+                           status=status)
 
 
 @webadmin.route('/questions/<int:item_id>/edit', methods=['GET', 'POST'])
@@ -109,18 +111,27 @@ def delete_child_question(item_id):
 def preview(item_id):
     form = ApprovalForm()
     item = Item.query.get(item_id)
-    category_id = request.args.get('category_id')
-    subsubcategory_id = request.args.get('subsubcategory_id')
-    subcategory_id = request.args.get('subcategory_id')
-    query = Item.query.filter_by(bank_id=item.bank_id)
+    category_id = request.args.get('category_id', item.category_id)
+    subcategory_id = request.args.get('subcategory_id', item.subcategory_id)
+    subsubcategory_id = request.args.get('subsubcategory_id', item.subsubcategory_id)
+
+    query = Item.query.filter_by(bank_id=item.bank_id, status=item.status)
+
     if category_id:
-        query = query.filter_by(category_id=category_id)
-    if subsubcategory_id:
-        query = query.filter_by(subsubcategory_id=subsubcategory_id)
+        query.filter_by(category_id=category_id)
     if subcategory_id:
-        query = query.filter_by(subcategory_id=subcategory_id)
-    prev_item = query.order_by(Item.id.desc()).filter(Item.id < item_id).filter(Item.status == 'submit').first()
-    next_item = query.order_by(Item.id.asc()).filter(Item.id > item_id).filter(Item.status == 'submit').first()
+        query.filter_by(subcategory_id=subcategory_id)
+    if subsubcategory_id:
+        query.filter_by(subsubcategory_id=subsubcategory_id)
+
+    if item.status == 'submit':
+        query = query.filter(Item.parent_id is not None)
+    else:
+        query = query.filter_by(parent_id=None)
+
+    prev_item = query.order_by(Item.id.desc()).filter(Item.id < item_id).first()
+    next_item = query.order_by(Item.id.asc()).filter(Item.id > item_id).first()
+
     if request.method == 'POST':
         if form.validate_on_submit():
             new_approval = ItemApproval()
@@ -171,21 +182,23 @@ def submit(item_id):
     return redirect(url_for('webadmin.list_questions', bank_id=item.bank.id))
 
 
-@webadmin.route('/banks/<int:bank_id>/subcategories/<int:subcategory_id>/questions')
+@webadmin.route('/banks/<int:bank_id>/subcategories/<int:subcategory_id>/questions/<status>')
 @superuser
-def show_subcategory(bank_id, subcategory_id):
+def show_subcategory(bank_id, subcategory_id, status):
     subcategory = SubCategory.query.get(subcategory_id)
     bank = Bank.query.get(bank_id)
     return render_template('webadmin/subcategory.html',
+                           status=status,
                            subcategory=subcategory, bank=bank)
 
 
-@webadmin.route('/banks/<int:bank_id>/subsubcategories/<int:subsubcategory_id>/questions')
+@webadmin.route('/banks/<int:bank_id>/subsubcategories/<int:subsubcategory_id>/questions/<status>')
 @superuser
-def show_subsubcategory(bank_id, subsubcategory_id):
+def show_subsubcategory(bank_id, subsubcategory_id, status):
     subsubcategory = SubSubCategory.query.get(subsubcategory_id)
     bank = Bank.query.get(bank_id)
     return render_template('webadmin/subsubcategory.html',
+                           status=status,
                            subsubcategory=subsubcategory, bank=bank)
 
 
@@ -403,27 +416,29 @@ def get_items_in_group(group_id):
                     })
 
 
-@webadmin.route('/api/banks/<int:bank_id>/questions')
-def get_questions(bank_id):
+@webadmin.route('/api/banks/<int:bank_id>/questions/<status>')
+def get_questions(bank_id, status):
     start = request.args.get('start', type=int)
     length = request.args.get('length', type=int)
     subcategory_id = request.args.get('subcategory', type=int)
-    query = Item.query.order_by(Item.id)
-    if subcategory_id:
-        query = query.filter_by(bank_id=bank_id, status='submit', subcategory_id=subcategory_id)
+    if status == 'submit':
+        query = Item.query.filter_by(bank_id=bank_id) \
+            .filter(or_(Item.status == 'submit', Item.parent_id is not None)).order_by(Item.id)
     else:
-        query = query.filter_by(bank_id=bank_id, status='submit')
+        query = Item.query.filter_by(bank_id=bank_id, parent_id=None, status='draft').order_by(Item.id)
+    if subcategory_id:
+        query = query.filter_by(subcategory_id=subcategory_id)
     total_count = query.count()
     query = query.offset(start).limit(length)
 
     data = []
     for item in query:
         if item.subcategory:
-            subcategory = f"<a href={url_for('webadmin.show_subcategory', subcategory_id=item.subcategory.id, bank_id=bank_id)}>{item.subcategory.name}</a>"
+            subcategory = f"<a href={url_for('webadmin.show_subcategory', subcategory_id=item.subcategory.id, bank_id=bank_id, status=status)}>{item.subcategory.name}</a>"
         else:
             subcategory = None
         if item.subsubcategory:
-            subsubcategory = f"<a href={url_for('webadmin.show_subsubcategory', subsubcategory_id=item.subcategory.id, bank_id=bank_id)}>{item.subcategory.name}</a>"
+            subsubcategory = f"<a href={url_for('webadmin.show_subsubcategory', subsubcategory_id=item.subcategory.id, bank_id=bank_id, status=status)}>{item.subcategory.name}</a>"
         else:
             subsubcategory = None
         question = f"<a href={url_for('webadmin.preview', item_id=item.id)}>{item.question} {item.id}</a>"
@@ -458,7 +473,7 @@ def get_questions(bank_id):
             'submittedAt': item.submitted_at.isoformat() if item.submitted_at else None,
             'user': item.user.name,
             'groups': ''.join(boxes)
-            })
+        })
 
     return jsonify({
         'data': data,

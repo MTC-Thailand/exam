@@ -12,7 +12,7 @@
             <nav class="breadcrumb" aria-label="breadcrumbs">
                 <ul>
                     <li><a href="{{ url_for('webadmin.list_banks') }}">คลังข้อสอบ</a></li>
-                    <li><a href="{{ url_for('webadmin.list_questions', bank_id=bank.id) }}">คลังข้อสอบชุด{{ bank.name }}</a></li>
+                    <li><a href="{{ url_for('webadmin.list_questions', bank_id=bank.id, status=status) }}">คลังข้อสอบชุด{{ bank.name }}</a></li>
                     <li class="is-active"><a href="#">วิชา{{ bank.subject }}</a></li>
                 </ul>
             </nav>
@@ -20,12 +20,6 @@
                 <div class="column">
                     <h1 class="title has-text-centered is-size-5">{{ subcategory.name }}</h1>
                     <table id="myTable" class="table is-striped is-fullwidth">
-                        <col width="10%">
-                        <col width="30%">
-                        <col width="10%">
-                        <col width="10%">
-                        <col width="10%">
-                        <col width="10%">
                         <thead>
                         <th>สมรรถนะย่อย</th>
                         <th>โจทย์</th>
@@ -35,71 +29,72 @@
                         <th>กล่อง</th>
                         </thead>
                         <tbody>
-                        {% for q in subcategory.items %}
-                            {% if q.status == 'submit' or q.status == 'draft' %}
-                                <tr>
-                                    <td>
-                                        {% if q.subsubcategory %}
-                                            <a href="{{ url_for('webadmin.show_subsubcategory', subsubcategory_id=q.subsubcategory.id, bank_id=bank.id) }}">
-                                                <small>
-                                                    {{ q.subsubcategory }}
-                                                </small>
-                                            </a>
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <a href="{{ url_for('webadmin.preview', item_id=q.id, subcategory_id=subcategory.id, category_id=q.category_id) }}">
-                                            {{ q.question|safe }}
+                        {% for q in subcategory.items.filter_by(status=status, bank_id=bank.id)|sort(attribute='id') %}
+                            <tr>
+                                <td>
+                                    {% if q.subsubcategory %}
+                                        <a href="{{ url_for('webadmin.show_subsubcategory', subsubcategory_id=q.subsubcategory.id, bank_id=bank.id, status=status) }}">
+                                            <small>
+                                                {{ q.subsubcategory }}
+                                            </small>
                                         </a>
-                                        <span class="tag">
-                                            comments: {{ q.approvals|length }}
-                                        </span>
-                                        {% for approval in q.approvals %}
-                                            {% if approval.user == current_user %}
-                                                <span class="tag is-warning">
-                                                    your thought: {{ approval.status }}
-                                                </span>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('webadmin.preview', item_id=q.id, subcategory_id=subcategory.id, category_id=q.category_id) }}">
+                                        {{ q.question|safe }}
+                                    </a>
+                                    <span class="tag is-light is-info">
+                                        ID: {{ q.id }}
+                                    </span>
+                                    <span class="tag">
+                                        comments: {{ q.approvals|length }}
+                                    </span>
+                                    {% for approval in q.approvals %}
+                                        {% if approval.user == current_user %}
+                                            <span class="tag is-warning">
+                                                your thought: {{ approval.status }}
+                                            </span>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if q.parent_id %}
+                                    <span class="icon">
+                                        <i class="fas fa-code-branch"></i>
+                                    </span>
+                                    {% endif %}
+                                    {% if q.peer_evaluated_at %}
+                                        <div class="tags has-addons">
+                                            <span class="tag is-dark">decision</span>
+                                            {% if q.peer_decision == 'Accepted' %}
+                                                <span class="tag is-success">accepted</span>
+                                            {% elif q.peer_decision == 'Rejected' %}
+                                                <span class="tag is-danger">rejected</span>
                                             {% endif %}
-                                        {% endfor %}
-                                        {% if q.parent_id %}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ q.user.username + ": " + q.user.name }}
+                                </td>
+                                <td>
+                                    {{ q.submitted_at|localdatetime or 'draft' }}
+                                </td>
+                                <td>
+                                    {{ q.peer_decision or '' }}
+                                </td>
+                                <td>
+                                    {% for gr in q.groups %}
                                         <span class="icon">
-                                            <i class="fas fa-code-branch"></i>
+                                            <i class="fas fa-box-open has-text-info"></i>
                                         </span>
-                                        {% endif %}
-                                        {% if q.peer_evaluated_at %}
-                                            <div class="tags has-addons">
-                                                <span class="tag is-dark">decision</span>
-                                                {% if q.peer_decision == 'Accepted' %}
-                                                    <span class="tag is-success">accepted</span>
-                                                {% elif q.peer_decision == 'Rejected' %}
-                                                    <span class="tag is-danger">rejected</span>
-                                                {% endif %}
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {{ q.user.username + ": " + q.user.name }}
-                                    </td>
-                                    <td>
-                                        {{ q.submitted_at|localdatetime or 'draft' }}
-                                    </td>
-                                    <td>
-                                        {{ q.peer_decision or '' }}
-                                    </td>
-                                    <td>
-                                        {% for gr in q.groups %}
-                                            <span class="icon">
-                                                <i class="fas fa-box-open has-text-info"></i>
-                                            </span>
-                                            <span>
-                                                <small>{{ gr.name|truncate(10) }}</small>
-                                            </span>
-                                        {% endfor %}
-                                    </td>
-                                </tr>
-                            {% endif %}
+                                        <span>
+                                            <small>{{ gr.name|truncate(10) }}</small>
+                                        </span>
+                                    {% endfor %}
+                                </td>
+                            </tr>
                         {% endfor %}
                         </tbody>
                     </table>
@@ -113,9 +108,7 @@
     <script src="//cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready( function () {
-            $('#myTable').DataTable({
-                "order": [[4, 'desc'], [3, 'asc']],
-            });
+            $('#myTable').DataTable();
         } );
     </script>
 {% endblock %}

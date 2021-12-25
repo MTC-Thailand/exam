@@ -12,7 +12,7 @@
             <nav class="breadcrumb" aria-label="breadcrumbs">
                 <ul>
                     <li><a href="{{ url_for('webadmin.list_banks') }}">คลังข้อสอบ</a></li>
-                    <li><a href="{{ url_for('webadmin.list_questions', bank_id=bank.id) }}">คลังข้อสอบชุด{{ bank.name }}</a></li>
+                    <li><a href="{{ url_for('webadmin.list_questions', bank_id=bank.id, status=status) }}">คลังข้อสอบชุด{{ bank.name }}</a></li>
                     <li class="is-active"><a href="#">วิชา{{ bank.subject }}</a></li>
                 </ul>
             </nav>
@@ -30,60 +30,61 @@
                         <th>กล่อง</th>
                         </thead>
                         <tbody>
-                        {% for q in subsubcategory.items %}
-                            {% if q.status == 'submit' or q.status == 'draft' %}
-                                <tr>
-                                    <td>
-                                        <a href="{{ url_for('webadmin.preview', item_id=q.id, subsubcategory_id=subsubcategory.id, category_id=q.category_id) }}">
-                                            {{ q.question|safe }}
-                                        </a>
-                                        <span class="tag">
-                                            comments: {{ q.approvals|length }}
-                                        </span>
-                                        {% for approval in q.approvals %}
-                                            {% if approval.user == current_user %}
-                                                <span class="tag is-warning">
-                                                    your thought: {{ approval.status }}
-                                                </span>
-                                            {% endif %}
-                                        {% endfor %}
-                                        {% if q.parent_id %}
-                                            <span class="icon">
-                                                <i class="fas fa-code-branch"></i>
+                        {% for q in subsubcategory.items.filter_by(status=status, bank_id=bank.id)|sort(attribute='id') %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('webadmin.preview', item_id=q.id, subsubcategory_id=subsubcategory.id, category_id=q.category_id) }}">
+                                        {{ q.question|safe }}
+                                    </a>
+                                    <span class="tag is-info is-light">
+                                        ID: {{ q.id }}
+                                    </span>
+                                    <span class="tag">
+                                        comments: {{ q.approvals|length }}
+                                    </span>
+                                    {% for approval in q.approvals %}
+                                        {% if approval.user == current_user %}
+                                            <span class="tag is-warning">
+                                                your thought: {{ approval.status }}
                                             </span>
                                         {% endif %}
-                                        {% if q.peer_evaluated_at %}
-                                            <div class="tags has-addons">
-                                                <span class="tag is-dark">decision</span>
-                                                {% if q.peer_decision == 'Accepted' %}
-                                                    <span class="tag is-success">accepted</span>
-                                                {% elif q.peer_decision == 'Rejected' %}
-                                                    <span class="tag is-danger">rejected</span>
-                                                {% endif %}
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {{ q.user.username + ": " + q.user.name }}
-                                    </td>
-                                    <td>
-                                        {{ q.submitted_at|localdatetime or 'draft' }}
-                                    </td>
-                                    <td>
-                                        {{ q.user.username + ": " + q.user.name }}
-                                    </td>
-                                    <td>
-                                        {% for gr in q.groups %}
-                                            <span class="icon">
-                                        <i class="fas fa-box-open has-text-info"></i>
-                                    </span>
-                                            <span>
-                                        <small>{{ gr.name|truncate(10) }}</small>
-                                    </span>
-                                        {% endfor %}
-                                    </td>
-                                </tr>
-                            {% endif %}
+                                    {% endfor %}
+                                    {% if q.parent_id %}
+                                        <span class="icon">
+                                            <i class="fas fa-code-branch"></i>
+                                        </span>
+                                    {% endif %}
+                                    {% if q.peer_evaluated_at %}
+                                        <div class="tags has-addons">
+                                            <span class="tag is-dark">decision</span>
+                                            {% if q.peer_decision == 'Accepted' %}
+                                                <span class="tag is-success">accepted</span>
+                                            {% elif q.peer_decision == 'Rejected' %}
+                                                <span class="tag is-danger">rejected</span>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ q.user.username + ": " + q.user.name }}
+                                </td>
+                                <td>
+                                    {{ q.submitted_at|localdatetime or 'draft' }}
+                                </td>
+                                <td>
+                                    {{ q.user.username + ": " + q.user.name }}
+                                </td>
+                                <td>
+                                    {% for gr in q.groups %}
+                                        <span class="icon">
+                                    <i class="fas fa-box-open has-text-info"></i>
+                                </span>
+                                        <span>
+                                    <small>{{ gr.name|truncate(10) }}</small>
+                                </span>
+                                    {% endfor %}
+                                </td>
+                            </tr>
                         {% endfor %}
                         </tbody>
                     </table>

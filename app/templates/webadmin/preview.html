@@ -5,6 +5,7 @@
 <section class="section">
     <div class="container" id="app">
         <h1 class="title has-text-centered">Preview</h1>
+        <h1 class="subtitle has-text-centered">รหัสข้อสอบ: {{ item.id }}</h1>
         <div class="columns">
             <div class="column is-two-thirds is-offset-2">
                 {% include "messages.html" %}
@@ -14,12 +15,12 @@
                             <span class="icon">
                                 <i class="fas fa-chevron-left"></i>
                             </span>
-                            <span>ข้อก่อนหน้า {{ prev_item_id }}</span>
+                            <span>ข้อก่อนหน้า <span class="tag is-success">{{ prev_item_id }}</span></span>
                         </a>
                     {% endif %}
                     {% if next_item_id %}
                         <a href="{{ url_for('webadmin.preview', item_id=next_item_id, category_id=category_id, subcategory_id=subcategory_id, subsubcategory_id=subsubcategory_id) }}" class="button is-success is-light">
-                            <span>ข้อถัดไป {{ next_item_id }}</span>
+                            <span>ข้อถัดไป <span class="tag is-success">{{ next_item_id }}</span></span>
                             <span class="icon">
                                 <i class="fas fa-chevron-right"></i>
                             </span>
@@ -155,21 +156,21 @@
                     {% endif %}
                 </div>
                 <div class="buttons is-centered">
-                    <a href="{{ url_for('webadmin.list_questions', bank_id=item.bank.id) }}"
+                    <a href="{{ url_for('webadmin.list_questions', bank_id=item.bank.id, status=item.status) }}"
                        class="button is-light">
                         <span class="icon">
                             <i class="fas fa-chevron-left"></i>
                         </span>
                         <span>คลังข้อสอบ</span>
                     </a>
-                    <a href="{{ url_for('webadmin.show_subcategory', subcategory_id=item.subcategory_id, bank_id=item.bank.id) }}" class="button is-light">
+                    <a href="{{ url_for('webadmin.show_subcategory', subcategory_id=item.subcategory_id, bank_id=item.bank.id, status=item.status) }}" class="button is-light">
                         <span class="icon">
                             <i class="fas fa-chevron-left"></i>
                         </span>
                         <span>สมรรถนะ</span>
                     </a>
                     {% if item.subsubcategory %}
-                    <a href="{{ url_for('webadmin.show_subsubcategory', subsubcategory_id=item.subsubcategory_id, bank_id=item.bank.id) }}" class="button is-light">
+                    <a href="{{ url_for('webadmin.show_subsubcategory', subsubcategory_id=item.subsubcategory_id, bank_id=item.bank.id, status=item.status) }}" class="button is-light">
                         <span class="icon">
                             <i class="fas fa-chevron-left"></i>
                         </span>

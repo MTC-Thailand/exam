@@ -20,12 +20,12 @@
                         <td>{{ bank.subject }}</td>
                         <td>{{ bank.name }}</td>
                         <td>
-                            <a href="{{ url_for('webadmin.list_questions', bank_id=bank.id) }}">
+                            <a href="{{ url_for('webadmin.list_questions', bank_id=bank.id, status='draft') }}">
                                 {{ bank.drafted_items|length }}
                             </a>
                         </td>
                         <td>
-                            <a href="{{ url_for('webadmin.list_questions', bank_id=bank.id) }}">
+                            <a href="{{ url_for('webadmin.list_questions', bank_id=bank.id, status='submit') }}">
                                 {{ bank.submitted_items|length }}
                             </a>
                         </td>

@@ -33,12 +33,14 @@ class Bank(db.Model):
     @property
     def drafted_items(self):
         return [item for item in self.items
-                if item.status == 'draft' and item.status != 'discarded']
+                if item.status == 'draft' and item.status != 'discarded'
+                and item.parent_id is None]
 
     @property
     def submitted_items(self):
         return [item for item in self.items
-                if item.status == 'submit' and item.status != 'discarded']
+                if (item.status == 'submit' and item.status != 'discarded')
+                or item.parent_id is not None]
 
     @property
     def accepted_items(self):
@@ -113,11 +115,11 @@ class Item(db.Model):
     subsubcategory_id = db.Column('subsubcategory_id', db.ForeignKey('sub_sub_categories.id'))
     bank = db.relationship('Bank', backref=db.backref('items', cascade='all, delete-orphan'))
     category = db.relationship('Category',
-                               backref=db.backref('items', cascade='all, delete-orphan'))
+                               backref=db.backref('items', cascade='all, delete-orphan', lazy='dynamic'))
     subcategory = db.relationship('SubCategory',
-                                  backref=db.backref('items', cascade='all, delete-orphan'))
+                                  backref=db.backref('items', cascade='all, delete-orphan', lazy='dynamic'))
     subsubcategory = db.relationship('SubSubCategory',
-                                     backref=db.backref('items', cascade='all, delete-orphan'))
+                                     backref=db.backref('items', cascade='all, delete-orphan', lazy='dynamic'))
     created_at = db.Column('created_at', db.DateTime(timezone=True))
     updated_at = db.Column('updated_at', db.DateTime(timezone=True))
     submitted_at = db.Column('submitted_at', db.DateTime(timezone=True))
