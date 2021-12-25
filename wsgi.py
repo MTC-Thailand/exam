@@ -23,6 +23,8 @@ admin.add_views(ModelView(Item, db.session, category='ExamBank'))
 admin.add_views(ModelView(Choice, db.session, category='ExamBank'))
 admin.add_views(ModelView(NumChoice, db.session, category='ExamBank'))
 
+admin.add_views(ModelView(Specification, db.session, category='ExamBank'))
+
 admin.add_views(UserAdminView(User, db.session, category='Main'))
 admin.add_views(ModelView(Role, db.session, category='Main'))
 admin.add_views(UploadUserView(name='User upload', endpoint='user_upload', category='Main'))
