@@ -109,6 +109,8 @@ def delete_child_question(item_id):
 def preview(item_id):
     form = ApprovalForm()
     item = Item.query.get(item_id)
+    prev_item = Item.query.order_by(Item.id.desc()).filter(Item.id < item_id).filter(Item.status == 'submit').first()
+    next_item = Item.query.filter(Item.id > item_id).filter(Item.status == 'submit').first()
     if request.method == 'POST':
         if form.validate_on_submit():
             new_approval = ItemApproval()
@@ -121,7 +123,13 @@ def preview(item_id):
             flash('Your approval has been submitted.', 'success')
             if request.args.get('next'):
                 return redirect(request.args.get('next'))
-    return render_template('webadmin/preview.html', item=item, form=form)
+    if item.parent_id:
+        item = Item.query.get(item.parent_id)
+    return render_template('webadmin/preview.html',
+                           item=item,
+                           form=form,
+                           prev_item_id=prev_item.id,
+                           next_item_id=next_item.id)
 
 
 @webadmin.route('/approvals/<int:approval_id>/delete')
@@ -366,8 +374,16 @@ def get_items_in_group(group_id):
     # pagination
     query = query.offset(start).limit(length)
 
+    data = []
+    for item in query:
+        d = item.to_dict()
+        d['question'] = f"<a href={url_for('webadmin.preview', item_id=item.id)}>{item.question}</a>"
+        if item.parent_id:
+            d['question'] += '<span class="icon"><i class="fas fa-code-branch"></i></span>'
+        data.append(d)
+
     # response
-    return jsonify({'data': [item.to_dict() for item in query],
+    return jsonify({'data': data,
                     'draw': request.args.get('draw', type=int),
                     'recordsTotal': group.items.count(),
                     'recordsFiltered': total_filtered

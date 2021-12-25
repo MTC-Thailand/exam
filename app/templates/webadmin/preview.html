@@ -8,6 +8,25 @@
         <div class="columns">
             <div class="column is-two-thirds is-offset-2">
                 {% include "messages.html" %}
+                <div class="buttons is-centered">
+                    {% if prev_item_id %}
+                        <a href="{{ url_for('webadmin.preview', item_id=prev_item_id) }}" class="button is-success is-light">
+                        <span class="icon">
+                            <i class="fas fa-chevron-left"></i>
+                        </span>
+                            <span>ข้อก่อนหน้า</span>
+                        {{ prev_item_id }}
+                        </a>
+                        {% if next_item_id %}
+                            <a href="{{ url_for('webadmin.preview', item_id=next_item_id) }}" class="button is-success is-light">
+                                <span>ข้อถัดไป</span>
+                                <span class="icon">
+                                    <i class="fas fa-chevron-right"></i>
+                                </span>
+                            </a>
+                            {{ next_item_id }}
+                    {% endif %}
+                </div>
                 <div class="box">
                     <div class="notification is-warning has-text-centered">
                         <strong>{{ item.status|upper }}</strong>
@@ -150,6 +169,7 @@
                         </span>
                         <span>สมรรถนะ</span>
                     </a>
+                    {% endif %}
                     {% if item.subsubcategory %}
                     <a href="{{ url_for('webadmin.show_subsubcategory', subsubcategory_id=item.subsubcategory_id, bank_id=item.bank.id) }}" class="button is-light">
                         <span class="icon">
