@@ -10,16 +10,16 @@
                 {% include "messages.html" %}
                 <div class="buttons is-centered">
                     {% if prev_item_id %}
-                        <a href="{{ url_for('webadmin.preview', item_id=prev_item_id) }}" class="button is-success is-light">
+                        <a href="{{ url_for('webadmin.preview', item_id=prev_item_id, category_id=category_id, subcategory_id=subcategory_id, subsubcategory_id=subsubcategory_id) }}" class="button is-success is-light">
                             <span class="icon">
                                 <i class="fas fa-chevron-left"></i>
                             </span>
-                            <span>ข้อก่อนหน้า</span>
+                            <span>ข้อก่อนหน้า {{ prev_item_id }}</span>
                         </a>
                     {% endif %}
                     {% if next_item_id %}
-                        <a href="{{ url_for('webadmin.preview', item_id=next_item_id) }}" class="button is-success is-light">
-                            <span>ข้อถัดไป</span>
+                        <a href="{{ url_for('webadmin.preview', item_id=next_item_id, category_id=category_id, subcategory_id=subcategory_id, subsubcategory_id=subsubcategory_id) }}" class="button is-success is-light">
+                            <span>ข้อถัดไป {{ next_item_id }}</span>
                             <span class="icon">
                                 <i class="fas fa-chevron-right"></i>
                             </span>

@@ -109,15 +109,18 @@ def delete_child_question(item_id):
 def preview(item_id):
     form = ApprovalForm()
     item = Item.query.get(item_id)
+    category_id = request.args.get('category_id')
     subsubcategory_id = request.args.get('subsubcategory_id')
     subcategory_id = request.args.get('subcategory_id')
     query = Item.query.filter_by(bank_id=item.bank_id)
+    if category_id:
+        query = query.filter_by(category_id=category_id)
     if subsubcategory_id:
-        query = query.filter_by(category_id=subsubcategory_id)
+        query = query.filter_by(subsubcategory_id=subsubcategory_id)
     if subcategory_id:
         query = query.filter_by(subcategory_id=subcategory_id)
     prev_item = query.order_by(Item.id.desc()).filter(Item.id < item_id).filter(Item.status == 'submit').first()
-    next_item = query.filter(Item.id > item_id).filter(Item.status == 'submit').first()
+    next_item = query.order_by(Item.id.asc()).filter(Item.id > item_id).filter(Item.status == 'submit').first()
     if request.method == 'POST':
         if form.validate_on_submit():
             new_approval = ItemApproval()
@@ -135,6 +138,9 @@ def preview(item_id):
     return render_template('webadmin/preview.html',
                            item=item,
                            form=form,
+                           category_id=category_id,
+                           subcategory_id=subcategory_id,
+                           subsubcategory_id=subsubcategory_id,
                            prev_item_id=prev_item.id if prev_item else None,
                            next_item_id=next_item.id if next_item else None)
 
@@ -402,10 +408,11 @@ def get_questions(bank_id):
     start = request.args.get('start', type=int)
     length = request.args.get('length', type=int)
     subcategory_id = request.args.get('subcategory', type=int)
+    query = Item.query.order_by(Item.id)
     if subcategory_id:
-        query = Item.query.filter_by(bank_id=bank_id, status='submit', subcategory_id=subcategory_id)
+        query = query.filter_by(bank_id=bank_id, status='submit', subcategory_id=subcategory_id)
     else:
-        query = Item.query.filter_by(bank_id=bank_id, status='submit')
+        query = query.filter_by(bank_id=bank_id, status='submit')
     total_count = query.count()
     query = query.offset(start).limit(length)
 
@@ -419,7 +426,7 @@ def get_questions(bank_id):
             subsubcategory = f"<a href={url_for('webadmin.show_subsubcategory', subsubcategory_id=item.subcategory.id, bank_id=bank_id)}>{item.subcategory.name}</a>"
         else:
             subsubcategory = None
-        question = f"<a href={url_for('webadmin.preview', item_id=item.id)}>{item.question}</a>"
+        question = f"<a href={url_for('webadmin.preview', item_id=item.id)}>{item.question} {item.id}</a>"
         question += f'<span class="tag">comments: {len(item.approvals)}</span>'
         if item.parent_id:
             question += '<span class="icon"><i class="fas fa-code-branch"></i></span>'
