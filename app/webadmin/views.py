@@ -111,18 +111,18 @@ def delete_child_question(item_id):
 def preview(item_id):
     form = ApprovalForm()
     item = Item.query.get(item_id)
-    category_id = request.args.get('category_id', item.category_id)
-    subcategory_id = request.args.get('subcategory_id', item.subcategory_id)
-    subsubcategory_id = request.args.get('subsubcategory_id', item.subsubcategory_id)
+    category_id = request.args.get('category_id', item.category_id, type=int)
+    subcategory_id = request.args.get('subcategory_id', item.subcategory_id, type=int)
+    subsubcategory_id = request.args.get('subsubcategory_id', item.subsubcategory_id, type=int)
 
     query = Item.query.filter_by(bank_id=item.bank_id, status=item.status)
 
     if category_id:
-        query.filter_by(category_id=category_id)
+        query = query.filter_by(category_id=category_id)
     if subcategory_id:
-        query.filter_by(subcategory_id=subcategory_id)
+        query = query.filter_by(subcategory_id=subcategory_id)
     if subsubcategory_id:
-        query.filter_by(subsubcategory_id=subsubcategory_id)
+        query = query.filter_by(subsubcategory_id=subsubcategory_id)
 
     if item.status == 'submit':
         query = query.filter(Item.parent_id is not None)
@@ -441,8 +441,8 @@ def get_questions(bank_id, status):
             subsubcategory = f"<a href={url_for('webadmin.show_subsubcategory', subsubcategory_id=item.subcategory.id, bank_id=bank_id, status=status)}>{item.subcategory.name}</a>"
         else:
             subsubcategory = None
-        question = f"<a href={url_for('webadmin.preview', item_id=item.id)}>{item.question} {item.id}</a>"
-        question += f'<span class="tag">comments: {len(item.approvals)}</span>'
+        question = f"<a href={url_for('webadmin.preview', item_id=item.id)}>{item.question} <span class='tag is-info is-light'>ID: {item.id}</span></a>"
+        question += f' <span class="tag">comments: {len(item.approvals)}</span>'
         if item.parent_id:
             question += '<span class="icon"><i class="fas fa-code-branch"></i></span>'
         for comment in item.approvals:
