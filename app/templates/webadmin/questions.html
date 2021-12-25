@@ -41,7 +41,6 @@
                         <th>สมรรถนะย่อย</th>
                         <th>โจทย์</th>
                         <th>โดย</th>
-                        <th>ส่งเมื่อ</th>
                         <th>decision</th>
                         <th>กล่อง</th>
                     </tr>
@@ -68,13 +67,12 @@
                     }
                 },
                 columns: [
-                    {"data": "category"},
-                    {"data": "subcategory"},
-                    {"data": "subsubcategory"},
+                    {"data": "category", "width": "10%"},
+                    {"data": "subcategory", "width": "10%"},
+                    {"data": "subsubcategory", "width": "10%"},
                     {"data": "question", "searchable": true},
-                    {"data": "user"},
-                    {"data": "submittedAt"},
-                    {"data": "decision"},
+                    {"data": "user", "width": "10%"},
+                    {"data": "decision", "width": "10%"},
                     {"data": "groups"}
                 ]
             });
