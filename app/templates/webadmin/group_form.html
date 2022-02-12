@@ -39,7 +39,7 @@
                             </div>
                             <div class="field is-grouped is-grouped-centered">
                                 <div class="control">
-                                    <a href="{{ url_for('main.index') }}"
+                                    <a href="{{ request.referrer }}"
                                        class="button is-light">Cancel</a>
                                     <button class="button is-success">Save</button>
                                 </div>
