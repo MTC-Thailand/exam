@@ -238,3 +238,28 @@ class ItemGroup(db.Model):
                             lazy='dynamic',
                             backref=db.backref('groups', lazy='dynamic'))
     desc = db.Column('desc', db.Text(), info={'label': 'Description'})
+
+
+class RandomSet(db.Model):
+    __tablename__ = 'random_sets'
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, info={'label': 'สร้างเมื่อ'})
+    desc = db.Column('desc', db.Text(), info={'label': 'รายละเอียด'})
+    spec_id = db.Column('spec_id', db.ForeignKey('specifications.id'))
+    spec = db.relationship(Specification, backref=db.backref('random_sets',
+                                                             lazy='dynamic',
+                                                             cascade='all, delete-orphan'))
+    creator_id = db.Column('creator_id', db.ForeignKey('users.id'))
+    creator = db.relationship(User)
+
+
+class RandomItemSet(db.Model):
+    __tablename__ = 'random_item_sets'
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    set_id = db.Column('set_id', db.ForeignKey('random_sets.id'))
+    set = db.relationship(RandomSet, backref=db.backref('item_sets', lazy='dynamic',
+                                                        cascade='all, delete-orphan'))
+    item_id = db.Column('item_id', db.ForeignKey('items.id'))
+    item = db.relationship(Item)
+    group_id = db.Column('group_id', db.ForeignKey('item_groups.id'))
+    group = db.relationship(ItemGroup, backref=db.backref('sample_items', lazy='dynamic'))
