@@ -25,16 +25,17 @@
                 <div class="column is-two-thirds is-offset-2 box">
                     <table class="table is-fullwidth">
                         <thead>
-                        <th>Name</th>
-                        <th>Subject</th>
-                        <th>Total Questions</th>
+                        <th>ชื่อกล่อง</th>
+                        <th>รายวิชา</th>
+                        <th>จำนวนคำถามในกล่อง</th>
+                        <th>จำนวนข้อในการสุ่ม</th>
                         <th></th>
                         </thead>
                         <tbody>
                         {% if subject_id != -1 %}
-                            {% set groups = spec.groups.filter_by(subject_id=subject_id) %}
+                            {% set groups = spec.groups.filter_by(subject_id=subject_id).order_by(ItemGroup.name) %}
                         {% else %}
-                            {% set groups = spec.groups %}
+                            {% set groups = spec.groups.order_by(ItemGroup.subject_id, ItemGroup.name) %}
                         {% endif %}
                         {% for group in groups %}
                             <tr>
@@ -48,7 +49,10 @@
                                     </a>
                                 </td>
                                 <td>
-                                    <a href="{{ url_for('webadmin.edit_group', group_id=group.id) }}"
+                                    {{ group.num_sample_items }}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('webadmin.edit_group', group_id=group.id, subject_id=subject_id) }}"
                                        class="button is-light">
                                         <span class="icon">
                                             <i class="fas fa-pencil-alt"></i>

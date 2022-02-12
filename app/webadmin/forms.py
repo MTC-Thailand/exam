@@ -32,8 +32,8 @@ class SpecificationForm(ModelForm):
 class GroupForm(ModelForm):
     class Meta:
         model = ItemGroup
-        only = ['name', 'desc']
-    subject = QuerySelectField('Subject',
+        only = ['name', 'desc', 'num_sample_items']
+    subject = QuerySelectField('รายวิชา',
                                blank_text='Select subject',
                                get_label='name',
                                allow_blank=False,

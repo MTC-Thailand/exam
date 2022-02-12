@@ -291,6 +291,7 @@ def list_groups(spec_id):
     subjects = Subject.query.all()
     return render_template('webadmin/spec_groups.html',
                            spec=specification,
+                           ItemGroup=ItemGroup,
                            subject_id=int(subject_id),
                            subjects=subjects)
 
@@ -309,13 +310,14 @@ def add_group_to_item(item_id):
 @superuser
 def edit_group(group_id):
     group = ItemGroup.query.get(group_id)
+    subject_id = request.args.get('subject_id')
     form = GroupForm(obj=group)
     if request.method == 'POST':
         if form.validate_on_submit():
             form.populate_obj(group)
             db.session.add(group)
             db.session.commit()
-            return redirect(url_for('webadmin.list_groups', spec_id=group.spec_id))
+            return redirect(url_for('webadmin.list_groups', spec_id=group.spec_id, subject_id=subject_id))
     return render_template('webadmin/group_form_edit.html',
                            form=form,
                            spec_id=group.spec_id,

@@ -214,7 +214,8 @@ class Specification(db.Model):
 class ItemGroup(db.Model):
     __tablename__ = 'item_groups'
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column('name', db.String(), nullable=False, info={'label': 'Group Name'})
+    name = db.Column('name', db.String(), nullable=False, info={'label': 'ชื่อกล่องข้อสอบ'})
+    num_sample_items = db.Column('num_sample_items', db.Integer(), info={'label': 'จำนวนข้อในการสุ่ม'})
     created_at = db.Column(db.DateTime(timezone=True), nullable=False)
     user_id = db.Column('user_id', db.ForeignKey('users.id'))
     user = db.relationship(User, backref=db.backref('item_groups'))
