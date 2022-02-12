@@ -26,6 +26,12 @@
                                 </div>
                             </div>
                             <div class="field">
+                                <label class="label">{{ form.num_sample_items.label }}</label>
+                                <div class="control">
+                                    {{ form.num_sample_items(class="input") }}
+                                </div>
+                            </div>
+                            <div class="field">
                                 <label class="label">{{ form.desc.label }}</label>
                                 <div class="control">
                                     {{ form.desc(class="textarea", id="desc") }}
