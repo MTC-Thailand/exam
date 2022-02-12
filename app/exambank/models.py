@@ -42,8 +42,15 @@ class Bank(db.Model):
 
     @property
     def accepted_items(self):
-        return [item for item in self.items
-                if item.peer_decision == 'Accepted']
+        return self.items.filter_by(peer_decision='Accepted').all()
+
+    @property
+    def grouped_items(self):
+        return self.items.filter(Item.groups.any()).all()
+
+    @property
+    def ungrouped_items(self):
+        return self.items.filter(~Item.groups.any()).all()
 
 
 class Category(db.Model):
@@ -111,7 +118,8 @@ class Item(db.Model):
     category_id = db.Column('category_id', db.ForeignKey('categories.id'))
     subcategory_id = db.Column('subcategory_id', db.ForeignKey('sub_categories.id'))
     subsubcategory_id = db.Column('subsubcategory_id', db.ForeignKey('sub_sub_categories.id'))
-    bank = db.relationship('Bank', backref=db.backref('items', cascade='all, delete-orphan'))
+    bank = db.relationship('Bank', backref=db.backref('items', lazy='dynamic',
+                                                      cascade='all, delete-orphan'))
     category = db.relationship('Category',
                                backref=db.backref('items', cascade='all, delete-orphan', lazy='dynamic'))
     subcategory = db.relationship('SubCategory',

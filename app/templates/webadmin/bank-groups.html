@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Admin: Exam Banks{% endblock %}
+
+{% block page_content %}
+<section class="section">
+    <div class="container" id="app">
+        <div class="columns">
+            <div class="column is-two-thirds is-offset-2">
+                <div class="tabs is-boxed">
+                    <ul>
+                        <li><a href="{{ url_for('webadmin.list_banks') }}">ทั้งหมด</a></li>
+                        <li class="is-active"><a>กล่อง</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="columns">
+            <div class="column is-two-thirds is-offset-2">
+                <table class="table is-fullwidth">
+                    <thead>
+                    <th>Subject</th>
+                    <th>Bank</th>
+                    <th>เข้ากล่องแล้ว</th>
+                    <th>ไม่มีกล่อง</th>
+                    </thead>
+                    <tbody>
+                    {% for bank in banks %}
+                    <tr>
+                        <td>{{ bank.subject }}</td>
+                        <td>{{ bank.name }}</td>
+                        <td>
+                            <a href="{{ url_for('webadmin.list_questions', bank_id=bank.id, status='submit', title='มีกล่อง', with_groups='yes') }}">
+                                {{ bank.grouped_items|length }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('webadmin.list_questions', bank_id=bank.id, status='submit', title='ไม่มีกล่อง', with_groups='no') }}">
+                                {{ bank.ungrouped_items|length }}
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -5,7 +5,17 @@
 <section class="section">
     <div class="container" id="app">
         <div class="columns">
-            <div class="column is-two-thirds is-offset-2 box">
+            <div class="column is-two-thirds is-offset-2">
+                <div class="tabs is-boxed">
+                    <ul>
+                        <li class="is-active"><a>ทั้งหมด</a></li>
+                        <li><a href="{{ url_for('webadmin.list_bank_groups') }}">กล่อง</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="columns">
+            <div class="column is-two-thirds is-offset-2">
                 <table class="table is-fullwidth">
                     <thead>
                     <th>Subject</th>

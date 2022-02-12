@@ -31,6 +31,14 @@ def list_banks():
     return render_template('webadmin/banks.html', banks=banks)
 
 
+@webadmin.route('/bank-groups')
+@superuser
+def list_bank_groups():
+    banks = Bank.query.all()
+    return render_template('webadmin/bank-groups.html',
+                           banks=banks, Item=Item)
+
+
 @webadmin.route('/banks/<int:bank_id>/questions/<status>')
 @superuser
 def list_questions(bank_id, status):

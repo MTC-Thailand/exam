@@ -51,13 +51,3 @@ def local_datetime(dt):
     bangkok = timezone('Asia/Bangkok')
     datetime_format = '%d/%m/%Y %H:%M'
     return dt.astimezone(bangkok).strftime(datetime_format)
-
-
-@app.template_filter("has_groups")
-def has_groups(items):
-    return list(filter(lambda x: x.groups.all(), items))
-
-
-@app.template_filter("has_no_groups")
-def has_groups(items):
-    return list(filter(lambda x: not x.groups.all(), items))
