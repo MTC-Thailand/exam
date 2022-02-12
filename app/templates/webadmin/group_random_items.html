@@ -11,6 +11,9 @@
         <div class="container" id="app">
             <div class="columns">
                 <div class="column">
+                    <h1 class="title has-text-centered">
+                        คำถามจากการสุ่ม
+                    </h1>
                     <h1 class="title is-size-5">รายวิชา</h1>
                     <div class="select">
                         <select class="subcategory">
@@ -47,7 +50,7 @@
                                     {{ group.subject }}
                                 </td>
                                 <td>
-                                    <a href="{{ url_for('webadmin.preview_random_items', group_id=group.id, random_set_id=random_set.id, spec_id=spec.id) }}">
+                                    <a href="{{ url_for('webadmin.preview_random_items', subject_id=subject_id, group_id=group.id, random_set_id=random_set.id, spec_id=spec.id) }}">
                                         {{ group.sample_items.count() }}
                                     </a>
                                 </td>
@@ -82,7 +85,7 @@
             $('#table').DataTable()
             $('select.subcategory').change(()=>{
                 let selectedSubject = $('.subcategory').find(":selected").val();
-                window.location.href = '/webadmin/specification/{{ spec.id }}/groups?subject_id=' + selectedSubject
+                window.location.href = '/webadmin/specification/{{ spec.id }}/groups/random_set/{{ random_set.id }}?subject_id=' + selectedSubject
             })
         } );
     </script>

@@ -595,7 +595,9 @@ def list_group_random_items(spec_id, set_id):
 @superuser
 def preview_random_items(spec_id, random_set_id, group_id):
     group = ItemGroup.query.get(group_id)
+    subject_id = request.args.get('subject_id', -1)
     return render_template('webadmin/random_items_preview.html',
                            group=group,
+                           subject_id=subject_id,
                            random_set_id=random_set_id,
                            spec_id=spec_id)
