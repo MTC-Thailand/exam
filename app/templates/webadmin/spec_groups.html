@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Admin: Specification Groups{% endblock %}
+{% block head %}
+    {{ super() }}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.11.4/css/dataTables.bulma.min.css" rel="stylesheet" />
+{% endblock %}
 
 {% block page_content %}
     <section class="section">
@@ -22,8 +27,20 @@
                 </div>
             </div>
             <div class="columns">
-                <div class="column is-two-thirds is-offset-2 box">
-                    <table class="table is-fullwidth">
+                <div class="column has-text-centered">
+                    <a class="button is-success">
+                        <span class="icon">
+                            <i class="fas fa-random"></i>
+                        </span>
+                        <span>
+                            สุ่มข้อสอบ
+                        </span>
+                    </a>
+                </div>
+            </div>
+            <div class="columns">
+                <div class="column is-thre-thirds is-offset-1">
+                    <table class="table is-fullwidth" id="table">
                         <thead>
                         <th>ชื่อกล่อง</th>
                         <th>รายวิชา</th>
@@ -57,11 +74,11 @@
                                 </td>
                                 <td>
                                     <a href="{{ url_for('webadmin.edit_group', group_id=group.id, subject_id=subject_id) }}"
-                                       class="button is-light">
+                                       class="button is-white">
                                         <span class="icon">
-                                            <i class="fas fa-pencil-alt"></i>
+                                            <i class="fas fa-pencil-alt has-text-info"></i>
                                         </span>
-                                        <span>แก้ไข</span>
+                                        <span class="has-text-info">แก้ไข</span>
                                     </a>
                                 </td>
                             </tr>
@@ -78,8 +95,11 @@
 {% endblock %}
 {% block scripts %}
     {{ super() }}
+    <script src="//cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.4/js/dataTables.bulma.min.js"></script>
     <script>
         $(document).ready( function () {
+            $('#table').DataTable()
             $('select.subcategory').change(()=>{
                 let selectedSubject = $('.subcategory').find(":selected").val();
                 window.location.href = '/webadmin/specification/{{ spec.id }}/groups?subject_id=' + selectedSubject
