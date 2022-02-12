@@ -30,7 +30,6 @@ admin.add_views(ModelView(Role, db.session, category='Main'))
 admin.add_views(UploadUserView(name='User upload', endpoint='user_upload', category='Main'))
 
 
-
 @login.user_loader
 def load_user(user_id):
     user = User.query.get(int(user_id))
@@ -52,3 +51,13 @@ def local_datetime(dt):
     bangkok = timezone('Asia/Bangkok')
     datetime_format = '%d/%m/%Y %H:%M'
     return dt.astimezone(bangkok).strftime(datetime_format)
+
+
+@app.template_filter("has_groups")
+def has_groups(items):
+    return list(filter(lambda x: x.groups.all(), items))
+
+
+@app.template_filter("has_no_groups")
+def has_groups(items):
+    return list(filter(lambda x: not x.groups.all(), items))

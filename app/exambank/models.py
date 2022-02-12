@@ -1,5 +1,3 @@
-from sqlalchemy import Table
-
 from app import db
 from app.main.models import User
 
@@ -231,4 +229,3 @@ class ItemGroup(db.Model):
                             lazy='dynamic',
                             backref=db.backref('groups', lazy='dynamic'))
     desc = db.Column('desc', db.Text(), info={'label': 'Description'})
-

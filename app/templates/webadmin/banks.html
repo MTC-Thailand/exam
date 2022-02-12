@@ -13,6 +13,8 @@
                     <th>Draft</th>
                     <th>Submitted</th>
                     <th>Accepted</th>
+                    <th>เข้ากล่องแล้ว</th>
+                    <th>ไม่มีกล่อง</th>
                     </thead>
                     <tbody>
                     {% for bank in banks %}
@@ -25,13 +27,23 @@
                             </a>
                         </td>
                         <td>
-                            <a href="{{ url_for('webadmin.list_questions', bank_id=bank.id, status='submit') }}">
+                            <a href="{{ url_for('webadmin.list_questions', bank_id=bank.id, status='submit', title='ทั้งหมด') }}">
                                 {{ bank.submitted_items|length }}
                             </a>
                         </td>
                         <td>
                             <a href="{{ url_for('webadmin.list_accepted_questions', bank_id=bank.id) }}">
                                 {{ bank.accepted_items|length }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('webadmin.list_questions', bank_id=bank.id, status='submit', title='มีกล่อง', with_groups='yes') }}">
+                                {{ bank.submitted_items|has_groups|length }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('webadmin.list_questions', bank_id=bank.id, status='submit', title='ไม่มีกล่อง', with_groups='no') }}">
+                                {{ bank.submitted_items|has_no_groups|length }}
                             </a>
                         </td>
                     </tr>

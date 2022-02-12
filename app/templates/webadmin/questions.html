@@ -18,6 +18,7 @@
         </nav>
         <div class="columns">
             <div class="column">
+            <h1 class="title">{{ title }}</h1>
             <h1 class="title is-size-5">สมรรถนะ</h1>
                 <div class="select">
                     <select class="subcategory">
@@ -62,7 +63,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: {{ url_for('webadmin.get_questions', bank_id=bank.id, status=status)|tojson|safe }},
+                    url: {{ url_for('webadmin.get_questions', bank_id=bank.id, status=status, with_groups=with_groups)|tojson|safe }},
                     data: function(d) {
                         d.subcategory = selectedCategory
                     }

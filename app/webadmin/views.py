@@ -35,9 +35,14 @@ def list_banks():
 @superuser
 def list_questions(bank_id, status):
     bank = Bank.query.get(bank_id)
+    title = request.args.get('title', 'Not specified')
+    with_groups = request.args.get('with_groups')
     subcategories = set([item.subcategory for item in bank.items])
     return render_template('webadmin/questions.html',
-                           bank=bank, subcategories=subcategories,
+                           title=title,
+                           with_groups=with_groups,
+                           bank=bank,
+                           subcategories=subcategories,
                            status=status)
 
 
@@ -420,6 +425,7 @@ def get_items_in_group(group_id):
 def get_questions(bank_id, status):
     start = request.args.get('start', type=int)
     length = request.args.get('length', type=int)
+    with_groups = request.args.get('with_groups', None)
     subcategory_id = request.args.get('subcategory', type=int)
     if status == 'submit':
         query = Item.query.filter_by(bank_id=bank_id) \
@@ -428,6 +434,11 @@ def get_questions(bank_id, status):
         query = Item.query.filter_by(bank_id=bank_id, parent_id=None, status='draft').order_by(Item.id)
     if subcategory_id:
         query = query.filter_by(subcategory_id=subcategory_id)
+    if with_groups == 'yes':
+        query = query.filter(Item.groups.any())
+    elif with_groups == 'no':
+        query = query.filter(~Item.groups.any())
+
     total_count = query.count()
     query = query.offset(start).limit(length)
 
