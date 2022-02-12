@@ -1,10 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block page_content %}
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column has-text-centered">
+                    {% include "messages.html" %}
+                    <a href="{{ url_for('webadmin.random_create', spec_id=spec_id) }}"
+                       class="button is-success">
+                        <span class="icon">
+                            <i class="fas fa-random"></i>
+                        </span>
+                        <span>สร้างชุดรายการสุ่ม</span>
+                    </a>
+                </div>
+            </div>
+            <div class="columns">
+                <div class="column is-two-thirds is-offset-2">
+                    <table class="table is-fullwidth">
+                        <thead>
+                        <th>วันที่สร้าง</th>
+                        <th>รายละเอียด</th>
+                        <th>จำนวนข้อสอบ</th>
+                        </thead>
+                        <tbody>
+                        {% for rs in random_sets %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('webadmin.list_group_random_items', set_id=rs.id, spec_id=spec_id) }}">
+                                    {{ rs.created_at|localdatetime }}
+                                </a>
+                            </td>
+                            <td>{{ rs.desc }}</td>
+                            {% if rs.item_sets.all() %}
+                            <td>
+                                <a class="tag" href="{{ url_for('webadmin.list_group_random_items', set_id=rs.id, spec_id=spec_id) }}">
+                                    {{ rs.item_sets.all()|length }}
+                                </a>
+                            </td>
+                            {% else %}
+                                <td>
+                                    <a href="{{ url_for('webadmin.randomize', spec_id=spec_id, set_id=rs.id) }}"
+                                       class="button is-outlined is-warning">
+                                        Randomize
+                                    </a>
+                                </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

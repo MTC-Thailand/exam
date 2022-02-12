@@ -2,6 +2,7 @@ import os
 
 import arrow
 import requests
+import random
 from sqlalchemy import or_
 from flask_login import current_user
 from werkzeug.utils import secure_filename
@@ -11,7 +12,7 @@ from app.exambank.models import *
 from app import superuser
 from app.exambank.views import get_categories
 from flask import redirect, url_for, render_template, flash, request, jsonify
-from .forms import ApprovalForm, EvaluationForm, SpecificationForm, GroupForm
+from .forms import ApprovalForm, EvaluationForm, SpecificationForm, GroupForm, RandomSetForm
 from pydrive.auth import ServiceAccountCredentials, GoogleAuth
 from pydrive.drive import GoogleDrive
 
@@ -502,3 +503,99 @@ def get_questions(bank_id, status):
         'recordsFiltered': total_count,
         'draw': request.args.get('draw', type=int)
     })
+
+
+@webadmin.route('/specs/<int:spec_id>/random')
+@superuser
+def random_index(spec_id):
+    random_sets = RandomSet.query.filter_by(spec_id=spec_id).all()
+    return render_template('webadmin/random_index.html', spec_id=spec_id, random_sets=random_sets)
+
+
+@webadmin.route('/specs/<int:spec_id>/random/create', methods=['GET', 'POST'])
+@superuser
+def random_create(spec_id):
+    form = RandomSetForm()
+    form.created_at.data = arrow.now(tz='Asia/Bangkok')
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            random_set = RandomSet()
+            form.populate_obj(random_set)
+            random_set.spec_id = spec_id
+            random_set.creator = current_user
+            random_set.created_at = random_set.created_at.datetime
+            db.session.add(random_set)
+            db.session.commit()
+            flash('เพิ่มรอบการสุ่มแล้ว', 'success')
+            return redirect(url_for('webadmin.random_index', spec_id=spec_id))
+        flash('กรุณาตรวจสอบข้อมูล', 'danger')
+    return render_template('webadmin/random_create_form.html', form=form)
+
+
+@webadmin.route('/specs/<int:spec_id>/random_set/<int:set_id>/randomize', methods=['GET', 'POST'])
+@superuser
+def randomize(spec_id, set_id):
+    spec = Specification.query.get(spec_id)
+    for group in spec.groups.all():
+        if group.num_sample_items:
+            for item in random.choices(group.items.all(), k=group.num_sample_items):
+                s = RandomItemSet(set_id=set_id,
+                                  group_id=group.id,
+                                  item_id=item.id)
+                db.session.add(s)
+        db.session.commit()
+    return redirect(url_for('webadmin.random_index', spec_id=spec_id))
+
+
+@webadmin.route('/specs/<int:spec_id>/random_set/<int:set_id>/groups/<int:group_id>/randomize', methods=['GET', 'POST'])
+@superuser
+def randomize_group(spec_id, set_id, group_id):
+    group = ItemGroup.query.get(group_id)
+    for item in group.sample_items:
+        db.session.delete(item)
+    db.session.commit()
+    for item in random.choices(group.items.all(), k=group.num_sample_items):
+        s = RandomItemSet(set_id=set_id,
+                          group_id=group.id,
+                          item_id=item.id)
+        db.session.add(s)
+    db.session.commit()
+    return redirect(url_for('webadmin.preview_random_items',
+                            spec_id=spec_id,
+                            group_id=group_id,
+                            random_set_id=set_id))
+
+
+@webadmin.route('/specs/<int:spec_id>/random_set/<int:set_id>/remove')
+@superuser
+def remove_random_set(spec_id, set_id):
+    random_set = RandomSet.query.get(set_id)
+    db.session.delete(random_set)
+    db.session.commit()
+    flash('ลบชุดสุ่มคำถามแล้ว', 'success')
+    return redirect(url_for('webadmin.random_index', spec_id=spec_id))
+
+
+@webadmin.route('/specification/<int:spec_id>/groups/random_set/<int:set_id>')
+@superuser
+def list_group_random_items(spec_id, set_id):
+    subject_id = request.args.get('subject_id', -1)
+    specification = Specification.query.get(spec_id)
+    subjects = Subject.query.all()
+    random_set = RandomSet.query.get(set_id)
+    return render_template('webadmin/group_random_items.html',
+                           spec=specification,
+                           random_set=random_set,
+                           ItemGroup=ItemGroup,
+                           subject_id=int(subject_id),
+                           subjects=subjects)
+
+
+@webadmin.route('/specification/<int:spec_id>/groups/<int:group_id>/random_set/<int:random_set_id>')
+@superuser
+def preview_random_items(spec_id, random_set_id, group_id):
+    group = ItemGroup.query.get(group_id)
+    return render_template('webadmin/random_items_preview.html',
+                           group=group,
+                           random_set_id=random_set_id,
+                           spec_id=spec_id)
