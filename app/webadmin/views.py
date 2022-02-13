@@ -537,7 +537,7 @@ def random_create(spec_id):
 def randomize(spec_id, set_id):
     spec = Specification.query.get(spec_id)
     for group in spec.groups.all():
-        if group.num_sample_items:
+        if group.num_sample_items and group.items.all():
             for item in random.choices(group.items.all(), k=group.num_sample_items):
                 s = RandomItemSet(set_id=set_id,
                                   group_id=group.id,

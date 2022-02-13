@@ -51,7 +51,7 @@
                                 </td>
                                 <td>
                                     <a href="{{ url_for('webadmin.preview_random_items', subject_id=subject_id, group_id=group.id, random_set_id=random_set.id, spec_id=spec.id) }}">
-                                        {{ group.sample_items.count() }}
+                                        {{ group.sample_items.filter_by(set_id=random_set.id).count() }}
                                     </a>
                                 </td>
                             </tr>
