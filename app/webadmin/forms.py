@@ -44,3 +44,11 @@ class RandomSetForm(ModelForm):
     class Meta:
         model = RandomSet
         only = ['desc', 'created_at']
+
+
+class SubjectForm(ModelForm):
+    subject = QuerySelectField('รายวิชา',
+                               blank_text='Select subject',
+                               get_label='name',
+                               allow_blank=False,
+                               query_factory=lambda: Subject.query.all())

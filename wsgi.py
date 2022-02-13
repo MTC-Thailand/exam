@@ -14,9 +14,22 @@ app.register_blueprint(main_blueprint, url_prefix='/main')
 app.register_blueprint(exambank_blueprint, url_prefix='/bank')
 app.register_blueprint(webadmin_blueprint, url_prefix='/webadmin')
 
-admin.add_views(ModelView(Subject, db.session, category='ExamBank'))
-admin.add_views(ModelView(Bank, db.session, category='ExamBank'))
-admin.add_views(ModelView(Category, db.session, category='ExamBank'))
+
+class BankView(ModelView):
+    form_excluded_columns = ['bank_categories', 'items']
+
+
+class SubjectView(ModelView):
+    form_excluded_columns = ['item_groups']
+
+
+class CategoryView(ModelView):
+    form_excluded_columns = ['items']
+
+
+admin.add_views(SubjectView(Subject, db.session, category='ExamBank'))
+admin.add_views(BankView(Bank, db.session, category='ExamBank'))
+admin.add_views(CategoryView(Category, db.session, category='ExamBank'))
 admin.add_views(ModelView(SubCategory, db.session, category='ExamBank'))
 admin.add_views(ModelView(SubSubCategory, db.session, category='ExamBank'))
 admin.add_views(ModelView(Item, db.session, category='ExamBank'))

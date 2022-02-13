@@ -96,6 +96,9 @@ class BankCategory(db.Model):
     bank = db.relationship('Bank', backref=db.backref('bank_categories',
                                                       cascade='all, delete-orphan'))
 
+    def __str__(self):
+        return '{}: {} {}'.format(self.bank.name, self.bank.subject, self.category.name)
+
 
 class Figure(db.Model):
     __tablename__ = 'figures'

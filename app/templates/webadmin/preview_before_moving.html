@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Question Preview Before Moving{% endblock %}
+
+{% block page_content %}
+<section class="section">
+    <div class="container" id="app">
+        <h1 class="title has-text-centered">Preview Before Reallocation</h1>
+        <h1 class="subtitle has-text-centered">รหัสข้อสอบ: {{ item.id }}</h1>
+        <div class="columns">
+            <div class="column is-two-thirds is-offset-2">
+                {% include "messages.html" %}
+                <div class="box">
+                    <div class="notification is-warning has-text-centered">
+                        <strong>{{ item.status|upper }}</strong>
+                    </div>
+                    <p class="label">วิชา</p>
+                    <div class="notification">{{ item.bank.subject }}</div>
+                    <p class="label">หมวดสมรรถนะ</p>
+                    <div class="notification">{{ item.category.name }}</div>
+                    <p class="label">สมรรถนะ</p>
+                    <div class="notification">{{ item.subcategory.name }}</div>
+                    <p class="label">สมรรถนะย่อย</p>
+                    <div class="notification">{{ item.subsubcategory.name }}</div>
+                    <p class="label">โจทย์คำถาม</p>
+                    <div class="notification">
+                        {{ item.question|safe }}
+                    </div>
+                    <p class="label">ภาพประกอบ</p>
+                    {% if item.figure %}
+                        <div class="notification is-white">
+                            <img src="https://drive.google.com/uc?id={{ item.figure.url }}" width="700">
+                            <p class="label">คำอธิบายภาพ</p>
+                            <p>{{ item.figure.desc }}</p>
+                            <p class="label">ที่มาของภาพ</p>
+                            <p>{{ item.figure.ref }}</p>
+                        </div>
+                    {% else %}
+                        N/A
+                    {% endif %}
+                    <table class="table is-fullwidth">
+                        <thead>
+                        <th>ข้อที่</th>
+                        <th>คำตอบ</th>
+                        </thead>
+                        <tbody>
+                        <p class="label">คำตอบ</p>
+                        <div class="notification is-light is-success">
+                            {{ item.answer.desc|safe }}
+                        </div>
+                        <p class="label">ตัวเลือกลวง</p>
+                        {% for choice in item.choices if not choice.answer %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ choice.desc|safe }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="notification">
+                    <p class="label">
+                        <span class="icon">
+                        <i class="fas fa-box-open"></i>
+                        </span>
+                        <span>
+                            กล่องข้อสอบ
+                        </span>
+                    </p>
+                    {% if item.groups %}
+                    <table class="table is-fullwidth">
+                        <thead>
+                        <th>กล่อง</th>
+                        <th></th>
+                        </thead>
+                        <tbody>
+                        {% for group in item.groups %}
+                            <tr>
+                                <td>{{ group.name }}</td>
+                                <td>
+                                    <a href="{{ url_for('webadmin.remove_group_from_item', item_id=item.id, group_id=group.id) }}"
+                                       class="button is-danger is-light">
+                                        <span class="icon">
+                                           <i class="fas fa-trash-alt"></i>
+                                        </span>
+                                        <span>
+                                            นำออก
+                                        </span>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                        <h1 class="title is-size-5 has-text-centered">ยังไม่มีการจัดเข้ากล่อง</h1>
+                    {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="columns">
+            <div class="column is-two-thirds is-offset-2">
+                <article class="message is-danger is-light">
+                    <div class="message-header">
+                        คำอธิบาย
+                    </div>
+                    <div class="message-body">
+                         เมื่อทำการย้ายรายวิชา หากข้อสอบถูกจัดไว้ในกล่องแล้ว ข้อสอบจะถูกย้ายออกจากกล่องโดยอัตโนมัติ
+                        <form method="post">
+                            <div class=""
+                        </form>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

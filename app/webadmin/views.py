@@ -12,7 +12,7 @@ from app.exambank.models import *
 from app import superuser
 from app.exambank.views import get_categories
 from flask import redirect, url_for, render_template, flash, request, jsonify
-from .forms import ApprovalForm, EvaluationForm, SpecificationForm, GroupForm, RandomSetForm
+from .forms import ApprovalForm, EvaluationForm, SpecificationForm, GroupForm, RandomSetForm, SubjectForm
 from pydrive.auth import ServiceAccountCredentials, GoogleAuth
 from pydrive.drive import GoogleDrive
 
@@ -601,3 +601,21 @@ def preview_random_items(spec_id, random_set_id, group_id):
                            subject_id=subject_id,
                            random_set_id=random_set_id,
                            spec_id=spec_id)
+
+
+@webadmin.route('/questions/<int:item_id>/preview-before-moving')
+@superuser
+def preview_before_moving(item_id):
+    item = Item.query.get(item_id)
+    form = SubjectForm()
+    # category_id = request.args.get('category_id', item.category_id, type=int)
+    # subcategory_id = request.args.get('subcategory_id', item.subcategory_id, type=int)
+    # subsubcategory_id = request.args.get('subsubcategory_id', item.subsubcategory_id, type=int)
+
+    return render_template('webadmin/preview_before_moving.html',
+                           item=item,
+                           form=form,
+                           # category_id=category_id,
+                           # subcategory_id=subcategory_id,
+                           # subsubcategory_id=subsubcategory_id,
+                           )

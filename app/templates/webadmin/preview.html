@@ -133,6 +133,12 @@
                         </span>
                         <span>บันทึกผลการตัดสิน</span>
                     </a>
+                        <a class="button is-light is-danger" href="{{ url_for('webadmin.preview_before_moving', item_id=item.id) }}">
+                        <span class="icon">
+                            <i class="fas fa-share-square"></i>
+                        </span>
+                            <span>ย้ายไปรายวิชาอื่น</span>
+                        </a>
                     {% else %}
                         {% if item.peer_decision == 'Accepted' %}
                         <span class="notification is-light is-success">
