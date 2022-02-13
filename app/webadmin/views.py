@@ -619,3 +619,65 @@ def preview_before_moving(item_id):
                            # subcategory_id=subcategory_id,
                            # subsubcategory_id=subsubcategory_id,
                            )
+
+
+@webadmin.route('/questions/<int:item_id>/groups/<int:group_id>/randoms/<int:set_id>/edit', methods=['GET', 'POST'])
+@superuser
+def edit_random_question(item_id, set_id, group_id):
+    subject_id = request.args.get('subject_id', -1)
+    item = Item.query.get(item_id)
+    random_set = RandomSet.query.get(set_id)
+    if request.method == 'POST':
+        form = request.form
+        item.question = form['question']
+        item.desc = form['desc']
+        item.ref = form['ref']
+        item.updated_at = arrow.now(tz='Asia/Bangkok').datetime
+
+        if 'figure' in request.files:
+            upfile = request.files.get('figure')
+            filename = secure_filename(upfile.filename)
+            if filename:
+                upfile.save(filename)
+                file_drive = drive.CreateFile({'title': filename})
+                file_drive.SetContentFile(filename)
+                file_drive.Upload()
+                permission = file_drive.InsertPermission({'type': 'anyone',
+                                                          'value': 'anyone',
+                                                          'role': 'reader'})
+                if not item.figure:
+                    fig = Figure(url=file_drive['id'],
+                                 filename=filename,
+                                 desc=form.get('figdesc'),
+                                 ref=form.get('figref'),
+                                 item=item)
+                else:
+                    item.figure.url = file_drive['id']
+                    item.figure.filename = filename
+                    item.desc = form.get('figdesc')
+                    item.ref = form.get('figref')
+                db.session.add(fig)
+        for key in form:
+            if key.startswith('choice'):
+                choice_id = int(key.replace('choice_', ''))
+                choice = Choice.query.get(choice_id)
+                choice.desc = form[key]
+                choice.answer = choice.answer
+                db.session.add(choice)
+        db.session.add(item)
+        db.session.commit()
+        flash('บันทึกการแก้ไขข้อสอบแล้ว', 'success')
+        return redirect(url_for('webadmin.preview_random_items',
+                                random_set_id=random_set.id,
+                                spec_id=random_set.spec_id,
+                                group_id=group_id,
+                                subject_id=subject_id,
+                                ))
+    return render_template('webadmin/random_item_edit.html',
+                           random_set_id=random_set.id,
+                           spec_id=random_set.spec_id,
+                           group_id=group_id,
+                           subject_id=subject_id,
+                           categories=get_categories(item.bank),
+                           choices=[c.id for c in item.choices],
+                           item=item)

@@ -56,14 +56,26 @@
                                 {% endfor %}
                                 </tbody>
                             </table>
+                            <div class="buttons is-centered">
+                                <a class="button is-info"
+                                   href="{{ url_for('webadmin.edit_random_question', subject_id=subject_id, item_id=item_set.item.id, group_id=group.id, spec_id=spec_id, set_id=random_set_id) }}">
+                                    <span class="icon">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </span>
+                                    <span>แก้ไข</span>
+                                </a>
+                            </div>
                         </div>
                     {% endfor %}
                 <div class="buttons is-centered">
                     <a class="button is-light"
                        href="{{ url_for('webadmin.list_group_random_items', subject_id=subject_id, spec_id=spec_id, set_id=random_set_id) }}">
-                        Back
+                        <span class="icon">
+                            <i class="fas fa-chevron-left"></i>
+                        </span>
+                        <span>Back</span>
                     </a>
-                    <a class="button is-light is-warning"
+                    <a class="button is-warning"
                        href="{{ url_for('webadmin.randomize_group', group_id=group.id, spec_id=spec_id, set_id=random_set_id) }}">
                         <span class="icon">
                             <i class="fas fa-random"></i>
