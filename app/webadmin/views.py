@@ -605,7 +605,7 @@ def preview_random_items(spec_id, random_set_id, group_id):
 @superuser
 def preview_random_item_set(spec_id, random_set_id):
     random_set = RandomSet.query.get(random_set_id)
-    subject_id = request.args.get('subject_id')
+    subject_id = request.args.get('subject_id', type=int)
     return render_template('webadmin/random_item_set_preview.html',
                            RandomItemSet=RandomItemSet,
                            Item=Item,

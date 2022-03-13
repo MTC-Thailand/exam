@@ -8,15 +8,12 @@
             <div class="columns">
                 <div class="column is-two-thirds is-offset-2">
                     {% include "messages.html" %}
-                    {% if subject_id %}
-                        {% set query = random_set.item_sets.filter(RandomItemSet.subject_id==subject_id) %}
-                    {% else %}
-                        {% set query = random_set.item_sets.filter_by(set_id=random_set.id) %}
-                    {% endif %}
-                    {{ query }}
-                    {% for item_set in query.all() %}
+                    {% set count = [] %}
+                    {% for item_set in random_set.item_sets %}
+                        {% if subject_id == -1 or item_set.subject_id == subject_id %}
+                        {% set _ = count.append(1) %}
                         <div class="box">
-                            <h1 class="title is-size-5 has-text-centered">ข้อ {{ loop.index }}</h1>
+                            <h1 class="title is-size-5 has-text-centered">ข้อ {{ count|length }}</h1>
                             <div class="notification">{{ item_set.item.question|safe }}</div>
                             {% if item_set.item.figure %}
                                 <p class="label">ภาพประกอบ</p>
@@ -67,6 +64,7 @@
                                 </a>
                             </div>
                         </div>
+                        {% endif %}
                     {% endfor %}
                 <div class="buttons is-centered">
                     <a class="button is-light"

@@ -261,7 +261,8 @@ class RandomItemSet(db.Model):
     __tablename__ = 'random_item_sets'
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     set_id = db.Column('set_id', db.ForeignKey('random_sets.id'))
-    set = db.relationship(RandomSet, backref=db.backref('item_sets', lazy='dynamic',
+    set = db.relationship(RandomSet, backref=db.backref('item_sets',
+                                                        lazy='dynamic',
                                                         cascade='all, delete-orphan'))
     item_id = db.Column('item_id', db.ForeignKey('items.id'))
     item = db.relationship(Item)
