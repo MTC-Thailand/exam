@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Random Items Preview{% endblock %}
+
+{% block page_content %}
+    <section class="section">
+        <div class="container" id="app">
+            <h1 class="title has-text-centered">Preview</h1>
+            <div class="columns">
+                <div class="column is-two-thirds is-offset-2">
+                    {% include "messages.html" %}
+                    <h1 class="title is-size-4 has-text-centered has-text-info">
+                        {{ group.name }}
+                    </h1>
+                    {% for item_set in group.sample_items.filter_by(set_id=random_set_id).all() %}
+                        <div class="box">
+                            <div class="notification">{{ item_set.item.question|safe }}</div>
+                            <p class="label">ภาพประกอบ</p>
+                            {% if item_set.item.figure %}
+                                <div class="notification is-white">
+                                    <img src="https://drive.google.com/uc?id={{ item_set.item.figure.url }}" width="700">
+                                    <p class="label">คำอธิบายภาพ</p>
+                                    <p>{{ item_set.item.figure.desc }}</p>
+                                    <p class="label">ที่มาของภาพ</p>
+                                    <p>{{ item_set.item.figure.ref }}</p>
+                                </div>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                            <table class="table is-fullwidth">
+                                <thead>
+                                <th>ข้อที่</th>
+                                <th>ตัวเลือก</th>
+                                <th>เฉลย</th>
+                                </thead>
+                                <tbody>
+                                {% for choice in item_set.item.choices %}
+                                    {% if choice.answer %}
+                                    <tr class="is-selected">
+                                        <td>{{ loop.index }}</td>
+                                        <td>{{ choice.desc|safe }}</td>
+                                        <td>
+                                            <span class="icon is-large">
+                                                <i class="fas fa-2x fa-check-circle"></i>
+                                            </span>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td>{{ loop.index }}</td>
+                                        <td>{{ choice.desc|safe }}</td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    {% endif %}
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <div class="buttons is-centered">
+                                <a class="button is-info"
+                                   href="{{ url_for('webadmin.edit_random_question', subject_id=subject_id, item_id=item_set.item.id, group_id=group.id, spec_id=spec_id, set_id=random_set_id) }}">
+                                    <span class="icon">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </span>
+                                    <span>แก้ไข</span>
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                <div class="buttons is-centered">
+                    <a class="button is-light"
+                       href="{{ url_for('webadmin.list_group_random_items', subject_id=subject_id, spec_id=spec_id, set_id=random_set_id) }}">
+                        <span class="icon">
+                            <i class="fas fa-chevron-left"></i>
+                        </span>
+                        <span>Back</span>
+                    </a>
+                    <a class="button is-warning"
+                       href="{{ url_for('webadmin.randomize_group', group_id=group.id, spec_id=spec_id, set_id=random_set_id) }}">
+                        <span class="icon">
+                            <i class="fas fa-random"></i>
+                        </span>
+                        <span>Rerandom</span>
+                    </a>
+                </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

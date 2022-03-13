@@ -1,5 +1,6 @@
 from app import db
 from app.main.models import User
+from sqlalchemy.ext.hybrid import hybrid_property
 
 assoc_group_items = db.Table('assoc_group_items',
                              db.Column('group_id', db.Integer, db.ForeignKey('item_groups.id')),
@@ -266,3 +267,7 @@ class RandomItemSet(db.Model):
     item = db.relationship(Item)
     group_id = db.Column('group_id', db.ForeignKey('item_groups.id'))
     group = db.relationship(ItemGroup, backref=db.backref('sample_items', lazy='dynamic'))
+
+    @hybrid_property
+    def subject_id(self):
+        return self.item.bank.subject_id
