@@ -605,11 +605,13 @@ def preview_random_items(spec_id, random_set_id, group_id):
 @superuser
 def preview_random_item_set(spec_id, random_set_id):
     random_set = RandomSet.query.get(random_set_id)
-    subject_id = request.args.get('subject_id', type=int)
+    subject_id = request.args.get('subject_id', -1, type=int)
+    subject = Subject.query.get(subject_id)
     return render_template('webadmin/random_item_set_preview.html',
                            RandomItemSet=RandomItemSet,
                            Item=Item,
                            Bank=Bank,
+                           subject=subject,
                            subject_id=subject_id,
                            random_set=random_set,
                            spec_id=spec_id)
@@ -679,7 +681,7 @@ def edit_random_question(item_id, set_id, group_id):
         db.session.add(item)
         db.session.commit()
         flash('บันทึกการแก้ไขข้อสอบแล้ว', 'success')
-        return redirect(url_for('webadmin.preview_random_items',
+        return redirect(request.args.get('next') or url_for('webadmin.preview_random_items',
                                 random_set_id=random_set.id,
                                 spec_id=random_set.spec_id,
                                 group_id=group_id,

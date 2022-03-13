@@ -5,6 +5,7 @@
     <section class="section">
         <div class="container" id="app">
             <h1 class="title has-text-centered">Preview</h1>
+            <h1 class="subtitle has-text-centered">วิชา{{ subject.name }}</h1>
             <div class="columns">
                 <div class="column is-two-thirds is-offset-2">
                     {% include "messages.html" %}
@@ -56,7 +57,8 @@
                                 </tbody>
                             </table>
                             <div class="buttons is-centered">
-                                <a class="button is-info">
+                                <a href="{{ url_for('webadmin.edit_random_question', item_id=item_set.item_id, group_id=item_set.group_id, set_id=item_set.set_id, next=request.url) }}"
+                                        class="button is-info">
                                     <span class="icon">
                                         <i class="fas fa-pencil-alt"></i>
                                     </span>
