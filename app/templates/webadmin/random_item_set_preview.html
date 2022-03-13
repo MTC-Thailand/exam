@@ -8,14 +8,18 @@
             <div class="columns">
                 <div class="column is-two-thirds is-offset-2">
                     {% include "messages.html" %}
-                    <h1 class="title is-size-4 has-text-centered has-text-info">
-                        {{ group.name }}
-                    </h1>
-                    {% for item_set in group.sample_items.filter_by(set_id=random_set_id).all() %}
+                    {% if subject_id %}
+                        {% set query = random_set.item_sets.filter(RandomItemSet.subject_id==subject_id) %}
+                    {% else %}
+                        {% set query = random_set.item_sets.filter_by(set_id=random_set.id) %}
+                    {% endif %}
+                    {{ query }}
+                    {% for item_set in query.all() %}
                         <div class="box">
+                            <h1 class="title is-size-5 has-text-centered">ข้อ {{ loop.index }}</h1>
                             <div class="notification">{{ item_set.item.question|safe }}</div>
-                            <p class="label">ภาพประกอบ</p>
                             {% if item_set.item.figure %}
+                                <p class="label">ภาพประกอบ</p>
                                 <div class="notification is-white">
                                     <img src="https://drive.google.com/uc?id={{ item_set.item.figure.url }}" width="700">
                                     <p class="label">คำอธิบายภาพ</p>
@@ -23,8 +27,6 @@
                                     <p class="label">ที่มาของภาพ</p>
                                     <p>{{ item_set.item.figure.ref }}</p>
                                 </div>
-                            {% else %}
-                                N/A
                             {% endif %}
                             <table class="table is-fullwidth">
                                 <thead>
@@ -57,8 +59,7 @@
                                 </tbody>
                             </table>
                             <div class="buttons is-centered">
-                                <a class="button is-info"
-                                   href="{{ url_for('webadmin.edit_random_question', subject_id=subject_id, item_id=item_set.item.id, group_id=group.id, spec_id=spec_id, set_id=random_set_id) }}">
+                                <a class="button is-info">
                                     <span class="icon">
                                         <i class="fas fa-pencil-alt"></i>
                                     </span>
@@ -69,18 +70,11 @@
                     {% endfor %}
                 <div class="buttons is-centered">
                     <a class="button is-light"
-                       href="{{ url_for('webadmin.list_group_random_items', subject_id=subject_id, spec_id=spec_id, set_id=random_set_id) }}">
+                       href="{{ url_for('webadmin.list_group_random_items', subject_id=subject_id, spec_id=spec_id, set_id=random_set.id) }}">
                         <span class="icon">
                             <i class="fas fa-chevron-left"></i>
                         </span>
                         <span>Back</span>
-                    </a>
-                    <a class="button is-warning"
-                       href="{{ url_for('webadmin.randomize_group', group_id=group.id, spec_id=spec_id, set_id=random_set_id) }}">
-                        <span class="icon">
-                            <i class="fas fa-random"></i>
-                        </span>
-                        <span>Rerandom</span>
                     </a>
                 </div>
                 </div>

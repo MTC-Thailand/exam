@@ -539,9 +539,7 @@ def randomize(spec_id, set_id):
     for group in spec.groups.all():
         if group.num_sample_items and group.items.all():
             for item in random.choices(group.items.all(), k=group.num_sample_items):
-                s = RandomItemSet(set_id=set_id,
-                                  group_id=group.id,
-                                  item_id=item.id)
+                s = RandomItemSet(set_id=set_id, group_id=group.id, item_id=item.id)
                 db.session.add(s)
         db.session.commit()
     return redirect(url_for('webadmin.random_index', spec_id=spec_id))
@@ -600,6 +598,20 @@ def preview_random_items(spec_id, random_set_id, group_id):
                            group=group,
                            subject_id=subject_id,
                            random_set_id=random_set_id,
+                           spec_id=spec_id)
+
+
+@webadmin.route('/specification/<int:spec_id>/random_set/<int:random_set_id>')
+@superuser
+def preview_random_item_set(spec_id, random_set_id):
+    random_set = RandomSet.query.get(random_set_id)
+    subject_id = request.args.get('subject_id')
+    return render_template('webadmin/random_item_set_preview.html',
+                           RandomItemSet=RandomItemSet,
+                           Item=Item,
+                           Bank=Bank,
+                           subject_id=subject_id,
+                           random_set=random_set,
                            spec_id=spec_id)
 
 

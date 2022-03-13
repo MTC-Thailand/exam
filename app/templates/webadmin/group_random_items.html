@@ -58,9 +58,21 @@
                         {% endfor %}
                         </tbody>
                     </table>
+                </div>
+            </div>
+            <div class="columns">
+                <div class="column">
                     <div class="buttons is-centered">
                         <a href="{{ url_for('webadmin.random_index', spec_id=spec.id) }}" class="button is-light">
                             Back
+                        </a>
+                        <a href="{{ url_for('webadmin.preview_random_item_set', random_set_id=random_set.id, spec_id=spec.id, subject_id=subject_id) }}" class="button is-info">
+                            <span class="icon">
+                                <i class="fa-solid fa-eye"></i>
+                            </span>
+                            <span>
+                                ดูรายการข้อสอบทั้งหมด
+                            </span>
                         </a>
                         <a class="button is-danger" href="{{ url_for('webadmin.remove_random_set', set_id=random_set.id, spec_id=spec.id) }}">
                             <span class="icon">
