@@ -31,27 +31,23 @@ class Bank(db.Model):
 
     @property
     def drafted_items(self):
-        return [item for item in self.items
-                if item.status == 'draft' and item.status != 'discarded'
-                and item.parent_id is None]
+        return self.items.filter(Item.status == 'draft')
 
     @property
     def submitted_items(self):
-        return [item for item in self.items
-                if (item.status == 'submit' and item.status != 'discarded')
-                or item.parent_id is not None]
+        return self.items.filter(Item.status == 'submit').filter(Item.parent_id is not None)
 
     @property
     def accepted_items(self):
-        return self.items.filter_by(peer_decision='Accepted').all()
+        return self.items.filter_by(peer_decision='Accepted')
 
     @property
     def grouped_items(self):
-        return self.items.filter(Item.groups.any()).all()
+        return self.items.filter(Item.groups.any())
 
     @property
     def ungrouped_items(self):
-        return self.items.filter(~Item.groups.any()).all()
+        return self.items.filter(~Item.groups.any())
 
 
 class Category(db.Model):
