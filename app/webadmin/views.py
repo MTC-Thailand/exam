@@ -40,9 +40,10 @@ def list_bank_groups():
                            banks=banks, Item=Item)
 
 
+@webadmin.route('/banks/<int:bank_id>/questions')
 @webadmin.route('/banks/<int:bank_id>/questions/<status>')
 @superuser
-def list_questions(bank_id, status):
+def list_questions(bank_id, status=None):
     bank = Bank.query.get(bank_id)
     title = request.args.get('title', 'Not specified')
     with_groups = request.args.get('with_groups')
@@ -441,14 +442,18 @@ def get_questions(bank_id, status):
     if status == 'submit':
         query = Item.query.filter_by(bank_id=bank_id) \
             .filter(or_(Item.status == 'submit', Item.parent_id is not None)).order_by(Item.id)
-    else:
+    elif status == 'draft':
         query = Item.query.filter_by(bank_id=bank_id, parent_id=None, status='draft').order_by(Item.id)
+    elif status == 'accepted':
+        query = Item.query.filter_by(bank_id=bank_id, peer_decision='Accepted').order_by(Item.id)
     if subcategory_id:
         query = query.filter_by(subcategory_id=subcategory_id)
     if with_groups == 'yes':
         query = query.filter(Item.groups.any())
     elif with_groups == 'no':
         query = query.filter(~Item.groups.any())
+
+    query = query.filter(Item.peer_decision != 'Rejected')
 
     total_count = query.count()
     query = query.offset(start).limit(length)

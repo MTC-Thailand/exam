@@ -2,7 +2,7 @@
 {% block title %}Admin: Questions{% endblock %}
 {% block head %}
     {{ super() }}
-    <link href="//cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bulma.min.css" rel="stylesheet" />
 {% endblock %}
 
 {% block page_content %}
@@ -12,7 +12,6 @@
         <nav class="breadcrumb" aria-label="breadcrumbs">
             <ul>
                 <li><a href="{{ url_for('webadmin.list_banks') }}">คลังข้อสอบ</a></li>
-                <li><a href="{{ url_for('webadmin.list_questions', bank_id=bank.id, status=status) }}">คลังข้อสอบชุด{{ bank.name }}</a></li>
                 <li class="is-active"><a href="#">วิชา{{ bank.subject }}</a></li>
             </ul>
         </nav>
@@ -55,7 +54,8 @@
 {% endblock %}
 {% block scripts %}
     {{ super() }}
-    <script src="//cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bulma.min.js"></script>
     <script>
         let selectedCategory = null
         $(document).ready( function () {

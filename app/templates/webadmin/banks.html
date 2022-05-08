@@ -33,17 +33,17 @@
                         <td>{{ bank.name }}</td>
                         <td>
                             <a href="{{ url_for('webadmin.list_questions', bank_id=bank.id, status='draft') }}">
-                                {{ bank.drafted_items|length }}
+                                {{ bank.drafted_items.count() }}
                             </a>
                         </td>
                         <td>
                             <a href="{{ url_for('webadmin.list_questions', bank_id=bank.id, status='submit', title='ทั้งหมด') }}">
-                                {{ bank.submitted_items|length }}
+                                {{ bank.submitted_items.count() }}
                             </a>
                         </td>
                         <td>
-                            <a href="{{ url_for('webadmin.list_accepted_questions', bank_id=bank.id) }}">
-                                {{ bank.accepted_items|length }}
+                            <a href="{{ url_for('webadmin.list_accepted_questions', bank_id=bank.id, status='Accepted') }}">
+                                {{ bank.accepted_items.count() }}
                             </a>
                         </td>
 {#                        <td>#}
