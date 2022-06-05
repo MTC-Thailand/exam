@@ -617,6 +617,22 @@ def preview_random_item_set(spec_id, random_set_id):
                            spec_id=spec_id)
 
 
+@webadmin.route('/specification/<int:spec_id>/random_set/<int:random_set_id>/export/html')
+@superuser
+def export_to_html(spec_id, random_set_id):
+    random_set = RandomSet.query.get(random_set_id)
+    subject_id = request.args.get('subject_id', -1, type=int)
+    subject = Subject.query.get(subject_id)
+    return render_template('webadmin/random_item_set_plain_html.html',
+                           RandomItemSet=RandomItemSet,
+                           Item=Item,
+                           Bank=Bank,
+                           subject=subject,
+                           subject_id=subject_id,
+                           random_set=random_set,
+                           spec_id=spec_id)
+
+
 @webadmin.route('/questions/<int:item_id>/preview-before-moving')
 @superuser
 def preview_before_moving(item_id):

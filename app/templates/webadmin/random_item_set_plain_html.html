@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+{% set count = [] %}
+{% for item_set in random_set.item_sets %}
+    {% if subject_id == -1 or item_set.subject_id == subject_id %}
+    {% set _ = count.append(1) %}
+        <h1>{{ item_set.item.question|safe }}</h1>
+        {% if item_set.item.figure %}
+            <p class="label">ภาพประกอบ</p>
+            <div>
+                <img src="https://drive.google.com/uc?id={{ item_set.item.figure.url }}" width="700">
+            </div>
+        {% endif %}
+        <ol>
+            {% for choice in item_set.item.choices|shuffle %}
+                {% if choice.answer %}
+                    <li>{{ choice.desc|safe }} ******************************</li>
+                {% else %}
+                    <li>{{ choice.desc|safe }}</li>
+                {% endif %}
+            {% endfor %}
+        </ol>
+    {% endif %}
+{% endfor %}
+</body>
+</html>

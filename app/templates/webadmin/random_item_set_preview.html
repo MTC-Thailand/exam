@@ -7,6 +7,12 @@
             <h1 class="title has-text-centered">Preview</h1>
             <h1 class="subtitle has-text-centered">วิชา{{ subject.name }}</h1>
             <div class="columns">
+                <div class="column has-text-centered">
+                    <a href="{{ url_for('webadmin.export_to_html', subject_id=subject_id, spec_id=spec_id, random_set_id=random_set.id) }}"
+                       class="button is-info">Export</a>
+                </div>
+            </div>
+            <div class="columns">
                 <div class="column is-two-thirds is-offset-2">
                     {% include "messages.html" %}
                     {% set count = [] %}
