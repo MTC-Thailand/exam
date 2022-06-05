@@ -171,6 +171,21 @@ def preview(item_id):
                            next_item_id=next_item.id if next_item else None)
 
 
+@webadmin.route('/groups/<int:group_id>/questions/<int:item_id>/preview', methods=['GET', 'POST'])
+@superuser
+def preview_in_group(group_id, item_id):
+    item = Item.query.get(item_id)
+    group = ItemGroup.query.get(group_id)
+
+    prev_item = group.items.order_by(Item.id.desc()).filter(Item.id < item_id).first()
+    next_item = group.items.order_by(Item.id.asc()).filter(Item.id > item_id).first()
+
+    return render_template('webadmin/preview_in_group.html',
+                           item=item,
+                           group_id=group_id,
+                           prev_item_id=prev_item.id if prev_item else None,
+                           next_item_id=next_item.id if next_item else None)
+
 @webadmin.route('/approvals/<int:approval_id>/delete')
 @superuser
 def delete_comment(approval_id):
@@ -415,12 +430,12 @@ def get_items_in_group(group_id):
         total_filtered = query.count()
 
     # pagination
-    query = query.offset(start).limit(length)
+    query = query.order_by(Item.id).offset(start).limit(length)
 
     data = []
     for item in query:
         d = item.to_dict()
-        d['question'] = f"<a href={url_for('webadmin.preview', item_id=item.id)}>{item.question}</a>"
+        d['question'] = f"<a href={url_for('webadmin.preview_in_group', item_id=item.id, group_id=group_id)}>{item.question}</a>"
         if item.parent_id:
             d['question'] += '<span class="icon"><i class="fas fa-code-branch"></i></span>'
         data.append(d)
