@@ -454,6 +454,8 @@ def get_questions(bank_id, status):
     length = request.args.get('length', type=int)
     with_groups = request.args.get('with_groups', None)
     subcategory_id = request.args.get('subcategory', type=int)
+    included_rejected = request.args.get('rejected', -1, type=int)
+    print(status)
     if status == 'submit':
         query = Item.query.filter_by(bank_id=bank_id) \
             .filter(or_(Item.status == 'submit', Item.parent_id is not None)).order_by(Item.id)
@@ -468,7 +470,9 @@ def get_questions(bank_id, status):
     elif with_groups == 'no':
         query = query.filter(~Item.groups.any())
 
-    query = query.filter(Item.peer_decision != 'Rejected')
+    print(included_rejected)
+    if included_rejected == 0:
+        query = query.filter(Item.peer_decision != 'Rejected')
 
     total_count = query.count()
     query = query.offset(start).limit(length)
