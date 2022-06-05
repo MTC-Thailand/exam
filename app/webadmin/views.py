@@ -311,7 +311,11 @@ def add_item_group(spec_id):
 @webadmin.route('/specification/<int:spec_id>/groups')
 @superuser
 def list_groups(spec_id):
-    subject_id = int(session.get('subject_id', -1))
+    if 'subject_id' not in request.args:
+        subject_id = int(session.get('subject_id', -1))
+    else:
+        subject_id = request.args.get('subject_id', type=int)
+        session['subject_id'] = subject_id
     specification = Specification.query.get(spec_id)
     subjects = Subject.query.all()
     return render_template('webadmin/spec_groups.html',
