@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}Review Questions In A Group{% endblock %}
+
+{% block page_content %}
+<section class="section">
+    <div class="container" id="app">
+        <h1 class="title has-text-centered">Preview</h1>
+        <h1 class="subtitle has-text-centered">รหัสข้อสอบ: {{ item.id }}</h1>
+        <div class="columns">
+            <div class="column is-two-thirds is-offset-2">
+                {% include "messages.html" %}
+                <div class="buttons is-centered">
+                    {% if prev_item_id %}
+                        <a href="{{ url_for('webadmin.preview_in_group', item_id=prev_item_id, group_id=group_id) }}"
+                           class="button is-success is-light">
+                            <span class="icon">
+                                <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span>ข้อก่อนหน้า <span class="tag is-success">{{ prev_item_id }}</span></span>
+                        </a>
+                    {% endif %}
+                    {% if next_item_id %}
+                        <a href="{{ url_for('webadmin.preview_in_group', item_id=next_item_id, group_id=group_id) }}"
+                           class="button is-success is-light">
+                            <span>ข้อถัดไป <span class="tag is-success">{{ next_item_id }}</span></span>
+                            <span class="icon">
+                                <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="box">
+                    <div class="notification is-warning has-text-centered">
+                        <strong>{{ item.status|upper }}</strong>
+                        {% if item.parent_id %}
+                            <span class="icon"><i class="fas fa-code-branch"></i></span>
+                        {% endif %}
+                    </div>
+                    <p class="label">วิชา</p>
+                    <div class="notification">{{ item.bank.subject }}</div>
+                    <p class="label">หมวดสมรรถนะ</p>
+                    <div class="notification">{{ item.category.name }}</div>
+                    <p class="label">สมรรถนะ</p>
+                    <div class="notification">{{ item.subcategory.name }}</div>
+                    <p class="label">สมรรถนะย่อย</p>
+                    <div class="notification">{{ item.subsubcategory.name }}</div>
+                    <p class="label">โจทย์คำถาม</p>
+                    <div class="notification">
+                        {{ item.question|safe }}
+                    </div>
+                    <p class="label">ภาพประกอบ</p>
+                    {% if item.figure %}
+                        <div class="notification is-white">
+                            <img src="https://drive.google.com/uc?id={{ item.figure.url }}" width="700">
+                            <p class="label">คำอธิบายภาพ</p>
+                            <p>{{ item.figure.desc }}</p>
+                            <p class="label">ที่มาของภาพ</p>
+                            <p>{{ item.figure.ref }}</p>
+                        </div>
+                    {% else %}
+                        N/A
+                    {% endif %}
+                    <table class="table is-fullwidth">
+                        <thead>
+                        <th>ข้อที่</th>
+                        <th>คำตอบ</th>
+                        </thead>
+                        <tbody>
+                        <p class="label">คำตอบ</p>
+                        <div class="notification is-light is-success">
+                            {{ item.answer.desc|safe }}
+                        </div>
+                        <p class="label">ตัวเลือกลวง</p>
+                        {% for choice in item.choices if not choice.answer %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ choice.desc|safe }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                <div class="buttons is-centered">
+                    <a class="button is-primary" href="{{ url_for('webadmin.edit_question', bank_id=item.bank_id, item_id=item.id) }}">
+                        <span class="icon">
+                            <i class="fas fa-pencil-alt"></i>
+                        </span>
+                        <span>แก้ไขข้อสอบ</span>
+                    </a>
+                </div>
+                <div class="buttons is-centered">
+                    <a href="{{ url_for('webadmin.list_items_in_group', group_id=group_id) }}"
+                       class="button is-light">
+                        <span class="icon">
+                            <i class="fas fa-chevron-left"></i>
+                        </span>
+                        <span>กล่องข้อสอบ</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="columns">
+            <div class="column is-two-thirds is-offset-2">
+            <h1 class="title is-size-3">Comments</h1>
+                {% for approval in item.approvals %}
+                    <article class="media">
+                        <div class="media-left">
+                            <p>
+                                <span class="icon">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <span class="title is-size-6">
+                                    {{ approval.user.name }}
+                                </span>
+                            </p>
+                            <p>
+                                <span class="icon">
+                                    <i class="far fa-clock"></i>
+                                </span>
+                                <span class="subtitle is-size-7">
+                                    {{ approval.approved_at | localdatetime }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="media-content">
+                            <div class="content">
+                                <p class="message is-link">
+                                    <div class="message-body">
+                                        <p>
+                                            <span class="title is-size-6">
+                                                ความเห็นเบื้องต้น
+                                            </span>
+                                            {{ approval.status }}
+                                        </p>
+                                        <p>
+                                            {% if approval.comment %}
+                                            <span class="icon">
+                                                <i class="fas fa-quote-left"></i>
+                                            </span>
+                                            <span>{{ approval.comment }}</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </p>
+                                {% if approval.user == current_user %}
+                                <p class="level">
+                                    <div class="level-right">
+                                        <a href="{{ url_for('webadmin.delete_comment', approval_id=approval.id) }}">
+                                                <span class="icon">
+                                                    <i class="fas fa-trash"></i>
+                                                </span>
+                                            <span>ลบ</span>
+                                        </a>
+                                    </div>
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </article>
+                    <hr>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

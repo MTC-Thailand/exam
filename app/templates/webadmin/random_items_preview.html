@@ -57,30 +57,37 @@
                                 </tbody>
                             </table>
                             <div class="buttons is-centered">
-                                <a class="button is-info"
+                                <a class="button is-info is-light"
                                    href="{{ url_for('webadmin.edit_random_question', subject_id=subject_id, item_id=item_set.item.id, group_id=group.id, spec_id=spec_id, set_id=random_set_id) }}">
                                     <span class="icon">
                                         <i class="fas fa-pencil-alt"></i>
                                     </span>
                                     <span>แก้ไข</span>
                                 </a>
+                                <a class="button is-warning is-light"
+                                   href="{{ url_for('webadmin.randomize_group', group_id=group.id, spec_id=spec_id, set_id=random_set_id, item_id=item_set.item.id, subject_id=subject_id) }}">
+                                    <span class="icon">
+                                        <i class="fas fa-random"></i>
+                                    </span>
+                                    <span>สุ่มใหม่เฉพาะข้อ</span>
+                                </a>
                             </div>
                         </div>
                     {% endfor %}
                 <div class="buttons is-centered">
                     <a class="button is-light"
-                       href="{{ url_for('webadmin.list_group_random_items', subject_id=subject_id, spec_id=spec_id, set_id=random_set_id) }}">
+                       href="{{ url_for('webadmin.list_group_random_items', spec_id=spec_id, set_id=random_set_id) }}">
                         <span class="icon">
                             <i class="fas fa-chevron-left"></i>
                         </span>
                         <span>Back</span>
                     </a>
                     <a class="button is-warning"
-                       href="{{ url_for('webadmin.randomize_group', group_id=group.id, spec_id=spec_id, set_id=random_set_id) }}">
+                       href="{{ url_for('webadmin.randomize_group', group_id=group.id, spec_id=spec_id, set_id=random_set_id, subject_id=subject_id) }}">
                         <span class="icon">
                             <i class="fas fa-random"></i>
                         </span>
-                        <span>Rerandom</span>
+                        <span>สุ่มใหม่ทั้งกล่อง</span>
                     </a>
                 </div>
                 </div>

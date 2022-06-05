@@ -11,7 +11,7 @@ from . import webadmin
 from app.exambank.models import *
 from app import superuser
 from app.exambank.views import get_categories
-from flask import redirect, url_for, render_template, flash, request, jsonify
+from flask import redirect, url_for, render_template, flash, request, jsonify, session
 from .forms import ApprovalForm, EvaluationForm, SpecificationForm, GroupForm, RandomSetForm, SubjectForm
 from pydrive.auth import ServiceAccountCredentials, GoogleAuth
 from pydrive.drive import GoogleDrive
@@ -40,9 +40,10 @@ def list_bank_groups():
                            banks=banks, Item=Item)
 
 
+@webadmin.route('/banks/<int:bank_id>/questions')
 @webadmin.route('/banks/<int:bank_id>/questions/<status>')
 @superuser
-def list_questions(bank_id, status):
+def list_questions(bank_id, status=None):
     bank = Bank.query.get(bank_id)
     title = request.args.get('title', 'Not specified')
     with_groups = request.args.get('with_groups')
@@ -170,6 +171,21 @@ def preview(item_id):
                            next_item_id=next_item.id if next_item else None)
 
 
+@webadmin.route('/groups/<int:group_id>/questions/<int:item_id>/preview', methods=['GET', 'POST'])
+@superuser
+def preview_in_group(group_id, item_id):
+    item = Item.query.get(item_id)
+    group = ItemGroup.query.get(group_id)
+
+    prev_item = group.items.order_by(Item.id.desc()).filter(Item.id < item_id).first()
+    next_item = group.items.order_by(Item.id.asc()).filter(Item.id > item_id).first()
+
+    return render_template('webadmin/preview_in_group.html',
+                           item=item,
+                           group_id=group_id,
+                           prev_item_id=prev_item.id if prev_item else None,
+                           next_item_id=next_item.id if next_item else None)
+
 @webadmin.route('/approvals/<int:approval_id>/delete')
 @superuser
 def delete_comment(approval_id):
@@ -295,13 +311,17 @@ def add_item_group(spec_id):
 @webadmin.route('/specification/<int:spec_id>/groups')
 @superuser
 def list_groups(spec_id):
-    subject_id = request.args.get('subject_id', -1)
+    if 'subject_id' not in request.args:
+        subject_id = int(session.get('subject_id', -1))
+    else:
+        subject_id = request.args.get('subject_id', type=int)
+        session['subject_id'] = subject_id
     specification = Specification.query.get(spec_id)
     subjects = Subject.query.all()
     return render_template('webadmin/spec_groups.html',
                            spec=specification,
                            ItemGroup=ItemGroup,
-                           subject_id=int(subject_id),
+                           subject_id=subject_id,
                            subjects=subjects)
 
 
@@ -319,7 +339,7 @@ def add_group_to_item(item_id):
 @superuser
 def edit_group(group_id):
     group = ItemGroup.query.get(group_id)
-    subject_id = request.args.get('subject_id')
+    subject_id = int(session.get('subject_id', -1))
     form = GroupForm(obj=group)
     if request.method == 'POST':
         if form.validate_on_submit():
@@ -414,12 +434,12 @@ def get_items_in_group(group_id):
         total_filtered = query.count()
 
     # pagination
-    query = query.offset(start).limit(length)
+    query = query.order_by(Item.id).offset(start).limit(length)
 
     data = []
     for item in query:
         d = item.to_dict()
-        d['question'] = f"<a href={url_for('webadmin.preview', item_id=item.id)}>{item.question}</a>"
+        d['question'] = f"<a href={url_for('webadmin.preview_in_group', item_id=item.id, group_id=group_id)}>{item.question}</a>"
         if item.parent_id:
             d['question'] += '<span class="icon"><i class="fas fa-code-branch"></i></span>'
         data.append(d)
@@ -438,17 +458,23 @@ def get_questions(bank_id, status):
     length = request.args.get('length', type=int)
     with_groups = request.args.get('with_groups', None)
     subcategory_id = request.args.get('subcategory', type=int)
+    included_rejected = request.args.get('rejected', -1, type=int)
     if status == 'submit':
         query = Item.query.filter_by(bank_id=bank_id) \
             .filter(or_(Item.status == 'submit', Item.parent_id is not None)).order_by(Item.id)
-    else:
+    elif status == 'draft':
         query = Item.query.filter_by(bank_id=bank_id, parent_id=None, status='draft').order_by(Item.id)
+    elif status == 'accepted':
+        query = Item.query.filter_by(bank_id=bank_id, peer_decision='Accepted').order_by(Item.id)
     if subcategory_id:
         query = query.filter_by(subcategory_id=subcategory_id)
     if with_groups == 'yes':
         query = query.filter(Item.groups.any())
     elif with_groups == 'no':
         query = query.filter(~Item.groups.any())
+
+    if included_rejected == 0:
+        query = query.filter(Item.peer_decision != 'Rejected')
 
     total_count = query.count()
     query = query.offset(start).limit(length)
@@ -548,17 +574,32 @@ def randomize(spec_id, set_id):
 @webadmin.route('/specs/<int:spec_id>/random_set/<int:set_id>/groups/<int:group_id>/randomize', methods=['GET', 'POST'])
 @superuser
 def randomize_group(spec_id, set_id, group_id):
+    subject_id = int(session.get('subject_id', -1))
+    item_id = request.args.get('item_id', type=int)
     group = ItemGroup.query.get(group_id)
-    for item in group.sample_items:
-        db.session.delete(item)
-    db.session.commit()
-    for item in random.choices(group.items.all(), k=group.num_sample_items):
-        s = RandomItemSet(set_id=set_id,
-                          group_id=group.id,
-                          item_id=item.id)
+    if item_id is None:
+        for item in group.sample_items.filter_by(set_id=set_id):
+            db.session.delete(item)
+        db.session.commit()
+        for item in random.choices(group.items.all(), k=group.num_sample_items):
+            s = RandomItemSet(set_id=set_id,
+                              group_id=group.id,
+                              item_id=item.id)
+            db.session.add(s)
+    else:
+        removed_item = group.sample_items.filter_by(item_id=item_id).filter_by(set_id=set_id).first()
+        db.session.delete(removed_item)
+        db.session.commit()
+        random_ids = set([item_set.item.id for item_set in group.sample_items.filter_by(set_id=set_id)])
+        while len(random_ids) < group.num_sample_items:
+            for item in random.choices(group.items.all(), k=1):
+                random_ids.add(item.id)
+            print('Duplication alert! Re-randomizing..')
+        s = RandomItemSet(set_id=set_id, group_id=group.id, item_id=item.id)
         db.session.add(s)
     db.session.commit()
     return redirect(url_for('webadmin.preview_random_items',
+                            subject_id=subject_id,
                             spec_id=spec_id,
                             group_id=group_id,
                             random_set_id=set_id))
@@ -577,7 +618,11 @@ def remove_random_set(spec_id, set_id):
 @webadmin.route('/specification/<int:spec_id>/groups/random_set/<int:set_id>')
 @superuser
 def list_group_random_items(spec_id, set_id):
-    subject_id = request.args.get('subject_id', -1)
+    if 'subject_id' not in request.args:
+        subject_id = session.get('subject_id', -1)
+    else:
+        subject_id = request.args.get('subject_id', type=int)
+        session['subject_id'] = subject_id
     specification = Specification.query.get(spec_id)
     subjects = Subject.query.all()
     random_set = RandomSet.query.get(set_id)
@@ -585,7 +630,7 @@ def list_group_random_items(spec_id, set_id):
                            spec=specification,
                            random_set=random_set,
                            ItemGroup=ItemGroup,
-                           subject_id=int(subject_id),
+                           subject_id=subject_id,
                            subjects=subjects)
 
 
@@ -593,10 +638,8 @@ def list_group_random_items(spec_id, set_id):
 @superuser
 def preview_random_items(spec_id, random_set_id, group_id):
     group = ItemGroup.query.get(group_id)
-    subject_id = request.args.get('subject_id', -1)
     return render_template('webadmin/random_items_preview.html',
                            group=group,
-                           subject_id=subject_id,
                            random_set_id=random_set_id,
                            spec_id=spec_id)
 
@@ -605,7 +648,7 @@ def preview_random_items(spec_id, random_set_id, group_id):
 @superuser
 def preview_random_item_set(spec_id, random_set_id):
     random_set = RandomSet.query.get(random_set_id)
-    subject_id = request.args.get('subject_id', -1, type=int)
+    subject_id = int(session.get('subject_id', -1))
     subject = Subject.query.get(subject_id)
     return render_template('webadmin/random_item_set_preview.html',
                            RandomItemSet=RandomItemSet,
@@ -654,7 +697,7 @@ def preview_before_moving(item_id):
 @webadmin.route('/questions/<int:item_id>/groups/<int:group_id>/randoms/<int:set_id>/edit', methods=['GET', 'POST'])
 @superuser
 def edit_random_question(item_id, set_id, group_id):
-    subject_id = request.args.get('subject_id', -1)
+    subject_id = int(session.get('subject_id', -1))
     item = Item.query.get(item_id)
     random_set = RandomSet.query.get(set_id)
     if request.method == 'POST':

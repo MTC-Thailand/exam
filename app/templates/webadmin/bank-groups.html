@@ -30,12 +30,12 @@
                         <td>{{ bank.name }}</td>
                         <td>
                             <a href="{{ url_for('webadmin.list_questions', bank_id=bank.id, status='submit', title='มีกล่อง', with_groups='yes') }}">
-                                {{ bank.grouped_items|length }}
+                                {{ bank.grouped_items.count() }}
                             </a>
                         </td>
                         <td>
                             <a href="{{ url_for('webadmin.list_questions', bank_id=bank.id, status='submit', title='ไม่มีกล่อง', with_groups='no') }}">
-                                {{ bank.ungrouped_items|length }}
+                                {{ bank.ungrouped_items.count() }}
                             </a>
                         </td>
                     </tr>

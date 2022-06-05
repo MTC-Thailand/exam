@@ -30,6 +30,7 @@
                     <table id="myTable" class="table is-striped is-fullwidth">
                         <thead>
                         <tr>
+                            <th>ID</th>
                             <th>โจทย์</th>
                             <th>Bank</th>
                             <th>รายวิชา</th>
@@ -61,6 +62,7 @@
                         url: "{{ url_for('webadmin.get_items_in_group', group_id=group.id) }}",
                     },
                     columns: [
+                        {"data": "id"},
                         {"data": "question", "searchable": true},
                         {"data": "bank"},
                         {"data": "subject"},
