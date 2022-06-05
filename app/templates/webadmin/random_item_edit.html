@@ -14,20 +14,20 @@
                         <form method="post" enctype="multipart/form-data">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <label class="label">หัวข้อกลุ่มสมรรถนะ</label>
-                            <div class="notification is-white">
+                            <div class="notification">
                                 {{ item.category.name }}
                             </div>
                             <label class="label">หัวข้อสมรรถนะ</label>
-                            <div class="notification is-white">
+                            <div class="notification">
                                 {{ item.subcategory.name }}
                             </div>
                             <div class="field">
                                 <label class="label">หัวข้อสมรรถนะย่อย</label>
-                                <div class="notification is-white">
-                                    {{ item.subsubcategory.name }}
+                                <div class="notification">
+                                    {{ item.subsubcategory.name or 'N/A' }}
                                 </div>
                             </div>
-                            <div class="notification is-light">
+                            <div class="notification is-white">
                                 <div class="field">
                                     <label class="label">คำถาม</label>
                                     <div class="control">
@@ -38,7 +38,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="notification is-light is-warning">
+                            <div class="notification is-white">
                                 <div class="field">
                                     <label class="label">รูปภาพประกอบ</label>
                                     {% if item.figure %}
@@ -58,7 +58,7 @@
                                 <div class="field">
                                     <label class="label">ที่มาของภาพ</label>
                                     <textarea class="textarea" name="figref">{{ item.figure.ref }}</textarea>
-                                    <p class="help is-info">กรุณาระบุที่มาของภาพเพื่อการอ้างอิงเรื่องลิขสิทธิ์</p>
+                                    <p class="help is-link">กรุณาระบุที่มาของภาพเพื่อการอ้างอิงเรื่องลิขสิทธิ์</p>
                                 </div>
                             </div>
                             <div class="notification is-light is-success">
@@ -74,7 +74,7 @@
                                 </div>
                             </div>
                             {% for choice in item.choices if not choice.answer %}
-                                <div class="notification is-light is-info">
+                                <div class="notification">
                                     <div class="field">
                                         <label class="label">ตัวเลือก {{ loop.index }}</label>
                                         <div class="control">

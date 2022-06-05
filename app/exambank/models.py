@@ -1,3 +1,5 @@
+import random
+
 from app import db
 from app.main.models import User
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -162,6 +164,11 @@ class Item(db.Model):
         for choice in self.choices:
             if choice.answer:
                 return choice
+
+    def shuffle_choices(self):
+        choices = [choice for choice in self.choices]
+        random.shuffle(choices)
+        return choices
 
 
 class Choice(db.Model):

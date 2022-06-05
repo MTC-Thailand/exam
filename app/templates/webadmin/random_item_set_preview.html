@@ -20,7 +20,7 @@
                                 {% for group in item_set.item.groups %}
                                     <a href="{{ url_for('webadmin.preview_random_items', spec_id=spec_id, random_set_id=random_set.id, group_id=group.id) }}">
                                         <span class="icon">
-                                            <i class="fa-solid fa-box-open"></i>
+                                            <i class="fas fa-box-open"></i>
                                         </span>
                                         <span>{{ group.name }}</span>
                                     </a>
@@ -38,18 +38,18 @@
                             <table class="table is-fullwidth">
                                 <thead>
                                 <th>ข้อที่</th>
-                                <th>ตัวเลือก</th>
+                                <th style="width:80%">ตัวเลือก</th>
                                 <th>เฉลย</th>
                                 </thead>
                                 <tbody>
-                                {% for choice in item_set.item.choices %}
+                                {% for choice in item_set.item.shuffle_choices() %}
                                     {% if choice.answer %}
-                                    <tr class="is-selected">
+                                    <tr>
                                         <td>{{ loop.index }}</td>
                                         <td>{{ choice.desc|safe }}</td>
                                         <td>
                                             <span class="icon is-large">
-                                                <i class="fas fa-2x fa-check-circle"></i>
+                                                <i class="fas fa-2x has-text-success fa-check-circle"></i>
                                             </span>
                                         </td>
                                         <td></td>
