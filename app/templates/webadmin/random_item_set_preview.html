@@ -16,6 +16,15 @@
                         <div class="box">
                             <h1 class="title is-size-5 has-text-centered">ข้อ {{ count|length }}</h1>
                             <div class="notification">{{ item_set.item.question|safe }}</div>
+                            <label class="label">กล่อง</label>
+                                {% for group in item_set.item.groups %}
+                                    <a href="{{ url_for('webadmin.preview_random_items', spec_id=spec_id, random_set_id=random_set.id, group_id=group.id) }}">
+                                        <span class="icon">
+                                            <i class="fa-solid fa-box-open"></i>
+                                        </span>
+                                        <span>{{ group.name }}</span>
+                                    </a>
+                                {% endfor %}
                             {% if item_set.item.figure %}
                                 <p class="label">ภาพประกอบ</p>
                                 <div class="notification is-white">

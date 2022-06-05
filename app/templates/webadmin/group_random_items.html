@@ -50,7 +50,7 @@
                                     {{ group.subject }}
                                 </td>
                                 <td>
-                                    <a href="{{ url_for('webadmin.preview_random_items', subject_id=subject_id, group_id=group.id, random_set_id=random_set.id, spec_id=spec.id) }}">
+                                    <a href="{{ url_for('webadmin.preview_random_items', group_id=group.id, random_set_id=random_set.id, spec_id=spec.id) }}">
                                         {{ group.sample_items.filter_by(set_id=random_set.id).count() }}
                                     </a>
                                 </td>
@@ -66,7 +66,7 @@
                         <a href="{{ url_for('webadmin.random_index', spec_id=spec.id) }}" class="button is-light">
                             Back
                         </a>
-                        <a href="{{ url_for('webadmin.preview_random_item_set', random_set_id=random_set.id, spec_id=spec.id, subject_id=subject_id) }}"
+                        <a href="{{ url_for('webadmin.preview_random_item_set', random_set_id=random_set.id, spec_id=spec.id) }}"
                            class="button is-info">
                             <span class="icon">
                                 <i class="fa-solid fa-eye"></i>
