@@ -459,7 +459,6 @@ def get_questions(bank_id, status):
     with_groups = request.args.get('with_groups', None)
     subcategory_id = request.args.get('subcategory', type=int)
     included_rejected = request.args.get('rejected', -1, type=int)
-    print(status)
     if status == 'submit':
         query = Item.query.filter_by(bank_id=bank_id) \
             .filter(or_(Item.status == 'submit', Item.parent_id is not None)).order_by(Item.id)
@@ -474,7 +473,6 @@ def get_questions(bank_id, status):
     elif with_groups == 'no':
         query = query.filter(~Item.groups.any())
 
-    print(included_rejected)
     if included_rejected == 0:
         query = query.filter(Item.peer_decision != 'Rejected')
 
@@ -593,8 +591,6 @@ def randomize_group(spec_id, set_id, group_id):
         db.session.delete(removed_item)
         db.session.commit()
         random_ids = set([item_set.item.id for item_set in group.sample_items.filter_by(set_id=set_id)])
-        print(f'total sample items = {len(group.sample_items.filter_by(set_id=set_id).all())}')
-        print(f'num sample items = {group.num_sample_items}')
         while len(random_ids) < group.num_sample_items:
             for item in random.choices(group.items.all(), k=1):
                 random_ids.add(item.id)
