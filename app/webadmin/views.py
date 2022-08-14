@@ -588,6 +588,14 @@ def randomize_group(spec_id, set_id, group_id):
             db.session.add(s)
     else:
         removed_item = group.sample_items.filter_by(item_id=item_id).filter_by(set_id=set_id).first()
+        if removed_item is None:
+            flash(f'Item with ID={item_id} has been moved.', 'warning')
+            return redirect(url_for('webadmin.preview_random_items',
+                                    subject_id=subject_id,
+                                    spec_id=spec_id,
+                                    group_id=group_id,
+                                    random_set_id=set_id))
+
         db.session.delete(removed_item)
         db.session.commit()
         random_ids = set([item_set.item.id for item_set in group.sample_items.filter_by(set_id=set_id)])
