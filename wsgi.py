@@ -66,3 +66,11 @@ def local_datetime(dt):
     bangkok = timezone('Asia/Bangkok')
     datetime_format = '%d/%m/%Y %H:%M'
     return dt.astimezone(bangkok).strftime(datetime_format)
+
+
+@app.template_filter('shuffle')
+def shuffle_items(items):
+    """Returns a shuffled copy of the items.
+    """
+    random.shuffle(items)
+    return [item for item in items]

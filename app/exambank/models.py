@@ -268,7 +268,9 @@ class RandomItemSet(db.Model):
                                                         lazy='dynamic',
                                                         cascade='all, delete-orphan'))
     item_id = db.Column('item_id', db.ForeignKey('items.id'))
-    item = db.relationship(Item)
+    item = db.relationship(Item, backref=db.backref('item_sets',
+                                                    lazy='dynamic',
+                                                    cascade='all, delete-orphan'))
     group_id = db.Column('group_id', db.ForeignKey('item_groups.id'))
     group = db.relationship(ItemGroup, backref=db.backref('sample_items', lazy='dynamic'))
 

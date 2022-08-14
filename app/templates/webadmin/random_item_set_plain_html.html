@@ -8,7 +8,7 @@
 {% for item_set in random_set.item_sets %}
     {% if subject_id == -1 or item_set.subject_id == subject_id %}
     {% set _ = count.append(1) %}
-        <h1>{{ item_set.item.question|safe }}</h1>
+        <h1>{{ count|length }}) {{ item_set.item.question|safe }}</h1>
         {% if item_set.item.figure %}
             <p class="label">ภาพประกอบ</p>
             <div>

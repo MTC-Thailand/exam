@@ -14,6 +14,14 @@
                     {% for item_set in group.sample_items.filter_by(set_id=random_set_id).all() %}
                         <div class="box">
                             <div class="notification">{{ item_set.item.question|safe }}</div>
+                        ใช้ในการสุ่มรอบที่
+                            <span class="tags">
+                            {% for s in item_set.item.item_sets.all() %}
+                                    <span class="tag is-success">
+                                    {{ s.set.created_at.strftime('%m/%Y') }}
+                                    </span>
+                            {% endfor %}
+                            </span>
                             <p class="label">ภาพประกอบ</p>
                             {% if item_set.item.figure %}
                                 <div class="notification is-white">
