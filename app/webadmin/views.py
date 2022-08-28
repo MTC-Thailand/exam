@@ -1,4 +1,6 @@
+import csv
 import os
+from io import StringIO
 
 import arrow
 import requests
@@ -11,7 +13,7 @@ from . import webadmin
 from app.exambank.models import *
 from app import superuser
 from app.exambank.views import get_categories
-from flask import redirect, url_for, render_template, flash, request, jsonify, session
+from flask import redirect, url_for, render_template, flash, request, jsonify, session, make_response
 from .forms import ApprovalForm, EvaluationForm, SpecificationForm, GroupForm, RandomSetForm, SubjectForm
 from pydrive.auth import ServiceAccountCredentials, GoogleAuth
 from pydrive.drive import GoogleDrive
@@ -566,9 +568,25 @@ def randomize(spec_id, set_id):
         if group.num_sample_items and group.items.all():
             for item in random.choices(group.items.all(), k=group.num_sample_items):
                 s = RandomItemSet(set_id=set_id, group_id=group.id, item_id=item.id)
+                choices_order = [str(c.id) for c in item.choices]
+                random.shuffle(choices_order)
+                s.choices_order = ','.join(choices_order)
                 db.session.add(s)
         db.session.commit()
     return redirect(url_for('webadmin.random_index', spec_id=spec_id))
+
+
+@webadmin.route('/specs/<int:spec_id>/random_set/<int:set_id>/randomize-choices')
+@superuser
+def randomize_choices(spec_id, set_id):
+    random_set = RandomSet.query.get(set_id)
+    for item_set in random_set.item_sets:
+        choices_order = [str(c.id) for c in item_set.item.choices]
+        random.shuffle(choices_order)
+        item_set.choices_order = ','.join(choices_order)
+        db.session.add(item_set)
+    db.session.commit()
+    return redirect(url_for('webadmin.export_to_html', spec_id=spec_id, random_set_id=set_id))
 
 
 @webadmin.route('/specs/<int:spec_id>/random_set/<int:set_id>/groups/<int:group_id>/randomize', methods=['GET', 'POST'])
@@ -666,6 +684,23 @@ def preview_random_item_set(spec_id, random_set_id):
                            subject_id=subject_id,
                            random_set=random_set,
                            spec_id=spec_id)
+
+
+@webadmin.route('/specification/<int:spec_id>/random_set/<int:random_set_id>/export/csv')
+@superuser
+def export_choices_csv(spec_id, random_set_id):
+    data = [['No.', 'ItemSetID', 'ItemID', '1', '2', '3', '4', '5', 'AnswerID']]
+    random_set = RandomSet.query.get(random_set_id)
+    for n, item_set in enumerate(random_set.item_sets, start=1):
+        choices = item_set.choices_order.split(',')
+        data.append([n, item_set.id, item_set.item.id] + choices + [choices[item_set.correct_answer_position]])
+    si = StringIO()
+    cw = csv.writer(si)
+    cw.writerows(data)
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=export.csv"
+    output.headers["Content-type"] = "text/csv"
+    return output
 
 
 @webadmin.route('/specification/<int:spec_id>/random_set/<int:random_set_id>/export/html')

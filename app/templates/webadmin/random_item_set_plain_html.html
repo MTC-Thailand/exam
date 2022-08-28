@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
 </head>
 <body>
+<a href="{{ url_for('webadmin.preview_random_item_set', spec_id=spec_id, random_set_id=random_set.id) }}">Back</a>
+<a href="{{ url_for('webadmin.randomize_choices', spec_id=spec_id, set_id=random_set.id) }}">Rearrange choices</a>
+<a href="{{ url_for('webadmin.export_choices_csv', spec_id=spec_id, random_set_id=random_set.id) }}">Export Data</a>
+<ol>
+    {% for item_set in random_set.item_sets %}
+        <li>{{ item_set.correct_answer_pattern }}</li>
+    {% endfor %}
+</ol>
 {% set count = [] %}
 {% for item_set in random_set.item_sets %}
     {% if subject_id == -1 or item_set.subject_id == subject_id %}
@@ -16,9 +24,9 @@
             </div>
         {% endif %}
         <ol>
-            {% for choice in item_set.item.choices|shuffle %}
+            {% for choice in item_set.ordered_choices %}
                 {% if choice.answer %}
-                    <li>{{ choice.desc|safe }} ******************************</li>
+                    <li>******ข้อถูกคือ{{ choice.desc|safe }}******</li>
                 {% else %}
                     <li>{{ choice.desc|safe }}</li>
                 {% endif %}

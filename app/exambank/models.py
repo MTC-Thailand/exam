@@ -273,7 +273,34 @@ class RandomItemSet(db.Model):
                                                     cascade='all, delete-orphan'))
     group_id = db.Column('group_id', db.ForeignKey('item_groups.id'))
     group = db.relationship(ItemGroup, backref=db.backref('sample_items', lazy='dynamic'))
+    choices_order = db.Column('choices_order', db.String())
 
     @hybrid_property
     def subject_id(self):
         return self.item.bank.subject_id
+
+    @property
+    def ordered_choices(self):
+        choices = []
+        for c in self.choices_order.split(','):
+            choice = Choice.query.get(int(c))
+            choices.append(choice)
+        return choices
+
+    @property
+    def correct_answer_pattern(self):
+        choices = self.choices_order.split(',')
+        for c in self.choices_order.split(','):
+            choice = Choice.query.get(int(c))
+            idx = choices.index(str(choice.id))
+            if choice.answer:
+                text = '--' * idx
+                return '{}{}'.format(text.center(15), idx)
+
+    @property
+    def correct_answer_position(self):
+        choices = self.choices_order.split(',')
+        for c in self.choices_order.split(','):
+            choice = Choice.query.get(int(c))
+            if choice.answer:
+                return choices.index(str(choice.id))

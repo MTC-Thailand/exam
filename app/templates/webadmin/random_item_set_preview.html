@@ -48,7 +48,7 @@
                                 <th>เฉลย</th>
                                 </thead>
                                 <tbody>
-                                {% for choice in item_set.item.shuffle_choices() %}
+                                {% for choice in item_set.ordered_choices %}
                                     {% if choice.answer %}
                                     <tr>
                                         <td>{{ loop.index }}</td>
