@@ -767,12 +767,12 @@ def edit_random_question(item_id, set_id, group_id):
                                  desc=form.get('figdesc'),
                                  ref=form.get('figref'),
                                  item=item)
+                    db.session.add(fig)
                 else:
                     item.figure.url = file_drive['id']
                     item.figure.filename = filename
                     item.desc = form.get('figdesc')
                     item.ref = form.get('figref')
-                db.session.add(fig)
         for key in form:
             if key.startswith('choice'):
                 choice_id = int(key.replace('choice_', ''))
