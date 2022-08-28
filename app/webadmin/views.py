@@ -560,7 +560,7 @@ def random_create(spec_id):
     return render_template('webadmin/random_create_form.html', form=form)
 
 
-@webadmin.route('/specs/<int:spec_id>/random_set/<int:set_id>/randomize', methods=['GET', 'POST'])
+@webadmin.route('/specs/<int:spec_id>/random_set/<int:set_id>/randomize')
 @superuser
 def randomize(spec_id, set_id):
     spec = Specification.query.get(spec_id)
@@ -568,6 +568,7 @@ def randomize(spec_id, set_id):
         if group.num_sample_items and group.items.all():
             for item in random.choices(group.items.all(), k=group.num_sample_items):
                 s = RandomItemSet(set_id=set_id, group_id=group.id, item_id=item.id)
+                # randomize_choices method does not work here because item is not linked yet
                 choices_order = [str(c.id) for c in item.choices]
                 random.shuffle(choices_order)
                 s.choices_order = ','.join(choices_order)
@@ -581,15 +582,13 @@ def randomize(spec_id, set_id):
 def randomize_choices(spec_id, set_id):
     random_set = RandomSet.query.get(set_id)
     for item_set in random_set.item_sets:
-        choices_order = [str(c.id) for c in item_set.item.choices]
-        random.shuffle(choices_order)
-        item_set.choices_order = ','.join(choices_order)
+        item_set.randomize_choices()
         db.session.add(item_set)
     db.session.commit()
     return redirect(url_for('webadmin.export_to_html', spec_id=spec_id, random_set_id=set_id))
 
 
-@webadmin.route('/specs/<int:spec_id>/random_set/<int:set_id>/groups/<int:group_id>/randomize', methods=['GET', 'POST'])
+@webadmin.route('/specs/<int:spec_id>/random_set/<int:set_id>/groups/<int:group_id>/randomize')
 @superuser
 def randomize_group(spec_id, set_id, group_id):
     subject_id = int(session.get('subject_id', -1))
@@ -603,6 +602,9 @@ def randomize_group(spec_id, set_id, group_id):
             s = RandomItemSet(set_id=set_id,
                               group_id=group.id,
                               item_id=item.id)
+            choices_order = [str(c.id) for c in item.choices]
+            random.shuffle(choices_order)
+            s.choices_order = ','.join(choices_order)
             db.session.add(s)
     else:
         removed_item = group.sample_items.filter_by(item_id=item_id).filter_by(set_id=set_id).first()
@@ -622,6 +624,10 @@ def randomize_group(spec_id, set_id, group_id):
                 random_ids.add(item.id)
             print('Duplication alert! Re-randomizing..')
         s = RandomItemSet(set_id=set_id, group_id=group.id, item_id=item.id)
+        # randomize_choices method does not work here
+        choices_order = [str(c.id) for c in item.choices]
+        random.shuffle(choices_order)
+        s.choices_order = ','.join(choices_order)
         db.session.add(s)
     db.session.commit()
     return redirect(url_for('webadmin.preview_random_items',
