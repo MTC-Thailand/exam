@@ -279,6 +279,12 @@ class RandomItemSet(db.Model):
     def subject_id(self):
         return self.item.bank.subject_id
 
+    def randomize_choices(self):
+        if self.item:
+            choices_order = [str(c.id) for c in self.item.choices]
+            random.shuffle(choices_order)
+            self.choices_order = ','.join(choices_order)
+
     @property
     def ordered_choices(self):
         choices = []
