@@ -506,7 +506,7 @@ def get_questions(bank_id, status):
                 question += f'<span class="tag {status}">your thought: {comment.status}</span>'
         boxes = []
         for group in item.groups:
-            box = f'<a href={url_for("webadmin.list_items_in_group", group_id=group.id)}><span class ="icon"><i class ="fas fa-box-open has-text-info"></i></span><span><small>{group.name[:10]}</small></span></a>'
+            box = f'<a href={url_for("webadmin.list_items_in_group", group_id=group.id)}><span class="icon"><i class="fas fa-box-open has-text-info"></i></span><span><small>{group.name}</small></span></a>'
             boxes.append(box)
 
         data.append({
