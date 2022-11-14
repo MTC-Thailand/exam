@@ -1,9 +1,5 @@
 {% extends "base.html" %}
 {% block title %}Admin: Questions{% endblock %}
-{% block head %}
-    {{ super() }}
-    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bulma.min.css" rel="stylesheet" />
-{% endblock %}
 
 {% block page_content %}
 <section class="section">
@@ -30,10 +26,8 @@
                 </div>
             </div>
             <div class="field">
-                <label class="checkbox label">
-                    <input type="checkbox" id="rejected">
-                    แสดงข้อสอบที่ถูกปฏิเสธด้วย
-                </label>
+                <input type="checkbox" class="checkbox" id="rejected">
+                <label for="rejected">แสดงข้อสอบที่ถูกปฏิเสธด้วย</label>
             </div>
             </div>
         </div>
@@ -62,18 +56,16 @@
 {% endblock %}
 {% block scripts %}
     {{ super() }}
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bulma.min.js"></script>
     <script>
         let selectedCategory = null
         let includedRejected = false
         $(document).ready( function () {
-            var table = $('#myTable').DataTable({
+            let table = $('#myTable').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
                     url: {{ url_for('webadmin.get_questions', bank_id=bank.id, status=status, with_groups=with_groups)|tojson|safe }},
-                    data: function(d) {
+                    data: function (d) {
                         d.subcategory = selectedCategory
                         d.rejected = includedRejected
                     }
@@ -95,6 +87,7 @@
             })
             $('#rejected').change(()=>{
                 includedRejected = ~includedRejected
+                console.log(includedRejected)
                 table.ajax.reload()
             })
         } );

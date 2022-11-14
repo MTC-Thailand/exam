@@ -465,20 +465,23 @@ def get_questions(bank_id, status):
         query = Item.query.filter_by(bank_id=bank_id) \
             .filter(or_(Item.status == 'submit', Item.parent_id is not None)).order_by(Item.id)
     elif status == 'draft':
-        query = Item.query.filter_by(bank_id=bank_id, parent_id=None, status='draft').order_by(Item.id)
+        query = Item.query.filter_by(bank_id=bank_id, status='draft').order_by(Item.id)
     elif status == 'accepted':
         query = Item.query.filter_by(bank_id=bank_id, peer_decision='Accepted').order_by(Item.id)
+
     if subcategory_id:
         query = query.filter_by(subcategory_id=subcategory_id)
+
     if with_groups == 'yes':
         query = query.filter(Item.groups.any())
     elif with_groups == 'no':
         query = query.filter(~Item.groups.any())
 
     if included_rejected == 0:
-        query = query.filter(Item.peer_decision != 'Rejected')
+        query = query.filter(or_(Item.peer_decision == None, Item.peer_decision != 'Rejected'))
 
     total_count = query.count()
+    print(total_count)
     query = query.offset(start).limit(length)
 
     data = []
