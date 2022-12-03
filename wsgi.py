@@ -4,6 +4,7 @@ from flask import redirect, url_for, abort
 from flask_admin.contrib.sqla import ModelView
 from app import create_app, admin, login
 from app.adminview.views import UserAdminView, UploadUserView
+from app.apis.views import SpecificationResource
 from app.main import mainbp as main_blueprint
 from app.exambank import exambank as exambank_blueprint
 from app.webadmin import webadmin as webadmin_blueprint
@@ -12,11 +13,19 @@ from app.apis.models import *
 from app.exambank.models import *
 from app.main.models import User, Role
 from pytz import timezone
+from flask_restful import Api
 
 app = create_app()
 app.register_blueprint(main_blueprint, url_prefix='/main')
 app.register_blueprint(exambank_blueprint, url_prefix='/bank')
 app.register_blueprint(webadmin_blueprint, url_prefix='/webadmin')
+app.register_blueprint(api_blueprint)
+
+from app.apis import api_blueprint
+
+api = Api(api_blueprint)
+api.add_resource(SpecificationResource, '/specification')
+
 app.register_blueprint(api_blueprint)
 
 

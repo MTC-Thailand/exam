@@ -26,10 +26,8 @@
                 </div>
             </div>
             <div class="field">
-                <label class="checkbox label">
-                    <input type="checkbox" id="rejected">
-                    แสดงข้อสอบที่ถูกปฏิเสธด้วย
-                </label>
+                <input type="checkbox" class="checkbox" id="rejected">
+                <label for="rejected">แสดงข้อสอบที่ถูกปฏิเสธด้วย</label>
             </div>
             </div>
         </div>
@@ -44,6 +42,7 @@
                         <th>สมรรถนะ</th>
                         <th>สมรรถนะย่อย</th>
                         <th>โจทย์</th>
+                        <th>สถานะ</th>
                         <th>โดย</th>
                         <th>decision</th>
                         <th>กล่อง</th>
@@ -62,12 +61,12 @@
         let selectedCategory = null
         let includedRejected = false
         $(document).ready( function () {
-            var table = $('#myTable').DataTable({
+            let table = $('#myTable').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
                     url: {{ url_for('webadmin.get_questions', bank_id=bank.id, status=status, with_groups=with_groups)|tojson|safe }},
-                    data: function(d) {
+                    data: function (d) {
                         d.subcategory = selectedCategory
                         d.rejected = includedRejected
                     }
@@ -77,6 +76,7 @@
                     {"data": "subcategory", "width": "10%"},
                     {"data": "subsubcategory", "width": "10%"},
                     {"data": "question", "searchable": true},
+                    {"data": "status", "width": "10%"},
                     {"data": "user", "width": "10%"},
                     {"data": "decision", "width": "10%"},
                     {"data": "groups"},
@@ -89,6 +89,7 @@
             })
             $('#rejected').change(()=>{
                 includedRejected = ~includedRejected
+                console.log(includedRejected)
                 table.ajax.reload()
             })
         } );
