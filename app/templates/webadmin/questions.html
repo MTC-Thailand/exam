@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Admin: Questions{% endblock %}
+{% block head %}
+    {{ super() }}
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bulma.min.css" rel="stylesheet"/>
+{% endblock %}
 
 {% block page_content %}
 <section class="section">
@@ -42,6 +46,7 @@
                         <th>สมรรถนะ</th>
                         <th>สมรรถนะย่อย</th>
                         <th>โจทย์</th>
+                        <th>สถานะ</th>
                         <th>โดย</th>
                         <th>decision</th>
                         <th>กล่อง</th>
@@ -56,6 +61,8 @@
 {% endblock %}
 {% block scripts %}
     {{ super() }}
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bulma.min.js"></script>
     <script>
         let selectedCategory = null
         let includedRejected = false
@@ -75,6 +82,7 @@
                     {"data": "subcategory", "width": "10%"},
                     {"data": "subsubcategory", "width": "10%"},
                     {"data": "question", "searchable": true},
+                    {"data": "status", "width": "10%"},
                     {"data": "user", "width": "10%"},
                     {"data": "decision", "width": "10%"},
                     {"data": "groups"},

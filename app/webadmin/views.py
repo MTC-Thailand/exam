@@ -463,7 +463,7 @@ def get_questions(bank_id, status):
     included_rejected = request.args.get('rejected', -1, type=int)
     if status == 'submit':
         query = Item.query.filter_by(bank_id=bank_id) \
-            .filter(or_(Item.status == 'submit', Item.parent_id is not None)).order_by(Item.id)
+            .filter(Item.status == 'submit').order_by(Item.id)
     elif status == 'draft':
         query = Item.query.filter_by(bank_id=bank_id, status='draft').order_by(Item.id)
     elif status == 'accepted':
@@ -517,6 +517,7 @@ def get_questions(bank_id, status):
             'question': question,
             'bankId': item.bank.id,
             'bank': item.bank.name,
+            'status': item.status,
             'subjectId': item.bank.subject.id,
             'subject': item.bank.subject.name,
             'decision': item.peer_decision,
