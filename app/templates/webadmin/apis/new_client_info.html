@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<section class="section">
+{% include "messages.html" %}
+<div class="notification is-light has-text-danger">
+    Please keep the client's credential safely.
+</div>
+<div class="columns">
+    <div class="column">
+        <table class="table is-striped is-fullwidth">
+            <tr>
+                <td>
+                    <strong>Client ID</strong>
+                </td>
+                <td>
+                    {{ client.client_id }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Client Secret</strong>
+                </td>
+                <td>
+                    {{ client_secret }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Name</strong>
+                </td>
+                <td>
+                    {{ client.name }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Organization</strong>
+                </td>
+                <td>
+                    {{ client.organization }}
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</section>
+{% endblock %}

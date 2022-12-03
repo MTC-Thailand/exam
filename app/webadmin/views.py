@@ -5,6 +5,7 @@ from io import StringIO
 import arrow
 import requests
 import random
+from string import ascii_letters
 from sqlalchemy import or_
 from flask_login import current_user
 from werkzeug.utils import secure_filename
@@ -14,9 +15,11 @@ from app.exambank.models import *
 from app import superuser
 from app.exambank.views import get_categories
 from flask import redirect, url_for, render_template, flash, request, jsonify, session, make_response
-from .forms import ApprovalForm, EvaluationForm, SpecificationForm, GroupForm, RandomSetForm, SubjectForm
+from .forms import ApprovalForm, EvaluationForm, SpecificationForm, GroupForm, RandomSetForm, SubjectForm, ApiClientForm
 from pydrive.auth import ServiceAccountCredentials, GoogleAuth
 from pydrive.drive import GoogleDrive
+
+from ..apis.models import ApiClient
 
 gauth = GoogleAuth()
 keyfile_dict = requests.get(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')).json()
@@ -806,3 +809,24 @@ def edit_random_question(item_id, set_id, group_id):
                            categories=get_categories(item.bank),
                            choices=[c.id for c in item.choices],
                            item=item)
+
+
+@webadmin.route('/web-services')
+def client_index():
+    return render_template('webadmin/apis/index.html')
+
+
+@webadmin.route('/web-services/client/new', methods=['GET', 'POST'])
+def add_client():
+    form = ApiClientForm()
+    if form.validate_on_submit():
+        new_client = ApiClient()
+        form.populate_obj(new_client)
+        new_client.set_client_id()
+        client_secret = new_client.set_secret()
+        db.session.add(new_client)
+        db.session.commit()
+        flash('New client has been created.', 'success')
+        return render_template('webadmin/apis/new_client_info.html',
+                               client=new_client, client_secret=client_secret)
+    return render_template('webadmin/apis/clien_form.html', form=form)
