@@ -3,6 +3,7 @@ from functools import wraps
 
 from flask_mail import Message
 from flask_admin import Admin, AdminIndexView
+from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user
