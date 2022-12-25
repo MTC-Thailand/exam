@@ -86,12 +86,18 @@
                         </span>
                         <span>แก้ไขข้อสอบ</span>
                     </a>
+                    <a class="button is-danger" href="{{ url_for('webadmin.remove_item_from_group', bank_id=item.bank_id, group_id=group_id, item_id=item.id) }}">
+                        <span class="icon">
+                          <i class="fas fa-trash-alt"></i>
+                        </span>
+                        <span>ย้ายออกจากกล่อง</span>
+                    </a>
                 </div>
                 <div class="buttons is-centered">
                     <a href="{{ url_for('webadmin.list_items_in_group', group_id=group_id) }}"
                        class="button is-light">
                         <span class="icon">
-                            <i class="fas fa-chevron-left"></i>
+                          <i class="fas fa-box"></i>
                         </span>
                         <span>กล่องข้อสอบ</span>
                     </a>

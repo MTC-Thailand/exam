@@ -38,6 +38,11 @@ class GroupForm(ModelForm):
                                get_label='name',
                                allow_blank=False,
                                query_factory=lambda: Subject.query.all())
+    spec = QuerySelectField('Specification',
+                            blank_text='Select specification',
+                            allow_blank=False,
+                            get_label='name',
+                            query_factory=lambda: Specification.query.all())
 
 
 class RandomSetForm(ModelForm):

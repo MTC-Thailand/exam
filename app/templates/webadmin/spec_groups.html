@@ -11,6 +11,7 @@
         <div class="container" id="app">
             <div class="columns">
                 <div class="column">
+                    {% include "messages.html" %}
                     <h1 class="title is-size-5">รายวิชา</h1>
                     <div class="select">
                         <select class="subcategory">
@@ -95,13 +96,22 @@
                                     {% endif %}
                                 </td>
                                 <td>
+                                  <div class="buttons">
                                     <a href="{{ url_for('webadmin.edit_group', group_id=group.id, subject_id=subject_id) }}"
-                                       class="button is-white">
+                                       class="button is-rounded is-small">
                                         <span class="icon">
                                             <i class="fas fa-pencil-alt has-text-info"></i>
                                         </span>
                                         <span class="has-text-info">แก้ไข</span>
                                     </a>
+                                    <a href="{{ url_for('webadmin.clone_group', group_id=group.id, subject_id=subject_id) }}"
+                                       class="button is-small is-rounded">
+                                      <span class="icon">
+                                        <i class="fas fa-copy has-text-info"></i>
+                                      </span>
+                                        <span class="has-text-info">คัดลอกกล่อง</span>
+                                    </a>
+                                  </div>
                                 </td>
                             </tr>
                         {% endfor %}

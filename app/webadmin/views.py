@@ -413,6 +413,21 @@ def remove_group_from_item(item_id, group_id):
         return redirect(url_for('webadmin.preview', item_id=item.id))
 
 
+@webadmin.route('/groups/<int:group_id>/questions/<int:item_id>/remove')
+@superuser
+def remove_item_from_group(item_id, group_id):
+    group = ItemGroup.query.get(group_id)
+    item = Item.query.get(item_id)
+    if group in item.groups:
+        item.groups.remove(group)
+        db.session.add(item)
+        db.session.commit()
+        flash('นำข้อสอบออกจากกล่องเรียบร้อยแล้ว', 'success')
+    else:
+        flash('ไม่พบกล่อง กรุณาตรวจสอบ', 'danger')
+    return redirect(url_for('webadmin.list_items_in_group', group_id=group_id))
+
+
 @webadmin.route('/api/specs/<int:spec_id>/items/<int:item_id>')
 @superuser
 def get_groups(spec_id, item_id):
@@ -822,3 +837,31 @@ def edit_random_question(item_id, set_id, group_id):
                            categories=get_categories(item.bank),
                            choices=[c.id for c in item.choices],
                            item=item)
+
+
+@webadmin.route('/groups/<int:group_id>/clone', methods=['GET', 'POST'])
+@superuser
+def clone_group(group_id):
+    group = ItemGroup.query.get(group_id)
+    subject_id = int(session.get('subject_id', -1))
+    new_group = ItemGroup()
+    new_group.name = group.name + ' (copy)'
+    new_group.num_sample_items = group.num_sample_items
+    new_group.subject = group.subject
+    new_group.is_active = group.is_active
+    new_group.desc = group.desc
+    form = GroupForm(obj=new_group)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            form.populate_obj(new_group)
+            new_group.user = current_user
+            new_group.items = group.items
+            new_group.created_at = arrow.now(tz='Asia/Bangkok').datetime
+            db.session.add(new_group)
+            db.session.commit()
+            flash('คัดลอกกล่องใหม่เรียบร้อยแล้ว', 'success')
+            return redirect(url_for('webadmin.list_groups', spec_id=new_group.spec_id, subject_id=subject_id))
+    return render_template('webadmin/group_form_edit.html',
+                           form=form,
+                           spec_id=group.spec_id,
+                           group_id=group.id)
