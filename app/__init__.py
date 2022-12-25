@@ -19,7 +19,7 @@ class MyAdminIndexView(AdminIndexView):
 
 
 load_dotenv()
-db = SQLAlchemy()
+db = SQLAlchemy(session_options={'autoflush': False})
 migrate = Migrate()
 admin = Admin(index_view=MyAdminIndexView())
 login = LoginManager()
