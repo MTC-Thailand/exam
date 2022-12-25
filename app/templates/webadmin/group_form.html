@@ -20,6 +20,12 @@
                                 </div>
                             </div>
                             <div class="field">
+                                <label class="label">{{ form.spec.label }}</label>
+                                <div class="select">
+                                    {{ form.spec() }}
+                                </div>
+                            </div>
+                            <div class="field">
                                 <label class="label">{{ form.subject.label }}</label>
                                 <div class="select">
                                     {{ form.subject() }}
