@@ -22,6 +22,7 @@
                         <th>วันที่สร้าง</th>
                         <th>รายละเอียด</th>
                         <th>จำนวนข้อสอบ</th>
+                        <th></th>
                         </thead>
                         <tbody>
                         {% for rs in random_sets %}
@@ -46,6 +47,15 @@
                                     </a>
                                 </td>
                             {% endif %}
+                        <td>
+                            <a href="{{ url_for('webadmin.delete_random_set', spec_id=spec_id, random_set_id=rs.id) }}"
+                               class="button is-danger is-small">
+                                <span class="icon">
+                                    <i class="fas fa-trash-alt"></i>
+                                </span>
+                                <span>ลบ</span>
+                            </a>
+                        </td>
                         </tr>
                         {% endfor %}
                         </tbody>

@@ -601,6 +601,15 @@ def random_create(spec_id):
     return render_template('webadmin/random_create_form.html', form=form)
 
 
+@webadmin.route('/specs/<int:spec_id>/random/<int:random_set_id>/delete')
+@superuser
+def delete_random_set(spec_id, random_set_id):
+    random_set = RandomSet.query.get(random_set_id)
+    db.session.delete(random_set)
+    db.session.commit()
+    return redirect(url_for('webadmin.random_index', spec_id=spec_id))
+
+
 @webadmin.route('/specs/<int:spec_id>/random_set/<int:set_id>/randomize')
 @superuser
 def randomize(spec_id, set_id):

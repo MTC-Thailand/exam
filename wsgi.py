@@ -47,6 +47,7 @@ admin.add_views(ModelView(SubSubCategory, db.session, category='ExamBank'))
 admin.add_views(ModelView(Item, db.session, category='ExamBank'))
 admin.add_views(ModelView(Choice, db.session, category='ExamBank'))
 admin.add_views(ModelView(NumChoice, db.session, category='ExamBank'))
+admin.add_views(ModelView(RandomSet, db.session, category='ExamBank'))
 
 admin.add_views(ModelView(Specification, db.session, category='ExamBank'))
 
