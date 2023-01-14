@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+    <section class="section">
+    <div class="columns">
+        <div class="column">
+            <h1 class="title has-text-centered">Client Form</h1>
+            <form method="post">
+                {{ form.hidden_tag() }}
+                <div class="field">
+                    <label class="label">{{ form.name.label }}</label>
+                    <div class="control">
+                        {{ form.name(class="input") }}
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">{{ form.organization.label }}</label>
+                    <div class="control">
+                        {{ form.organization(class="input") }}
+                    </div>
+                </div>
+                <div class="field">
+                    <input type="submit" value="Submit" class="button is-success"/>
+                </div>
+            </form>
+        </div>
+    </div>
+    </section>
+{% endblock %}

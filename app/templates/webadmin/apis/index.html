@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+    <section class="section">
+    This is the index page.
+    <a class="button is-link" href="{{ url_for('webadmin.add_client') }}">
+        New Client
+    </a>
+    </section>
+{% endblock %}

@@ -310,3 +310,110 @@ class RandomItemSet(db.Model):
             choice = Choice.query.get(int(c))
             if choice.answer:
                 return choices.index(str(choice.id))
+
+
+class RandomSetTestDrive(db.Model):
+    __tablename__ = 'random_sets_testdrive'
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, info={'label': 'สร้างเมื่อ'})
+    desc = db.Column('desc', db.Text(), info={'label': 'รายละเอียด'})
+    spec_id = db.Column('spec_id', db.ForeignKey('specifications.id'))
+    spec = db.relationship(Specification, backref=db.backref('random_sets_testdrive',
+                                                             lazy='dynamic',
+                                                             cascade='all, delete-orphan'))
+    item_orders = db.Column('item_orders', db.String())
+    creator_id = db.Column('creator_id', db.ForeignKey('users.id'))
+    creator = db.relationship(User)
+    submitted_at = db.Column('submitted_at', db.DateTime(timezone=True))
+
+    def get_total_score(self):
+        score = 0
+        for item_set in self.testdrive_item_sets:
+            if item_set.answer and item_set.item.answer == item_set.answer.answer:
+                score += 1
+        return score
+
+    def get_current_item_set_position(self, item):
+        items = [RandomItemSetTestDrive.query.get(int(item_id)) for item_id in self.item_orders.split(',')]
+        curr_pos = items.index(item)
+        return curr_pos
+
+    def get_item_set_positions(self, item):
+        items = [RandomItemSetTestDrive.query.get(int(item_id)) for item_id in self.item_orders.split(',')]
+        curr_pos = items.index(item)
+        print(item, items, curr_pos)
+        if curr_pos == 0:
+            prev_item = None
+        else:
+            prev_item = items[curr_pos - 1]
+
+        if curr_pos == len(items) - 1:
+            next_item = None
+        else:
+            next_item = items[curr_pos + 1]
+
+        return curr_pos, prev_item, next_item
+
+
+class RandomItemSetTestDrive(db.Model):
+    __tablename__ = 'random_item_sets_testdrive'
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    set_id = db.Column('set_id', db.ForeignKey('random_sets_testdrive.id'))
+    set = db.relationship(RandomSetTestDrive, backref=db.backref('testdrive_item_sets',
+                                                                 lazy='dynamic', cascade='all, delete-orphan'))
+    item_id = db.Column('item_id', db.ForeignKey('items.id'))
+    item = db.relationship(Item, backref=db.backref('testdrive_item_sets',
+                                                    lazy='dynamic', cascade='all, delete-orphan'))
+    group_id = db.Column('group_id', db.ForeignKey('item_groups.id'))
+    group = db.relationship(ItemGroup, backref=db.backref('testdrive_sample_items', lazy='dynamic'))
+    choices_order = db.Column('choices_order', db.String())
+
+    @hybrid_property
+    def subject_id(self):
+        return self.item.bank.subject_id
+
+    def randomize_choices(self):
+        if self.item:
+            choices_order = [str(c.id) for c in self.item.choices]
+            random.shuffle(choices_order)
+            self.choices_order = ','.join(choices_order)
+
+    @property
+    def ordered_choices(self):
+        choices = []
+        for c in self.choices_order.split(','):
+            choice = Choice.query.get(int(c))
+            choices.append(choice)
+        return choices
+
+    @property
+    def correct_answer_pattern(self):
+        choices = self.choices_order.split(',')
+        for c in self.choices_order.split(','):
+            choice = Choice.query.get(int(c))
+            idx = choices.index(str(choice.id))
+            if choice.answer:
+                text = '--' * idx
+                return '{}{}'.format(text.center(15), idx)
+
+    @property
+    def correct_answer_position(self):
+        choices = self.choices_order.split(',')
+        for c in self.choices_order.split(','):
+            choice = Choice.query.get(int(c))
+            if choice.answer:
+                return choices.index(str(choice.id))
+
+
+class RandomItemSetTestDriveAnswer(db.Model):
+    __tablename__ = 'random_item_sets_testdrive_answer'
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    creator_id = db.Column('creator_id', db.ForeignKey('users.id'))
+    creator = db.relationship(User)
+    answer_id = db.Column('answer', db.ForeignKey('choices.id'))
+    answer = db.relationship(Choice)
+    item_id = db.Column('item_id', db.ForeignKey('random_item_sets_testdrive.id'))
+    item = db.relationship(RandomItemSetTestDrive, backref=db.backref('answer',
+                                                                      uselist=False,
+                                                                      cascade='all, delete-orphan'))
+    submitted_at = db.Column('submitted_at', db.DateTime(timezone=True))

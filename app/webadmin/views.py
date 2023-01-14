@@ -5,6 +5,7 @@ from io import StringIO
 import arrow
 import requests
 import random
+from string import ascii_letters
 from sqlalchemy import or_
 from flask_login import current_user
 from werkzeug.utils import secure_filename
@@ -13,10 +14,14 @@ from . import webadmin
 from app.exambank.models import *
 from app import superuser
 from app.exambank.views import get_categories
-from flask import redirect, url_for, render_template, flash, request, jsonify, session, make_response
-from .forms import ApprovalForm, EvaluationForm, SpecificationForm, GroupForm, RandomSetForm, SubjectForm
+from flask import (redirect, url_for, render_template, flash, request,
+                   jsonify, session, make_response)
+from .forms import (ApprovalForm, EvaluationForm, SpecificationForm,
+                    GroupForm, RandomSetForm, SubjectForm, ApiClientForm)
 from pydrive.auth import ServiceAccountCredentials, GoogleAuth
 from pydrive.drive import GoogleDrive
+
+from ..apis.models import ApiClient
 
 gauth = GoogleAuth()
 keyfile_dict = requests.get(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')).json()
@@ -187,6 +192,7 @@ def preview_in_group(group_id, item_id):
                            group_id=group_id,
                            prev_item_id=prev_item.id if prev_item else None,
                            next_item_id=next_item.id if next_item else None)
+
 
 @webadmin.route('/approvals/<int:approval_id>/delete')
 @superuser
@@ -472,7 +478,8 @@ def get_items_in_group(group_id):
     data = []
     for item in query:
         d = item.to_dict()
-        d['question'] = f"<a href={url_for('webadmin.preview_in_group', item_id=item.id, group_id=group_id)}>{item.question}</a>"
+        d[
+            'question'] = f"<a href={url_for('webadmin.preview_in_group', item_id=item.id, group_id=group_id)}>{item.question}</a>"
         if item.parent_id:
             d['question'] += '<span class="icon"><i class="fas fa-code-branch"></i></span>'
         data.append(d)
@@ -539,7 +546,7 @@ def get_questions(bank_id, status):
                 question += f'<span class="tag {status}">your thought: {comment.status}</span>'
         boxes = []
         for group in item.groups:
-            box = f'<a href={url_for("webadmin.list_items_in_group", group_id=group.id)}><span class ="icon"><i class ="fas fa-box-open has-text-info"></i></span><span><small>{group.name[:10]}</small></span></a>'
+            box = f'<a href={url_for("webadmin.list_items_in_group", group_id=group.id)}><span class="icon"><i class="fas fa-box-open has-text-info"></i></span><span><small>{group.name}</small></span></a>'
             boxes.append(box)
 
         data.append({
@@ -824,11 +831,11 @@ def edit_random_question(item_id, set_id, group_id):
         db.session.commit()
         flash('บันทึกการแก้ไขข้อสอบแล้ว', 'success')
         return redirect(request.args.get('next') or url_for('webadmin.preview_random_items',
-                                random_set_id=random_set.id,
-                                spec_id=random_set.spec_id,
-                                group_id=group_id,
-                                subject_id=subject_id,
-                                ))
+                                                            random_set_id=random_set.id,
+                                                            spec_id=random_set.spec_id,
+                                                            group_id=group_id,
+                                                            subject_id=subject_id,
+                                                            ))
     return render_template('webadmin/random_item_edit.html',
                            random_set_id=random_set.id,
                            spec_id=random_set.spec_id,
@@ -865,3 +872,133 @@ def clone_group(group_id):
                            form=form,
                            spec_id=group.spec_id,
                            group_id=group.id)
+
+
+@webadmin.route('/web-services')
+def client_index():
+    return render_template('webadmin/apis/index.html')
+
+
+@webadmin.route('/web-services/client/new', methods=['GET', 'POST'])
+def add_client():
+    form = ApiClientForm()
+    if form.validate_on_submit():
+        new_client = ApiClient()
+        form.populate_obj(new_client)
+        new_client.set_client_id()
+        client_secret = new_client.set_secret()
+        db.session.add(new_client)
+        db.session.commit()
+        flash('New client has been created.', 'success')
+        return render_template('webadmin/apis/new_client_info.html',
+                               client=new_client, client_secret=client_secret)
+    return render_template('webadmin/apis/clien_form.html', form=form)
+
+
+@webadmin.route('/specs/<int:spec_id>/testdrive', methods=['GET', 'POST'])
+@superuser
+def new_testdrive(spec_id):
+    spec = Specification.query.get(spec_id)
+    random_set = RandomSetTestDrive()
+    random_set.spec_id = spec_id
+    random_set.creator = current_user
+    random_set.created_at = arrow.now(tz='Asia/Bangkok').datetime
+    item_orders = []
+    for group in spec.groups.all():
+        if group.num_sample_items and group.items.all():
+            for item in random.choices(group.items.all(), k=group.num_sample_items):
+                s = RandomItemSetTestDrive(set=random_set, group_id=group.id, item_id=item.id)
+                # randomize_choices method does not work here because item is not linked yet
+                choices_order = [str(c.id) for c in item.choices]
+                random.shuffle(choices_order)
+                s.choices_order = ','.join(choices_order)
+                db.session.add(s)
+                item_orders.append(s)
+    random.shuffle(item_orders)
+    db.session.add(random_set)
+    db.session.commit()
+    random_set.item_orders = ','.join([str(i.id) for i in item_orders])
+    db.session.add(random_set)
+    db.session.commit()
+    return render_template('webadmin/testdrive.html', random_set=random_set, item_set=item_orders[0])
+
+
+@webadmin.route('/htmx/testdrive/random_set/<int:random_set_id>/item/<int:item_set_id>', methods=['GET', 'POST'])
+@superuser
+def new_testdrive_item(random_set_id, item_set_id):
+    item_set = RandomItemSetTestDrive.query.get(item_set_id)
+    random_set = RandomSetTestDrive.query.get(random_set_id)
+    curr_pos, prev_item, next_item = random_set.get_item_set_positions(item_set)
+    if next_item:
+        next_item_url = url_for('webadmin.new_testdrive_item', random_set_id=random_set_id, item_set_id=next_item.id)
+    else:
+        next_item_url = url_for('webadmin.new_testdrive_item', random_set_id=random_set_id, item_set_id=item_set.id)
+    if prev_item:
+        prev_item_url = url_for('webadmin.new_testdrive_item', random_set_id=random_set_id, item_set_id=prev_item.id)
+    else:
+        prev_item_url = url_for('webadmin.new_testdrive_item', random_set_id=random_set_id, item_set_id=item_set.id)
+    choices = '<table class="table is-hoverable">'
+    if request.method == 'POST':
+        answer_id = request.args.get('answer_id', int)
+        if item_set.answer:
+            item_set.answer.answer_id = answer_id
+            item_set.answer.updated_at = arrow.now(tz='Asia/Bangkok').datetime
+            item_set.answer.creator = current_user
+        else:
+            answer = RandomItemSetTestDriveAnswer(answer_id=answer_id)
+            item_set.answer = answer
+            item_set.answer.updated_at = arrow.now(tz='Asia/Bangkok').datetime
+            item_set.answer.creator = current_user
+        db.session.add(item_set)
+        db.session.commit()
+
+    for n, ch in enumerate(item_set.ordered_choices, start=1):
+        url = url_for('webadmin.new_testdrive_item',
+                      random_set_id=random_set_id,
+                      item_set_id=item_set_id,
+                      answer_id=ch.id)
+        if item_set.answer and ch == item_set.answer.answer:
+            choices += f'<tr hx-target="#item" hx-swap="innerHTML" hx-trigger="click" hx-post="{url}" class="is-selected"><td>{n}</td><td>{ch.desc}</td></tr>'
+        else:
+            choices += f'<tr hx-target="#item" hx-swap="innerHTML" hx-trigger="click" hx-post="{url}"><td>{n}</td><td>{ch.desc}</td></tr>'
+    choices += '</table>'
+
+    submit_url = url_for('webadmin.submit_testdrive', random_set_id=random_set.id)
+
+    resp = f'''
+    <div class="content">
+        <h1 class="title is-size-5 has-text-centered">ข้อ {curr_pos + 1}</h1>
+        <div class="notification">{ item_set.item.question }</div>
+        <h4>ตัวเลือก</h4>
+        {choices}
+        <div class="buttons is-centered">
+            <button class="button" hx-get="{prev_item_url}" hx-target="#item" hx-swap="innerHTML">
+                ข้อก่อนหน้า
+            </button>
+            <button class="button" hx-get="{next_item_url}" hx-target="#item" hx-swap="innerHTML">
+                ข้อต่อไป
+            </button>
+            <a class="button is-primary" href="{submit_url}">
+                Submit
+            </a>
+        </div>
+    </div>
+    '''
+    return resp
+
+
+@webadmin.route('/testdrive/random_set/<int:random_set_id>/submit')
+@superuser
+def submit_testdrive(random_set_id):
+    random_set = RandomSetTestDrive.query.get(random_set_id)
+    random_set.submitted_at = arrow.now(tz='Asia/Bangkok').datetime
+    db.session.add(random_set)
+    db.session.commit()
+    return redirect(url_for('webadmin.testdrive_index', spec_id=random_set.spec_id))
+
+
+@webadmin.route('/testdrive/spec/<int:spec_id>')
+@superuser
+def testdrive_index(spec_id):
+    random_sets = RandomSetTestDrive.query.filter_by(creator=current_user, spec_id=spec_id)
+    return render_template('webadmin/testdrive_index.html', random_sets=random_sets, spec_id=spec_id)

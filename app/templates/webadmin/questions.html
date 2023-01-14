@@ -1,9 +1,5 @@
 {% extends "base.html" %}
 {% block title %}Admin: Questions{% endblock %}
-{% block head %}
-    {{ super() }}
-    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bulma.min.css" rel="stylesheet"/>
-{% endblock %}
 
 {% block page_content %}
 <section class="section">
@@ -61,8 +57,6 @@
 {% endblock %}
 {% block scripts %}
     {{ super() }}
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bulma.min.js"></script>
     <script>
         let selectedCategory = null
         let includedRejected = false

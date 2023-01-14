@@ -1,6 +1,7 @@
 from wtforms_alchemy import model_form_factory, QuerySelectField
 from flask_wtf import FlaskForm
 from app import db
+from app.apis.models import ApiClient
 from app.exambank.models import ItemApproval, Item, Specification, ItemGroup, Subject, RandomSet
 
 BaseModelForm = model_form_factory(FlaskForm)
@@ -57,3 +58,8 @@ class SubjectForm(ModelForm):
                                get_label='name',
                                allow_blank=False,
                                query_factory=lambda: Subject.query.all())
+
+
+class ApiClientForm(ModelForm):
+    class Meta:
+        model = ApiClient

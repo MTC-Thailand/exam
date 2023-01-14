@@ -34,6 +34,16 @@
                         </a>
                     </div>
                 </div>
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">
+                        Web Services
+                    </a>
+                    <div class="navbar-dropdown">
+                        <a class="navbar-item" href="{{ url_for('webadmin.client_index') }}">
+                            API Client
+                        </a>
+                    </div>
+                </div>
             {% endif %}
         </div>
 

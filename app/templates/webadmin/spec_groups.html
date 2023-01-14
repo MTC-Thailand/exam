@@ -31,19 +31,35 @@
                 <div class="column has-text-centered">
                     <div class="buttons is-centered">
                         <a class="button is-outlined is-success" href="{{ url_for('webadmin.random_index', spec_id=spec.id) }}">
-                        <span class="icon">
-                            <i class="fas fa-random"></i>
-                        </span>
+                            <span class="icon">
+                                <i class="fas fa-random"></i>
+                            </span>
                             <span>
-                            ชุดข้อสอบจากการสุ่ม
-                        </span>
+                                ชุดข้อสอบจากการสุ่ม
+                            </span>
                         </a>
                         <a class="button is-outlined is-info" href="{{ url_for('webadmin.list_all_groups', spec_id=spec.id) }}">
-                        <span class="icon">
-                            <i class="fas fa-list-ol"></i>
-                        </span>
+                            <span class="icon">
+                                <i class="fas fa-list-ol"></i>
+                            </span>
                             <span>
                                 จำนวนข้อสอบในกล่องทั้งหมด
+                            </span>
+                        </a>
+                        <a class="button is-success" href="{{ url_for('webadmin.random_index', spec_id=spec.id) }}">
+                            <span class="icon">
+                                <i class="fas fa-random"></i>
+                            </span>
+                            <span>
+                                ชุดข้อสอบจากการสุ่ม
+                            </span>
+                        </a>
+                        <a class="button is-danger" href="{{ url_for('webadmin.testdrive_index', spec_id=spec.id) }}">
+                            <span class="icon">
+                                <i class="fas fa-play"></i>
+                            </span>
+                            <span>
+                                ทดสอบชุดข้อสอบ
                             </span>
                         </a>
                     </div>

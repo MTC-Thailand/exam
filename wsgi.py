@@ -8,6 +8,7 @@ from app.apis.views import SpecificationResource
 from app.main import mainbp as main_blueprint
 from app.exambank import exambank as exambank_blueprint
 from app.webadmin import webadmin as webadmin_blueprint
+from app.apis.models import *
 from app.exambank.models import *
 from app.main.models import User, Role
 from pytz import timezone

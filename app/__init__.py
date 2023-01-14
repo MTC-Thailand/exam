@@ -10,6 +10,7 @@ from flask_login import LoginManager, current_user
 from flask_wtf.csrf import CSRFProtect
 from flask import Flask, flash, redirect, current_app
 from flask_mail import Mail
+from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
 
 
@@ -25,6 +26,7 @@ admin = Admin(index_view=MyAdminIndexView())
 login = LoginManager()
 login.login_view = 'main.login'
 csrf = CSRFProtect()
+jwt = JWTManager()
 mail = Mail()
 
 
@@ -45,6 +47,7 @@ def create_app():
     login.init_app(app)
     csrf.init_app(app)
     mail.init_app(app)
+    jwt.init_app(app)
 
     return app
 
