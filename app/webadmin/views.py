@@ -974,18 +974,36 @@ def new_testdrive_item(random_set_id, item_set_id):
 
     submit_url = url_for('webadmin.submit_testdrive', random_set_id=random_set.id)
 
+    image = ''
+    if item_set.item.figure:
+        image += '''
+            <p class="label">ภาพประกอบ</p>
+            <div class="notification is-white">
+                <img src="https://drive.google.com/uc?id={{ item_set.item.figure.url }}" width="700">
+                <p class="label">คำอธิบายภาพ</p>
+                <p>{{ item_set.item.figure.desc }}</p>
+                <p class="label">ที่มาของภาพ</p>
+                <p>{{ item_set.item.figure.ref }}</p>
+            </div>
+        '''
+
     resp = f'''
     <div class="content">
         <h1 class="title is-size-5 has-text-centered">ข้อ {curr_pos + 1}</h1>
         <div class="notification">{ item_set.item.question }</div>
+        {image}
         <h4>ตัวเลือก</h4>
         {choices}
         <div class="buttons is-centered">
-            <button class="button" hx-get="{prev_item_url}" hx-target="#item" hx-swap="innerHTML">
-                ข้อก่อนหน้า
+            <button class="button" {"disabled" if not prev_item else ""} hx-get="{prev_item_url}" hx-target="#item" hx-swap="innerHTML">
+                <span class="icon">
+                    <i class="fas fa-chevron-left"></i>
+                </span>
             </button>
-            <button class="button" hx-get="{next_item_url}" hx-target="#item" hx-swap="innerHTML">
-                ข้อต่อไป
+            <button class="button" {"disabled" if not next_item else ""} hx-get="{next_item_url}" hx-target="#item" hx-swap="innerHTML">
+                <span class="icon">
+                    <i class="fas fa-chevron-right"></i>
+                </span>
             </button>
             <a class="button is-primary" href="{submit_url}">
                 Submit
