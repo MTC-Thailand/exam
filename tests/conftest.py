@@ -9,7 +9,7 @@ def app():
     from app.apis import api_blueprint
     flask_app.register_blueprint(api_blueprint)
 
-    yield flask_app
+    return flask_app
 
 
 @pytest.fixture
