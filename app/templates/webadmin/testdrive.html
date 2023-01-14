@@ -10,11 +10,18 @@
     <section class="section">
         <div class="container" id="app">
             <div class="columns">
-                <div class="column">
-                    <h1 class="title has-text-centered">Test Drive</h1>
+                <div class="column has-text-centered">
+                    <span id="indicator" class="htmx-indicator icon is-large has-text-light has-text-success">
+                        <i class="fas fa-spinner fa-pulse fa-3x"></i>
+                    </span>
+                    <h1 class="title">Test Drive</h1>
                     <div id="item">
+                        <p class="notification">
+                            <strong>คำแนะนำ</strong> เลือกคำตอบที่ต้องการ รอจนแถบสีเขียวแสดงในตัวเลือกที่ต้องการก่อนเลื่อนไปข้อถัดไป ระบบจะบันทึกทุกครั้งที่มีการแก้ไข เมื่อเสร็จสิ้นแล้วให้กดปุ่ม Submit เพื่อส่งข้อสอบ
+                        </p>
                         <div class="buttons is-centered">
                             <button class="button is-success"
+                                    hx-indicator="#indicator"
                                     hx-swap="outerHTML"
                                     hx-get="{{ url_for('webadmin.new_testdrive_item', random_set_id=random_set.id, item_set_id=item_set.id) }}">
                                 Start

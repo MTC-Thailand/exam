@@ -1,5 +1,6 @@
 import csv
 import os
+import time
 from io import StringIO
 
 import arrow
@@ -967,9 +968,9 @@ def new_testdrive_item(random_set_id, item_set_id):
                       item_set_id=item_set_id,
                       answer_id=ch.id)
         if item_set.answer and ch == item_set.answer.answer:
-            choices += f'<tr hx-target="#item" hx-swap="innerHTML" hx-trigger="click" hx-post="{url}" class="is-selected"><td>{n}</td><td>{ch.desc}</td></tr>'
+            choices += f'<tr hx-indicator="#indicator" hx-target="#item" hx-swap="innerHTML" hx-trigger="click" hx-post="{url}" class="is-selected"><td>{n}</td><td>{ch.desc}</td></tr>'
         else:
-            choices += f'<tr hx-target="#item" hx-swap="innerHTML" hx-trigger="click" hx-post="{url}"><td>{n}</td><td>{ch.desc}</td></tr>'
+            choices += f'<tr hx-indicator="#indicator" hx-target="#item" hx-swap="innerHTML" hx-trigger="click" hx-post="{url}"><td>{n}</td><td>{ch.desc}</td></tr>'
     choices += '</table>'
 
     submit_url = url_for('webadmin.submit_testdrive', random_set_id=random_set.id)
@@ -995,12 +996,12 @@ def new_testdrive_item(random_set_id, item_set_id):
         <h4>ตัวเลือก</h4>
         {choices}
         <div class="buttons is-centered">
-            <button class="button" {"disabled" if not prev_item else ""} hx-get="{prev_item_url}" hx-target="#item" hx-swap="innerHTML">
+            <button class="button" hx-indicator="#indicator" {"disabled" if not prev_item else ""} hx-get="{prev_item_url}" hx-target="#item" hx-swap="innerHTML">
                 <span class="icon">
                     <i class="fas fa-chevron-left"></i>
                 </span>
             </button>
-            <button class="button" {"disabled" if not next_item else ""} hx-get="{next_item_url}" hx-target="#item" hx-swap="innerHTML">
+            <button class="button" hx-indicator="#indicator" {"disabled" if not next_item else ""} hx-get="{next_item_url}" hx-target="#item" hx-swap="innerHTML">
                 <span class="icon">
                     <i class="fas fa-chevron-right"></i>
                 </span>
