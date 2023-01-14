@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Admin: Test Drive{% endblock %}
+{% block head %}
+    {{ super() }}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.11.4/css/dataTables.bulma.min.css" rel="stylesheet" />
+{% endblock %}
+
+{% block page_content %}
+    <section class="section">
+        <div class="container" id="app">
+            <div class="columns">
+                <div class="column">
+                    <h1 class="title has-text-centered">Test Drive Summary</h1>
+                    <table class="table is-striped is-fullwidth">
+                    <thead>
+                    <th>เริ่มทำ</th>
+                    <th>ส่งเมื่อ</th>
+                    <th>คะแนน</th>
+                    <th>รายละเอียด</th>
+                    </thead>
+                        {% for random_set in random_sets %}
+                            <tr>
+                            <td>{{ random_set.created_at|localdatetime }}</td>
+                            <td>{{ random_set.submitted_at|localdatetime }}</td>
+                            {% if random_set.submitted_at %}
+                            <td>{{ random_set.get_total_score() }}</td>
+                            {% else %}
+                            <td>-</td>
+                            {% endif %}
+                            <td>
+                                <a class="button is-small">
+                                    <span class="icon">
+                                        <i class="fas fa-poll"></i>
+                                    </span>
+                                </a>
+                            </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    <div class="buttons is-centered">
+                        <a class="button is-primary" href="{{ url_for('webadmin.new_testdrive', spec_id=spec_id) }}">
+                            <span class="icon">
+                                <i class="fas fa-plus"></i>
+                            </span>
+                            <span>เพิ่มการทดสอบใหม่</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script src="https://unpkg.com/htmx.org@1.8.4"></script>
+    <script src="//cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.4/js/dataTables.bulma.min.js"></script>
+    <script>
+        document.body.addEventListener('htmx:configRequest', function(evt) {
+            evt.detail.headers['X-CSRF-Token'] = {{ csrf_token()|tojson|safe }}; // add a new parameter into the mix
+        });
+    </script>
+{% endblock %}
