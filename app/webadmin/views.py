@@ -1,12 +1,9 @@
 import csv
 import os
-import time
 from io import StringIO
 
 import arrow
 import requests
-import random
-from string import ascii_letters
 from sqlalchemy import or_
 from flask_login import current_user
 from werkzeug.utils import secure_filename
@@ -23,7 +20,6 @@ from pydrive.auth import ServiceAccountCredentials, GoogleAuth
 from pydrive.drive import GoogleDrive
 
 from ..apis.models import ApiClient
-from ..exambank.forms import ItemForm
 
 gauth = GoogleAuth()
 keyfile_dict = requests.get(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')).json()
