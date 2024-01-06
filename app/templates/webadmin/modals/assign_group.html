@@ -5,28 +5,27 @@
             <p class="modal-card-title">รายการกล่อง</p>
             <button type="button" id="cancelButton" class="delete" aria-label="close"></button>
         </header>
-        <form hx-patch="{{ url_for('webadmin.assign_group', item_id=item.id, spec_id=spec.id, next=next) }}"
-              hx-headers='{"X-CSRF-Token": {{ csrf_token()|tojson|safe }} }'
-              hx-indicator="#save-btn"
-        >
         <section class="modal-card-body">
-            <div class="field">
-                <div class="control">
-                {% for group in spec.groups.filter_by(subject=item.bank.subject)|sort(attribute='name') %}
-                    <label class="checkbox">
-                        <input type="checkbox" name="group" value="{{ group.id }}" {% if group in item.groups %}checked{% endif %}>
-                        {{ group.name }}
-                    </label>
-                    <br/>
-                {% endfor %}
-                </div>
-            </div>
-        </section>
-        <footer class="modal-card-foot">
+            <form hx-patch="{{ url_for('webadmin.assign_group', item_id=item.id, spec_id=spec.id, next=next) }}"
+                  hx-headers='{"X-CSRF-Token": {{ csrf_token()|tojson|safe }} }'
+                  hx-indicator="#save-btn"
+            >
+            {% for group in spec.groups.filter_by(subject=item.bank.subject)|sort(attribute='name') %}
+                <label class="label checkbox">
+                    <input type="checkbox" name="group" value="{{ group.id }}" {% if group in item.groups %}checked{% endif %}>
+                    {{ group.name }}
+                </label>
+                <br/>
+            {% endfor %}
             <button class="button is-outlined" id="cancel-btn">Cancel</button>
-            <button type="submit" class="button is-success" id="save-btn">Save</button>
-        </footer>
-        </form>
+            <button type="submit" class="button is-success" id="save-btn">
+                <span class="icon">
+                    <i class="fas fa-trash-alt"></i>
+                </span>
+                <span>Save</span>
+            </button>
+            </form>
+        </section>
     </div>
 </div>
 <script>
