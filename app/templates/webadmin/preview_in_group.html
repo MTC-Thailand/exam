@@ -2,6 +2,7 @@
 {% block title %}Review Questions In A Group{% endblock %}
 
 {% block page_content %}
+    <div id="group-modal-container"></div>
     <section class="section">
         <div class="container" id="app">
             <div class="columns">
@@ -99,11 +100,14 @@
                                 <span>เกษียณข้อสอบ</span>
                             </a>
                             <a class="button is-danger"
-                               href="{{ url_for('webadmin.remove_item_from_group', bank_id=item.bank_id, group_id=group_id, item_id=item.id) }}">
+                               hx-headers='{"X-CSRF-Token": {{ csrf_token()|tojson|safe }} }'
+                               hx-swap="innerHTML"
+                               hx-target="#group-modal-container"
+                               hx-get="{{ url_for('webadmin.assign_group', spec_id=group.spec_id, item_id=item.id, next=url_for('webadmin.list_items_in_group', group_id=group_id)) }}">
                                 <span class="icon">
                                     <i class="fas fa-share"></i>
                                 </span>
-                                <span>ย้ายออกจากกล่อง</span>
+                                <span>ย้ายกล่อง</span>
                             </a>
                         </div>
                         <div class="buttons is-centered">

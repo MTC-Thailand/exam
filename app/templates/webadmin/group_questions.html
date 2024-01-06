@@ -1,9 +1,5 @@
 {% extends "base.html" %}
 {% block title %}Admin: Questions{% endblock %}
-{% block head %}
-    {{ super() }}
-    <link href="//cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" rel="stylesheet" />
-{% endblock %}
 
 {% block page_content %}
     <section class="section">
@@ -11,7 +7,7 @@
             {% include "messages.html" %}
             <nav class="breadcrumb" aria-label="breadcrumbs">
                 <ul>
-                    <li><a href="{{ url_for('webadmin.list_banks') }}">คลังข้อสอบ</a></li>
+                    <li><a href="{{ url_for('webadmin.list_groups', spec_id=group.spec_id) }}">กล่องทั้งหมด</a></li>
                 </ul>
             </nav>
             <div class="columns">
@@ -40,6 +36,14 @@
                         <tbody>
                         </tbody>
                     </table>
+                    <div class="buttons is-centered">
+                        <a href="{{ url_for('webadmin.list_groups', spec_id=group.spec_id) }}" class="button is-light">
+                            <span class="icon">
+                                <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span>กลับ</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -47,7 +51,6 @@
 {% endblock %}
 {% block scripts %}
     {{ super() }}
-    <script src="//cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready( function () {
             $.ajaxSetup({

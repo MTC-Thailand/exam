@@ -263,6 +263,7 @@ def preview_in_group(group_id, item_id):
     return render_template('webadmin/preview_in_group.html',
                            item=item,
                            group_id=group_id,
+                           group=group,
                            prev_item_id=prev_item.id if prev_item else None,
                            next_item_id=next_item.id if next_item else None)
 
@@ -524,9 +525,33 @@ def get_groups(spec_id, item_id):
 
 
 @webadmin.route('/groups/<int:group_id>/items')
+@superuser
 def list_items_in_group(group_id):
     group = ItemGroup.query.get(group_id)
     return render_template('webadmin/group_questions.html', group=group)
+
+
+@webadmin.route('/specs/<int:spec_id>/items/<int:item_id>/assign', methods=['GET', 'PATCH'])
+@superuser
+def assign_group(item_id, spec_id):
+    item = Item.query.get(item_id)
+    spec = Specification.query.get(spec_id)
+    if request.method == 'PATCH':
+        print(request.form.getlist('group'))
+        print(request.args.get('next'))
+        group_ids = request.form.getlist('group')
+        item.groups = []
+        for _id in group_ids:
+            g = ItemGroup.query.get(int(_id))
+            item.groups.append(g)
+        db.session.add(item)
+        db.session.commit()
+        flash('อัพเดตกล่องเรียบร้อย', 'success')
+        resp = make_response()
+        resp.headers['HX-Redirect'] = request.args.get('next')
+        return resp
+    return render_template('webadmin/modals/assign_group.html', item=item, spec=spec, next=request.args.get('next'))
+
 
 
 @webadmin.route('/api/specs/groups/<int:group_id>/questions', methods=['GET'])
