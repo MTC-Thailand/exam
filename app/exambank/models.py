@@ -135,6 +135,7 @@ class Item(db.Model):
     user_id = db.Column('user_id', db.ForeignKey('users.id'))
     user = db.relationship(User, backref=db.backref('questions'))
     parent_id = db.Column('parent_id', db.ForeignKey('items.id'))
+    expired_at = db.Column('expired_at', db.DateTime(timezone=True))
     children = db.relationship('Item', backref=db.backref('parent',
                                                           remote_side=[id],
                                                           lazy='dynamic',

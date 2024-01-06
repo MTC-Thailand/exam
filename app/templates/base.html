@@ -4,6 +4,7 @@
     {% block head %}
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="htmx-config" content='{"requestClass": "is-loading"}'>
         <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bulma.min.css" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/yeti/bulmaswatch.min.css" integrity="sha512-M4A2UuDV9o9K0wo/NoyOm2hVrO6CmAit/3AQ3XXCh2A3qUzp3em2jJj0Bqi9mBMikBLD4cp0U/5hzKVs5SyfnQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <link rel="stylesheet" href="https://unpkg.com/vue-select@latest/dist/vue-select.css">
@@ -29,6 +30,7 @@
     {% endif %}
 {%  endblock %}
 {% block scripts %}
+    <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>

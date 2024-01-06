@@ -77,23 +77,32 @@
                         <div class="buttons is-centered">
                             <a class="button is-primary is-outlined"
                                href="{{ url_for('webadmin.edit_question_inplace', bank_id=item.bank_id, item_id=item.id, next=request.url) }}">
-                        <span class="icon">
-                            <i class="fas fa-pencil-alt"></i>
-                        </span>
+                                <span class="icon">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </span>
                                 <span>แก้ไขข้อสอบเพื่อแทนที่ (in-place)</span>
                             </a>
                             <a class="button is-warning is-outlined"
                                href="{{ url_for('webadmin.edit_question', bank_id=item.bank_id, item_id=item.id, group_id=group_id) }}">
-                        <span class="icon">
-                            <i class="far fa-copy"></i>
-                        </span>
+                                <span class="icon">
+                                    <i class="far fa-copy"></i>
+                                </span>
                                 <span>คัดลอกเพื่อแก้ไขข้อสอบ (clone and edit)</span>
+                            </a>
+                            <a class="button is-danger is-outlined"
+                               hx-headers='{"X-CSRF-Token": {{ csrf_token()|tojson|safe }} }'
+                               hx-confirm="ข้อสอบที่เกษียณแล้วถูกย้ายออกจากกล่องทั้งหมดและจะยุติการใช้งาน ท่านแน่ใจหรือไม่"
+                               hx-post="{{ url_for('webadmin.expire_question', item_id=item.id, next=url_for('webadmin.list_items_in_group', group_id=group_id)) }}">
+                                <span class="icon">
+                                    <i class="fas fa-trash-alt"></i>
+                                </span>
+                                <span>เกษียณข้อสอบ</span>
                             </a>
                             <a class="button is-danger"
                                href="{{ url_for('webadmin.remove_item_from_group', bank_id=item.bank_id, group_id=group_id, item_id=item.id) }}">
-                        <span class="icon">
-                            <i class="fas fa-share"></i>
-                        </span>
+                                <span class="icon">
+                                    <i class="fas fa-share"></i>
+                                </span>
                                 <span>ย้ายออกจากกล่อง</span>
                             </a>
                         </div>

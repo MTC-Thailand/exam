@@ -176,6 +176,20 @@ def edit_question_inplace(item_id):
                            next=request.args.get('next'))
 
 
+@webadmin.route('/questions/<int:item_id>/expire', methods=['POST'])
+@superuser
+def expire_question(item_id):
+    item = Item.query.get(item_id)
+    if item:
+        item.expire_at = arrow.now('Asia/Bangkok').datetime
+        item.groups = []
+        db.session.add(item)
+        db.session.commit()
+        resp = make_response()
+        resp.headers['HX-Redirect'] = request.args.get('next')
+        return resp
+
+
 @webadmin.route('/questions/<int:item_id>/delete')
 @superuser
 def delete_child_question(item_id):
