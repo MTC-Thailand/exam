@@ -23,6 +23,7 @@ from pydrive.auth import ServiceAccountCredentials, GoogleAuth
 from pydrive.drive import GoogleDrive
 
 from ..apis.models import ApiClient
+from ..exambank.forms import ItemForm
 
 gauth = GoogleAuth()
 keyfile_dict = requests.get(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')).json()
@@ -80,6 +81,7 @@ def edit_question(item_id):
         new_item.desc = form['desc']
         new_item.ref = form['ref']
         new_item.updated_at = arrow.now(tz='Asia/Bangkok').datetime
+        new_item.groups = item.groups
 
         if 'figure' in request.files:
             upfile = request.files.get('figure')
@@ -111,11 +113,67 @@ def edit_question(item_id):
         db.session.add(new_item)
         db.session.commit()
         flash('บันทึกข้อสอบใหม่แล้ว', 'success')
-        return redirect(url_for('webadmin.preview', item_id=item_id))
+        group_id = request.args.get('group_id')
+        return redirect(url_for('webadmin.preview_in_group', item_id=new_item.id, group_id=group_id))
     return render_template('webadmin/item_edit.html',
                            categories=get_categories(item.bank),
                            choices=[c.id for c in item.choices],
                            item=item)
+
+
+@webadmin.route('/questions/<int:item_id>/edit-inplace', methods=['GET', 'POST'])
+@superuser
+def edit_question_inplace(item_id):
+    item = Item.query.get(item_id)
+    if request.method == 'POST':
+        form = request.form
+        item.question = form['question']
+        item.desc = form['desc']
+        item.ref = form['ref']
+        item.updated_at = arrow.now(tz='Asia/Bangkok').datetime
+
+        if 'figure' in request.files:
+            upfile = request.files.get('figure')
+            filename = secure_filename(upfile.filename)
+            if filename:
+                upfile.save(filename)
+                file_drive = drive.CreateFile({'title': filename})
+                file_drive.SetContentFile(filename)
+                file_drive.Upload()
+                permission = file_drive.InsertPermission({'type': 'anyone',
+                                                          'value': 'anyone',
+                                                          'role': 'reader'})
+                if not item.figure:
+                    fig = Figure(url=file_drive['id'],
+                                 filename=filename,
+                                 desc=form.get('figdesc'),
+                                 ref=form.get('figref'),
+                                 item=item)
+                    db.session.add(fig)
+                else:
+                    item.figure.url = file_drive['id']
+                    item.figure.filename = filename
+                    item.desc = form.get('figdesc')
+                    item.ref = form.get('figref')
+        for key in form:
+            if key.startswith('choice'):
+                choice_id = int(key.replace('choice_', ''))
+                choice = Choice.query.get(choice_id)
+                choice.desc = form[key]
+                choice.answer = choice.answer
+                db.session.add(choice)
+        db.session.add(item)
+        db.session.commit()
+        flash('บันทึกการแก้ไขข้อสอบแล้ว', 'success')
+        if request.args.get('next'):
+            return redirect(request.args.get('next'))
+        else:
+            return redirect(url_for('webadmin.preview', item_id=item_id))
+    return render_template('webadmin/item_edit_inplace.html',
+                           categories=get_categories(item.bank),
+                           choices=[c.id for c in item.choices],
+                           item=item,
+                           next=request.args.get('next'))
 
 
 @webadmin.route('/questions/<int:item_id>/delete')
@@ -332,6 +390,7 @@ def list_groups(spec_id):
                            ItemGroup=ItemGroup,
                            subject_id=subject_id,
                            subjects=subjects)
+
 
 @webadmin.route('/specification/<int:spec_id>/groups/number')
 @superuser
@@ -991,7 +1050,7 @@ def new_testdrive_item(random_set_id, item_set_id):
     resp = f'''
     <div class="content">
         <h1 class="title is-size-5 has-text-centered">ข้อ {curr_pos + 1}</h1>
-        <div class="notification">{ item_set.item.question }</div>
+        <div class="notification">{item_set.item.question}</div>
         {image}
         <h4>ตัวเลือก</h4>
         {choices}

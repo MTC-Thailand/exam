@@ -9,26 +9,6 @@
         <div class="columns">
             <div class="column is-two-thirds is-offset-2">
                 {% include "messages.html" %}
-                <div class="buttons is-centered">
-                    {% if prev_item_id %}
-                        <a href="{{ url_for('webadmin.preview_in_group', item_id=prev_item_id, group_id=group_id) }}"
-                           class="button is-success is-light">
-                            <span class="icon">
-                                <i class="fas fa-chevron-left"></i>
-                            </span>
-                            <span>ข้อก่อนหน้า <span class="tag is-success">{{ prev_item_id }}</span></span>
-                        </a>
-                    {% endif %}
-                    {% if next_item_id %}
-                        <a href="{{ url_for('webadmin.preview_in_group', item_id=next_item_id, group_id=group_id) }}"
-                           class="button is-success is-light">
-                            <span>ข้อถัดไป <span class="tag is-success">{{ next_item_id }}</span></span>
-                            <span class="icon">
-                                <i class="fas fa-chevron-right"></i>
-                            </span>
-                        </a>
-                    {% endif %}
-                </div>
                 <div class="box">
                     <div class="notification is-warning has-text-centered">
                         <strong>{{ item.status|upper }}</strong>
@@ -80,15 +60,21 @@
                         </tbody>
                     </table>
                 <div class="buttons is-centered">
-                    <a class="button is-primary" href="{{ url_for('webadmin.edit_question', bank_id=item.bank_id, item_id=item.id) }}">
+                    <a class="button is-primary is-outlined" href="{{ url_for('webadmin.edit_question_inplace', bank_id=item.bank_id, item_id=item.id, next=request.url) }}">
                         <span class="icon">
                             <i class="fas fa-pencil-alt"></i>
                         </span>
-                        <span>แก้ไขข้อสอบ</span>
+                        <span>แก้ไขข้อสอบเพื่อแทนที่ (in-place)</span>
+                    </a>
+                    <a class="button is-warning is-outlined" href="{{ url_for('webadmin.edit_question', bank_id=item.bank_id, item_id=item.id, group_id=group_id) }}">
+                        <span class="icon">
+                            <i class="far fa-copy"></i>
+                        </span>
+                        <span>คัดลอกเพื่อแก้ไขข้อสอบ (clone and edit)</span>
                     </a>
                     <a class="button is-danger" href="{{ url_for('webadmin.remove_item_from_group', bank_id=item.bank_id, group_id=group_id, item_id=item.id) }}">
                         <span class="icon">
-                          <i class="fas fa-trash-alt"></i>
+                            <i class="fas fa-share"></i>
                         </span>
                         <span>ย้ายออกจากกล่อง</span>
                     </a>
@@ -97,7 +83,7 @@
                     <a href="{{ url_for('webadmin.list_items_in_group', group_id=group_id) }}"
                        class="button is-light">
                         <span class="icon">
-                          <i class="fas fa-box"></i>
+                            <i class="fas fa-chevron-left"></i>
                         </span>
                         <span>กล่องข้อสอบ</span>
                     </a>
