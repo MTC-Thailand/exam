@@ -591,6 +591,8 @@ def get_items_in_group(group_id):
 def get_questions(bank_id, status):
     start = request.args.get('start', type=int)
     length = request.args.get('length', type=int)
+    search = request.args.get('search[value]')
+
     with_groups = request.args.get('with_groups', None)
     subcategory_id = request.args.get('subcategory', type=int)
     included_rejected = request.args.get('rejected', 0, type=int)
@@ -612,6 +614,13 @@ def get_questions(bank_id, status):
 
     if included_rejected == 0:
         query = query.filter(or_(Item.peer_decision == None, Item.peer_decision != 'Rejected'))
+
+    if search:
+        query = query.join(Item.subcategory)
+        query = query.filter(db.or_(
+            Item.question.like(f'%{search}%'),
+            SubCategory.name.like(f'%{search}%'),
+        ))
 
     total_count = query.count()
     query = query.offset(start).limit(length)
