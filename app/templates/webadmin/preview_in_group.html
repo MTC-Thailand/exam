@@ -37,7 +37,7 @@
                         <p class="label">ประวัติการใช้งาน</p>
                         <p class="tags">
                             {% for s in item.item_sets %}
-                                <span class="tag is-success"></sapn>{{ s.set.created_at.strftime('%m/%Y') }}</span>
+                                <span class="tag is-success">{{ s.set.created_at.strftime('%m/%Y') }}</span>
                             {% endfor %}
                         </p>
                         <p class="label">โจทย์คำถาม</p>
@@ -56,16 +56,20 @@
                         {% else %}
                             N/A
                         {% endif %}
+                        <label class="label">คำตอบ</label>
+                        <table class="table is-fullwidth">
+                            <tr>
+                                <td style="border: 3px solid #34ad03">
+                                    {{ item.answer.desc|safe }}
+                                </td>
+                            </tr>
+                        </table>
                         <table class="table is-fullwidth">
                             <thead>
                             <th>ข้อที่</th>
                             <th>คำตอบ</th>
                             </thead>
                             <tbody>
-                            <p class="label">คำตอบ</p>
-                            <div class="notification is-light is-success">
-                                {{ item.answer.desc|safe }}
-                            </div>
                             <p class="label">ตัวเลือกลวง</p>
                             {% for choice in item.choices if not choice.answer %}
                                 <tr>

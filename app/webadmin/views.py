@@ -569,7 +569,6 @@ def assign_group_no_spec(item_id):
         flash('อัพเดตกล่องเรียบร้อย', 'success')
         resp = make_response()
         resp.headers['HX-Redirect'] = request.args.get('next')
-        flash('อัพเดตกล่องเรียบร้อยแล้ว', 'success')
         return resp
     return render_template('webadmin/modals/assign_group_no_spec.html',
                            specs=specs, item=item, next=request.args.get('next'))

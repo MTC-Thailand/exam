@@ -68,18 +68,25 @@
                                 <span>กล่องข้อสอบ</span>
                             </p>
                             {% if item.groups %}
+                            <div class="field is-grouped">
                             {% for group in item.groups %}
-                                <span class="tag is-large">
-                                <a href="{{ url_for('webadmin.list_items_in_group', group_id=group.id, next=request.url) }}">
-                                        {{ group.name }}
-                                </a>
-                                <button hx-delete="{{ url_for('webadmin.remove_group_from_item', item_id=item.id, group_id=group.id) }}"
-                                        hx-confirm="แน่ใจว่าต้องการย้ายข้อสอบออกจากกล่องนี้หรือไม่"
-                                        hx-headers='{"X-CSRF-Token": {{ csrf_token()|tojson|safe }} }'
-                                        hx-swap="none"
-                                        class="delete is-small"></button>
-                                </span>
+                                <div class="control">
+                                    <div class="tags has-addons">
+                                        <span class="tag is-rounded is-medium">
+                                            <a href="{{ url_for('webadmin.list_items_in_group', group_id=group.id, next=request.url) }}">
+                                                    {{ group.name }}
+                                            </a>
+                                        </span>
+                                        <a hx-delete="{{ url_for('webadmin.remove_group_from_item', item_id=item.id, group_id=group.id) }}"
+                                           hx-confirm="แน่ใจว่าต้องการย้ายข้อสอบออกจากกล่องนี้หรือไม่"
+                                           hx-headers='{"X-CSRF-Token": {{ csrf_token()|tojson|safe }} }'
+                                           hx-swap="none"
+                                           class="tag is-medium is-danger is-rounded is-delete">
+                                        </a>
+                                    </div>
+                                </div>
                             {% endfor %}
+                            </div>
                             {% else %}
                                 <h1 class="title is-size-5 has-text-centered">ยังไม่มีการจัดเข้ากล่อง</h1>
                             {% endif %}
