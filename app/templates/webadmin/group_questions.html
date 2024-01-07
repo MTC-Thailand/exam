@@ -37,7 +37,7 @@
                         </tbody>
                     </table>
                     <div class="buttons is-centered">
-                        <a href="{{ url_for('webadmin.list_groups', spec_id=group.spec_id) }}" class="button is-light">
+                        <a href="{{ next or url_for('webadmin.list_groups', spec_id=group.spec_id) }}" class="button is-light">
                             <span class="icon">
                                 <i class="fas fa-chevron-left"></i>
                             </span>

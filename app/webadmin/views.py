@@ -110,6 +110,8 @@ def edit_question(item_id):
         db.session.commit()
         flash('บันทึกข้อสอบใหม่แล้ว', 'success')
         group_id = request.args.get('group_id')
+        if request.args.get('next'):
+            return redirect(request.args.get('next'))
         return redirect(url_for('webadmin.preview_in_group', item_id=new_item.id, group_id=group_id))
     return render_template('webadmin/item_edit.html',
                            categories=get_categories(item.bank),
@@ -472,7 +474,7 @@ def add_group(item_id, group_id):
         return redirect(url_for('webadmin.preview', item_id=item.id))
 
 
-@webadmin.route('/items/<int:item_id>/groups/<int:group_id>/remove')
+@webadmin.route('/items/<int:item_id>/groups/<int:group_id>/remove', methods=['GET', 'DELETE'])
 @superuser
 def remove_group_from_item(item_id, group_id):
     group = ItemGroup.query.get(group_id)
@@ -484,10 +486,11 @@ def remove_group_from_item(item_id, group_id):
         flash('นำข้อสอบออกจากกล่องเรียบร้อยแล้ว', 'success')
     else:
         flash('ไม่พบกล่อง กรุณาตรวจสอบ', 'danger')
-    if item.parent_id:
-        return redirect(url_for('webadmin.preview', item_id=item.parent_id))
-    else:
-        return redirect(url_for('webadmin.preview', item_id=item.id))
+    if request.headers.get('HX-Request', 'false') == 'true':
+        resp = make_response()
+        resp.headers['HX-Redirect'] = url_for('webadmin.preview', item_id=item.parent_id or item.id)
+        return resp
+    return redirect(url_for('webadmin.preview', item_id=item.parent_id or item.id))
 
 
 @webadmin.route('/groups/<int:group_id>/questions/<int:item_id>/remove')
@@ -524,7 +527,9 @@ def get_groups(spec_id, item_id):
 @superuser
 def list_items_in_group(group_id):
     group = ItemGroup.query.get(group_id)
-    return render_template('webadmin/group_questions.html', group=group)
+    return render_template('webadmin/group_questions.html',
+                           group=group,
+                           next=request.args.get('next'))
 
 
 @webadmin.route('/subjects/<int:subject_id>/groups', methods=['GET', 'PATCH'])
@@ -541,6 +546,7 @@ def get_groups_from_spec(subject_id):
             <input type="checkbox" name="groups" {'checked' if group in item.groups else ''} value={group.id}>
             {group.name}
         </label>
+        <br/>
         </div>
         '''
     return template
