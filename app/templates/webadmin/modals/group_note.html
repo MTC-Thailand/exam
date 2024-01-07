@@ -1,0 +1,42 @@
+<div class="modal is-active animate__animated" id="group-modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">รายการกล่อง</p>
+            <button type="button" id="cancelButton" class="delete" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+            <form hx-patch="{{ url_for('webadmin.assign_group', item_id=item.id, spec_id=spec.id, next=next) }}"
+                  hx-headers='{"X-CSRF-Token": {{ csrf_token()|tojson|safe }} }'
+                  hx-indicator="#save-btn"
+            >
+            {% for group in spec.groups.filter_by(subject=item.bank.subject)|sort(attribute='name') %}
+                <label class="label checkbox">
+                    <input type="checkbox" name="group" value="{{ group.id }}" {% if group in item.groups %}checked{% endif %}>
+                    {{ group.name }}
+                </label>
+                <br/>
+            {% endfor %}
+            <button class="button is-outlined" id="cancel-btn">Cancel</button>
+            <button type="submit" class="button is-success" id="save-btn">
+                <span class="icon">
+                    <i class="fas fa-save"></i>
+                </span>
+                <span>Save</span>
+            </button>
+            </form>
+        </section>
+    </div>
+</div>
+<script>
+    window.document.getElementById("cancel-btn").addEventListener("click", function (event) {
+        event.preventDefault()
+        htmx.removeClass(htmx.find('#group-modal'), 'is-active')
+    })
+    window.document.getElementById("cancelButton").addEventListener("click", function () {
+        htmx.removeClass(htmx.find('#group-modal'), 'is-active')
+    })
+    window.addEventListener('closeModal', (evt) => {
+        htmx.removeClass(htmx.find('#group-modal'), 'is-active')
+    })
+</script>

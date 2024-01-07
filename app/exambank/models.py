@@ -1,5 +1,7 @@
 import random
 
+from wtforms.widgets import RadioInput, ListWidget
+
 from app import db
 from app.main.models import User
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -246,6 +248,20 @@ class ItemGroup(db.Model):
                             lazy='dynamic',
                             backref=db.backref('groups', lazy='dynamic'))
     desc = db.Column('desc', db.Text(), info={'label': 'Description'})
+
+    @property
+    def latest_note_status(self):
+        return self.notes[0].status if self.notes else 'n/a'
+
+
+class ItemGroupNote(db.Model):
+    __tablename__ = 'item_group_notes'
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, info={'label': 'สร้างเมื่อ'})
+    note = db.Column(db.Text(), info={'label': 'บันทึก'})
+    status = db.Column(db.String(), default='waiting')
+    group_id = db.Column(db.ForeignKey('item_groups.id'))
+    group = db.relationship(ItemGroup, backref=db.backref('notes', order_by='ItemGroupNote.created_at.desc()'))
 
 
 class RandomSet(db.Model):
