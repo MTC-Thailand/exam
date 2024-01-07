@@ -1,6 +1,7 @@
 import csv
 import os
 from io import StringIO
+from pprint import pprint
 
 import arrow
 import requests
@@ -262,6 +263,7 @@ def preview_in_group(group_id, item_id):
                            item=item,
                            group_id=group_id,
                            group=group,
+                           next=request.args.get('next'),
                            prev_item_id=prev_item.id if prev_item else None,
                            next_item_id=next_item.id if next_item else None)
 
@@ -312,12 +314,22 @@ def show_subsubcategory(bank_id, subsubcategory_id, status):
                            subsubcategory=subsubcategory, bank=bank)
 
 
-@webadmin.route('/questions/<int:item_id>/peer_evaluate', methods=['GET', 'POST'])
+@webadmin.route('/questions/<int:item_id>/peer_evaluate', methods=['GET', 'POST', 'PATCH'])
 @superuser
 def peer_evaluate(item_id):
     form = EvaluationForm()
     item = Item.query.get(item_id)
     parent_id = request.args.get('parent_id')
+    if request.method == 'PATCH':
+        item.peer_decision = request.form.get('peer_decision')
+        item.peer_evaluated_at = arrow.now('Asia/Bangkok').datetime
+        item.groups = []
+        db.session.add(item)
+        db.session.commit()
+        if request.headers.get('HX-Request') == 'true':
+            resp = make_response()
+            resp.headers['HX-Redirect'] = request.args.get('next')
+            return resp
     if request.method == 'POST':
         if form.validate_on_submit():
             form.populate_obj(item)
@@ -328,10 +340,7 @@ def peer_evaluate(item_id):
             db.session.add(item)
             db.session.commit()
             flash('Peer evaluation added.', 'success')
-            if parent_id:
-                return redirect(url_for('webadmin.preview', item_id=int(parent_id)))
-            else:
-                return redirect(url_for('webadmin.preview', item_id=item_id))
+            return redirect(url_for('webadmin.preview', item_id=parent_id or item_id))
     return render_template('webadmin/peer_evaluation_form.html', form=form, item=item)
 
 
@@ -618,7 +627,7 @@ def get_items_in_group(group_id):
     for item in query:
         d = item.to_dict()
         d[
-            'question'] = f"<a href={url_for('webadmin.preview_in_group', item_id=item.id, group_id=group_id)}>{item.question}</a>"
+            'question'] = f"<a href={url_for('webadmin.preview_in_group', item_id=item.id, group_id=group_id, next=request.args.get('next'))}>{item.question}</a>"
         if item.parent_id:
             d['question'] += '<span class="icon"><i class="fas fa-code-branch"></i></span>'
         data.append(d)

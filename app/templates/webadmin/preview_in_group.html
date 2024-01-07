@@ -13,11 +13,6 @@
             </div>
             <div class="columns">
                 <div class="column">
-                    ประวัติการใช้งาน
-                </div>
-            </div>
-            <div class="columns">
-                <div class="column">
                     {% include "messages.html" %}
                     <div class="box">
                         <div class="notification is-warning has-text-centered">
@@ -107,7 +102,7 @@
                                hx-headers='{"X-CSRF-Token": {{ csrf_token()|tojson|safe }} }'
                                hx-swap="innerHTML"
                                hx-target="#group-modal-container"
-                               hx-get="{{ url_for('webadmin.assign_group', spec_id=group.spec_id, item_id=item.id, next=url_for('webadmin.list_items_in_group', group_id=group_id)) }}">
+                               hx-get="{{ url_for('webadmin.assign_group', spec_id=group.spec_id, item_id=item.id, next=next or url_for('webadmin.list_items_in_group', group_id=group_id)) }}">
                                 <span class="icon">
                                     <i class="fas fa-share"></i>
                                 </span>
@@ -115,12 +110,12 @@
                             </a>
                         </div>
                         <div class="buttons is-centered">
-                            <a href="{{ url_for('webadmin.list_items_in_group', group_id=group_id) }}"
+                            <a href="{{ next or url_for('webadmin.list_items_in_group', group_id=group_id) }}"
                                class="button is-light">
-                        <span class="icon">
-                            <i class="fas fa-chevron-left"></i>
-                        </span>
-                                <span>กล่องข้อสอบ</span>
+                                <span class="icon">
+                                    <i class="fas fa-chevron-left"></i>
+                                </span>
+                                <span>กลับ</span>
                             </a>
                         </div>
                     </div>

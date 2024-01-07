@@ -6,6 +6,7 @@
         <div class="container" id="app">
             <h1 class="title has-text-centered">Preview</h1>
             <h1 class="subtitle has-text-centered">รหัสข้อสอบ: {{ item.id }}</h1>
+            {{ item.peer_decision }} {{ item.peer_summary }} {{ item.peer_evaluated_at }}
             <div class="columns">
                 <div class="column">
                     {% include "messages.html" %}
@@ -68,31 +69,32 @@
                                 <span>กล่องข้อสอบ</span>
                             </p>
                             {% if item.groups %}
-                            <div class="field is-grouped">
-                            {% for group in item.groups %}
-                                <div class="control">
-                                    <div class="tags has-addons">
+                                <div class="field is-grouped">
+                                    {% for group in item.groups %}
+                                        <div class="control">
+                                            <div class="tags has-addons">
                                         <span class="tag is-rounded is-medium">
                                             <a href="{{ url_for('webadmin.list_items_in_group', group_id=group.id, next=request.url) }}">
                                                     {{ group.name }}
                                             </a>
                                         </span>
-                                        <a hx-delete="{{ url_for('webadmin.remove_group_from_item', item_id=item.id, group_id=group.id) }}"
-                                           hx-confirm="แน่ใจว่าต้องการย้ายข้อสอบออกจากกล่องนี้หรือไม่"
-                                           hx-headers='{"X-CSRF-Token": {{ csrf_token()|tojson|safe }} }'
-                                           hx-swap="none"
-                                           class="tag is-medium is-danger is-rounded is-delete">
-                                        </a>
-                                    </div>
+                                                <a hx-delete="{{ url_for('webadmin.remove_group_from_item', item_id=item.id, group_id=group.id) }}"
+                                                   hx-confirm="แน่ใจว่าต้องการย้ายข้อสอบออกจากกล่องนี้หรือไม่"
+                                                   hx-headers='{"X-CSRF-Token": {{ csrf_token()|tojson|safe }} }'
+                                                   hx-swap="none"
+                                                   class="tag is-medium is-danger is-rounded is-delete">
+                                                </a>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
                                 </div>
-                            {% endfor %}
-                            </div>
                             {% else %}
                                 <h1 class="title is-size-5 has-text-centered">ยังไม่มีการจัดเข้ากล่อง</h1>
                             {% endif %}
                             <div id="group-modal-container"></div>
                         </div>
                         <div class="buttons is-centered">
+                            {% if item.peer_decision == 'Accepted' %}
                             <a class="button is-link"
                                hx-swap="innerHTML"
                                hx-target="#group-modal-container"
@@ -102,6 +104,16 @@
                                 </span>
                                 <span>เพิ่มกล่อง</span>
                             </a>
+                            {% else %}
+                                <span class="notification">
+                                <span class="icon">
+                                    <i class="fas fa-info-circle has-text-info"></i>
+                                </span>
+                                <span>
+                                    บันทึกผลการตัดสินเป็น Accept เพื่อรับเข้าคลังก่อนจึงจะสามารถนำเข้ากล่องได้
+                                </span>
+                                </span>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="buttons is-centered">
@@ -120,18 +132,44 @@
                         </span>
                                 <span>คัดลอกเพื่อแก้ไขข้อสอบ (clone and edit)</span>
                             </a>
-                            <a class="button is-warning"
-                               href="{{ url_for('webadmin.peer_evaluate', item_id=item.id) }}">
-                        <span class="icon">
-                            <i class="fas fa-gavel"></i>
-                        </span>
-                                <span>บันทึกผลการตัดสิน</span>
-                            </a>
+                            <div class="dropdown">
+                                <div class="dropdown-trigger">
+                                    <button id="evaluate-btn" class="button is-warning" aria-haspopup="true">
+                                        <span class="icon">
+                                            <i class="fas fa-gavel"></i>
+                                        </span>
+                                        <span>บันทึกผลการตัดสิน</span>
+                                        <span class="icon is-small">
+                                            <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                        </span>
+                                    </button>
+                                </div>
+                                <div class="dropdown-menu" id="dropdown-menu">
+                                    <div class="dropdown-content">
+                                        <a hx-patch="{{ url_for('webadmin.peer_evaluate', item_id=item.id, next=request.url) }}" class="dropdown-item"
+                                           hx-headers='{"X-CSRF-Token": {{ csrf_token()|tojson|safe }} }'
+                                           hx-vals='{"peer_decision": "Accepted"}'
+                                           hx-confirm='ท่านแน่ใจว่าจะรับข้อสอบนี้เข้าคลัง?'
+                                           hx-swap="none"
+                                        >
+                                            Accept
+                                        </a>
+                                        <a hx-patch="{{ url_for('webadmin.peer_evaluate', item_id=item.id, next=request.url) }}" class="dropdown-item"
+                                           hx-headers='{"X-CSRF-Token": {{ csrf_token()|tojson|safe }} }'
+                                           hx-vals='{"peer_decision": "Rejected"}'
+                                           hx-confirm='ท่านแน่ใจว่าจะปฏิเสธข้อสอบนี้? ข้อสอบจะถูกนำออกจากทุกกล่องโดยอัตโนมัติ'
+                                           hx-swap="none"
+                                        >
+                                            Reject
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                             <a class="button is-light is-danger"
                                href="{{ url_for('webadmin.preview_before_moving', item_id=item.id) }}">
-                        <span class="icon">
-                            <i class="fas fa-share-square"></i>
-                        </span>
+                                <span class="icon">
+                                    <i class="fas fa-share-square"></i>
+                                </span>
                                 <span>ย้ายไปรายวิชาอื่น</span>
                             </a>
                         {% else %}
@@ -417,4 +455,14 @@
             </div>
         </div>
     </section>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script>
+        {% if not item.peer_evaluated_at %}
+        htmx.on('#evaluate-btn', 'click', function (evt) {
+            htmx.toggleClass(htmx.find('.dropdown'), 'is-active')
+        })
+        {% endif %}
+    </script>
 {% endblock %}
