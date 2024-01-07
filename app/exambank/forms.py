@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import FormField, FieldList
+from wtforms import FormField, FieldList, RadioField
 from wtforms_alchemy import model_form_factory
-from app.exambank.models import Item, Figure, Choice
+from app.exambank.models import Item, Figure, Choice, ItemGroupNote
 
 from app import db
 
@@ -29,3 +29,12 @@ class ItemForm(ModelForm):
 
     figure = FormField('Figure', FigureForm, default=Figure)
     choices = FieldList(FormField(ChoiceForm, default=Choice), min_entries=4)
+
+
+class ItemGroupNoteForm(ModelForm):
+    class Meta:
+        model = ItemGroupNote
+
+    status = RadioField('สถานะ',
+                        default='waiting',
+                        choices=[(c, c) for c in ('waiting', 'working', 'ready')])

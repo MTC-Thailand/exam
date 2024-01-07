@@ -23,6 +23,44 @@
                     <h1 class="subtitle has-text-centered">
                         จำนวน {{ group.items.count() }} รายการ
                     </h1>
+                    <div id="note-form-modal"></div>
+                    <div class="buttons is-centered">
+                        <button class="button is-primary"
+                                hx-get="{{ url_for('webadmin.edit_group_note', group_id=group.id, next=request.url) }}"
+                                hx-swap="innerHTML"
+                                hx-target="#note-form-modal"
+                        >
+                            <span class="icon">
+                                <i class="far fa-sticky-note"></i>
+                            </span>
+                            <span>เพิ่มบันทึก (note)</span>
+                        </button>
+                    </div>
+                    <h1 class="title is-size-5">ประวัติการตรวจสอบ</h1>
+                    <table class="table is-striped is-fullwidth">
+                        <thead>
+                            <th>Datetime</th>
+                            <th>Note</th>
+                            <th>Status</th>
+                        </thead>
+                        <tbody>
+                        {% for note in group.notes %}
+                            <tr>
+                            <td>{{ note.created_at|localdatetime }}</td>
+                            <td>{{ note.note }}</td>
+                            <td>
+                                {% if note.status == 'ready' %}
+                                <span class="tag is-success">{{ note.status }}</span>
+                                {% elif note.status == 'working' %}
+                                <span class="tag is-warning">{{ note.status }}</span>
+                                {% else %}
+                                <span class="tag">{{ note.status }}</span>
+                                {% endif %}
+                            </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
                     <table id="myTable" class="table is-striped is-fullwidth">
                         <thead>
                         <tr>

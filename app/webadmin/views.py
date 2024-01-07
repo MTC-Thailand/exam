@@ -21,6 +21,7 @@ from pydrive.auth import ServiceAccountCredentials, GoogleAuth
 from pydrive.drive import GoogleDrive
 
 from ..apis.models import ApiClient
+from ..exambank.forms import ItemGroupNoteForm
 
 gauth = GoogleAuth()
 keyfile_dict = requests.get(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')).json()
@@ -601,6 +602,36 @@ def assign_group(item_id, spec_id):
         resp.headers['HX-Redirect'] = request.args.get('next')
         return resp
     return render_template('webadmin/modals/assign_group.html', item=item, spec=spec, next=request.args.get('next'))
+
+
+@webadmin.route('/groups/<int:group_id>/edit-note', methods=['GET', 'POST'])
+@webadmin.route('/groups/<int:group_id>/notes/<int:group_note_id>', methods=['GET', 'POST'])
+@superuser
+def edit_group_note(group_id, group_note_id=None):
+    if group_note_id:
+        group_note = ItemGroupNote.query.get(group_note_id)
+        form = ItemGroupNoteForm(obj=group_note)
+    else:
+        form = ItemGroupNoteForm()
+
+    if request.method == 'POST':
+        if group_note_id:
+            form.populate_obj(group_note)
+        else:
+            group_note = ItemGroupNote()
+            form.populate_obj(group_note)
+            group_note.group_id = group_id
+        group_note.created_at = arrow.now('Asia/Bangkok').datetime
+        db.session.add(group_note)
+        db.session.commit()
+        flash('เพิ่มบันทึกสำหรับกล่องเรียบร้อยแล้ว', 'success')
+        resp = make_response()
+        resp.headers['HX-Redirect'] = url_for('webadmin.list_items_in_group', group_id=group_id)
+        return resp
+    else:
+        print(form.errors)
+    return render_template('webadmin/modals/group_note.html', form=form, group_id=group_id)
+
 
 
 @webadmin.route('/api/specs/groups/<int:group_id>/questions', methods=['GET'])

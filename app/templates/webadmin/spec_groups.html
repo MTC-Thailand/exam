@@ -62,6 +62,7 @@
                     <table class="table is-fullwidth" id="table">
                         <thead>
                         <th>ชื่อกล่อง</th>
+                        <th>สถานะ</th>
                         <th>รายวิชา</th>
                         <th>จำนวนคำถามในกล่อง</th>
                         <th>จำนวนข้อในการสุ่ม</th>
@@ -76,6 +77,21 @@
                         {% for group in groups %}
                             <tr>
                                 <td>{{ group.name }}</td>
+                                <td>
+                                    {% if group.latest_note_status == 'ready' %}
+                                    <span class="tag is-success is-rounded">
+                                        {{ group.latest_note_status }}
+                                    </span>
+                                    {% elif group.latest_note_status == 'working' %}
+                                        <span class="tag is-warning is-rounded">
+                                        {{ group.latest_note_status }}
+                                    </span>
+                                    {% else %}
+                                        <span class="tag is-rounded">
+                                        {{ group.latest_note_status }}
+                                    </span>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     {{ group.subject }}
                                 </td>
