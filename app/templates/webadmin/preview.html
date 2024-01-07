@@ -7,26 +7,8 @@
         <h1 class="title has-text-centered">Preview</h1>
         <h1 class="subtitle has-text-centered">รหัสข้อสอบ: {{ item.id }}</h1>
         <div class="columns">
-            <div class="column is-two-thirds is-offset-2">
+            <div class="column">
                 {% include "messages.html" %}
-                <div class="buttons is-centered">
-                    {% if prev_item_id %}
-                        <a href="{{ url_for('webadmin.preview', item_id=prev_item_id, category_id=category_id, subcategory_id=subcategory_id, subsubcategory_id=subsubcategory_id) }}" class="button is-success is-light">
-                            <span class="icon">
-                                <i class="fas fa-chevron-left"></i>
-                            </span>
-                            <span>ข้อก่อนหน้า <span class="tag is-success">{{ prev_item_id }}</span></span>
-                        </a>
-                    {% endif %}
-                    {% if next_item_id %}
-                        <a href="{{ url_for('webadmin.preview', item_id=next_item_id, category_id=category_id, subcategory_id=subcategory_id, subsubcategory_id=subsubcategory_id) }}" class="button is-success is-light">
-                            <span>ข้อถัดไป <span class="tag is-success">{{ next_item_id }}</span></span>
-                            <span class="icon">
-                                <i class="fas fa-chevron-right"></i>
-                            </span>
-                        </a>
-                    {% endif %}
-                </div>
                 <div class="box">
                     <div class="notification is-warning has-text-centered">
                         <strong>{{ item.status|upper }}</strong>
@@ -55,16 +37,20 @@
                     {% else %}
                         N/A
                     {% endif %}
+                    <label class="label">คำตอบ</label>
+                    <table class="table is-fullwidth">
+                        <tr>
+                            <td style="background: #defcd2">
+                                {{ item.answer.desc|safe }}
+                            </td>
+                        </tr>
+                    </table>
                     <table class="table is-fullwidth">
                         <thead>
                         <th>ข้อที่</th>
                         <th>คำตอบ</th>
                         </thead>
                         <tbody>
-                        <p class="label">คำตอบ</p>
-                        <div class="notification is-light is-success">
-                            {{ item.answer.desc|safe }}
-                        </div>
                         <p class="label">ตัวเลือกลวง</p>
                         {% for choice in item.choices if not choice.answer %}
                         <tr>
@@ -111,9 +97,12 @@
                     {% else %}
                         <h1 class="title is-size-5 has-text-centered">ยังไม่มีการจัดเข้ากล่อง</h1>
                     {% endif %}
+                    <div id="group-modal-container"></div>
                     <div class="buttons is-centered">
                         <a class="button is-link"
-                           href="{{ url_for('webadmin.add_group_to_item', item_id=item.id) }}">
+                           hx-swap="innerHTML"
+                           hx-target="#group-modal-container"
+                           hx-get="{{ url_for('webadmin.assign_group_no_spec', item_id=item.id, next=request.url) }}">
                             เพิ่มกล่อง
                         </a>
                     </div>

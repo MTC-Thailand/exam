@@ -527,14 +527,54 @@ def list_items_in_group(group_id):
     return render_template('webadmin/group_questions.html', group=group)
 
 
-@webadmin.route('/specs/<int:spec_id>/items/<int:item_id>/assign', methods=['GET', 'PATCH'])
+@webadmin.route('/subjects/<int:subject_id>/groups', methods=['GET', 'PATCH'])
+@superuser
+def get_groups_from_spec(subject_id):
+    spec_id = request.args.get('spec_id')
+    item_id = request.args.get('item_id')
+    item = Item.query.get(int(item_id))
+    template = ''
+    for group in ItemGroup.query.filter_by(spec_id=int(spec_id), subject_id=subject_id):
+        template += f'''
+        <div class="control">
+        <label class="checkbox label">
+            <input type="checkbox" name="groups" {'checked' if group in item.groups else ''} value={group.id}>
+            {group.name}
+        </label>
+        </div>
+        '''
+    return template
+
+
+@webadmin.route('/items/<int:item_id>/assign-group', methods=['GET', 'PATCH'])
+@superuser
+def assign_group_no_spec(item_id):
+    item = Item.query.get(item_id)
+    specs = Specification.query.all()
+    if request.method == 'PATCH':
+        group_ids = request.form.getlist('groups')
+        print(group_ids)
+        item.groups = []
+        for _id in group_ids:
+            g = ItemGroup.query.get(int(_id))
+            item.groups.append(g)
+        db.session.add(item)
+        db.session.commit()
+        flash('อัพเดตกล่องเรียบร้อย', 'success')
+        resp = make_response()
+        resp.headers['HX-Redirect'] = request.args.get('next')
+        flash('อัพเดตกล่องเรียบร้อยแล้ว', 'success')
+        return resp
+    return render_template('webadmin/modals/assign_group_no_spec.html',
+                           specs=specs, item=item, next=request.args.get('next'))
+
+
+@webadmin.route('/specs/<int:spec_id>/items/<int:item_id>/assign-group', methods=['GET', 'PATCH'])
 @superuser
 def assign_group(item_id, spec_id):
     item = Item.query.get(item_id)
     spec = Specification.query.get(spec_id)
     if request.method == 'PATCH':
-        print(request.form.getlist('group'))
-        print(request.args.get('next'))
         group_ids = request.form.getlist('group')
         item.groups = []
         for _id in group_ids:
@@ -547,7 +587,6 @@ def assign_group(item_id, spec_id):
         resp.headers['HX-Redirect'] = request.args.get('next')
         return resp
     return render_template('webadmin/modals/assign_group.html', item=item, spec=spec, next=request.args.get('next'))
-
 
 
 @webadmin.route('/api/specs/groups/<int:group_id>/questions', methods=['GET'])
