@@ -1,9 +1,5 @@
 {% extends "base.html" %}
 {% block title %}Admin: Questions{% endblock %}
-{% block head %}
-    {{ super() }}
-    <link href="//cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" rel="stylesheet" />
-{% endblock %}
 
 {% block page_content %}
     <section class="section">
@@ -105,7 +101,6 @@
 {% endblock %}
 {% block scripts %}
     {{ super() }}
-    <script src="//cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready( function () {
             $('#myTable').DataTable();
