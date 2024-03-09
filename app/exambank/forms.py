@@ -43,4 +43,4 @@ class ItemGroupNoteForm(ModelForm):
 
 
 class ItemTagForm(FlaskForm):
-    tag = SelectMultipleField('Tag')
+    tag = SelectMultipleField('Tag', validate_choice=False)

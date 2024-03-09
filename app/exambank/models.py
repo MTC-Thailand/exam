@@ -164,7 +164,8 @@ class Item(db.Model):
             'bank': self.bank.name,
             'subjectId': self.bank.subject.id,
             'subject': self.bank.subject.name,
-            'decision': self.peer_decision
+            'decision': self.peer_decision,
+            'updated': self.updated_at.isoformat() if self.updated_at else None,
         }
 
     @property

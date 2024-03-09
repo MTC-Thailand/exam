@@ -66,6 +66,7 @@
                         <tr>
                             <th>ID</th>
                             <th>โจทย์</th>
+                            <th>แก้ไข</th>
                             <th>Bank</th>
                             <th>รายวิชา</th>
                             <th>decision</th>
@@ -89,6 +90,7 @@
 {% endblock %}
 {% block scripts %}
     {{ super() }}
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
     <script>
         $(document).ready( function () {
             $.ajaxSetup({
@@ -105,6 +107,16 @@
                     columns: [
                         {"data": "id"},
                         {"data": "question", "searchable": true},
+                        {
+                            "data": "updated",
+                            "render": function (data) {
+                                if (data !== null) {
+                                    return moment(data).format('lll')
+                                } else {
+                                    return ''
+                                }
+                            }
+                        },
                         {"data": "bank"},
                         {"data": "subject"},
                         {"data": "decision"}

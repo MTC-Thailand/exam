@@ -657,10 +657,17 @@ def get_items_in_group(group_id):
     data = []
     for item in query:
         d = item.to_dict()
-        d[
-            'question'] = f"<a href={url_for('webadmin.preview_in_group', item_id=item.id, group_id=group_id, next=request.args.get('next'))}>{item.question}</a>"
+        d['question'] = f"<a href={url_for('webadmin.preview_in_group', item_id=item.id, group_id=group_id, next=request.args.get('next'))}>{item.question}</a>"
         if item.parent_id:
             d['question'] += '<span class="icon"><i class="fas fa-code-branch"></i></span>'
+
+        template = '<span class="tags">'
+        for tag in item.tags:
+            template += f'<span class="tag is-warning">{tag.tag}</span>'
+        template += '</span>'
+
+        d['question'] += template
+
         data.append(d)
 
     # response
@@ -1238,7 +1245,7 @@ def edit_tag(item_id, tag_id=None):
         db.session.add(item)
         db.session.commit()
 
-    if request.method == 'POST' and form.validate_on_submit():
+    if request.method == 'POST':
         for tag_name in form.tag.data:
             tag_ = Tag.query.filter_by(tag=tag_name).first()
             if tag_ is None:
