@@ -59,8 +59,10 @@
             </div>
             <div class="columns">
                 <div class="column">
+                    <h1 class="title is-size-4">จำนวนข้อสอบในการสุ่มทั้งหมดเท่ากับ {{ total_num_sample_items }} ข้อ จาก {{ total_num_groups }} กล่อง</h1>
                     <table class="table is-fullwidth" id="table">
                         <thead>
+                        <th>ลำดับ</th>
                         <th>ชื่อกล่อง</th>
                         <th>สถานะ</th>
                         <th>รายวิชา</th>
@@ -69,13 +71,9 @@
                         <th></th>
                         </thead>
                         <tbody>
-                        {% if subject_id != -1 %}
-                            {% set groups = spec.groups.filter_by(subject_id=subject_id).order_by(ItemGroup.name) %}
-                        {% else %}
-                            {% set groups = spec.groups.order_by(ItemGroup.subject_id, ItemGroup.name) %}
-                        {% endif %}
                         {% for group in groups %}
                             <tr>
+                                <td>{{ loop.index }}</td>
                                 <td>{{ group.name }}</td>
                                 <td>
                                     {% if group.latest_note_status == 'ready' %}

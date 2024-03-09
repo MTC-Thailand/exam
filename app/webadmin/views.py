@@ -409,7 +409,21 @@ def list_groups(spec_id):
         session['subject_id'] = subject_id
     specification = Specification.query.get(spec_id)
     subjects = Subject.query.all()
+    if subject_id != -1:
+        groups = specification.groups.filter_by(subject_id=subject_id).order_by(ItemGroup.name)
+    else:
+        groups = specification.groups.order_by(ItemGroup.subject_id, ItemGroup.name)
+
+    total_num_sample_items = 0
+    total_num_groups = 0
+    for group in groups:
+        total_num_sample_items += group.num_sample_items if group.num_sample_items else 0
+        total_num_groups += 1
+
     return render_template('webadmin/spec_groups.html',
+                           total_num_groups=total_num_groups,
+                           total_num_sample_items=total_num_sample_items,
+                           groups=groups,
                            spec=specification,
                            ItemGroup=ItemGroup,
                            subject_id=subject_id,
