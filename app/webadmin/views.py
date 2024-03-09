@@ -5,6 +5,7 @@ from pprint import pprint
 
 import arrow
 import requests
+from flask_wtf.csrf import generate_csrf
 from sqlalchemy import or_
 from flask_login import current_user
 from werkzeug.utils import secure_filename
@@ -21,7 +22,7 @@ from pydrive.auth import ServiceAccountCredentials, GoogleAuth
 from pydrive.drive import GoogleDrive
 
 from ..apis.models import ApiClient
-from ..exambank.forms import ItemGroupNoteForm
+from ..exambank.forms import ItemGroupNoteForm, ItemTagForm
 
 gauth = GoogleAuth()
 keyfile_dict = requests.get(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')).json()
@@ -633,7 +634,6 @@ def edit_group_note(group_id, group_note_id=None):
     return render_template('webadmin/modals/group_note.html', form=form, group_id=group_id)
 
 
-
 @webadmin.route('/api/specs/groups/<int:group_id>/questions', methods=['GET'])
 @superuser
 def get_items_in_group(group_id):
@@ -1217,3 +1217,51 @@ def submit_testdrive(random_set_id):
 def testdrive_index(spec_id):
     random_sets = RandomSetTestDrive.query.filter_by(creator=current_user, spec_id=spec_id)
     return render_template('webadmin/testdrive_index.html', random_sets=random_sets, spec_id=spec_id)
+
+
+@webadmin.route('/items/<int:item_id>/tags', methods=['GET', 'POST'])
+@webadmin.route('/items/<int:item_id>/tags/<int:tag_id>', methods=['DELETE'])
+@superuser
+def edit_tag(item_id, tag_id=None):
+    if item_id:
+        item = Item.query.get(item_id)
+
+    form = ItemTagForm()
+    form.tag.choices = [(tag.tag, tag.tag) for tag in Tag.query.all()]
+
+    if request.method == 'GET':
+        return render_template('webadmin/modals/tag_form.html', form=form, item_id=item_id)
+
+    if request.method == 'DELETE':
+        tag = Tag.query.get(tag_id)
+        item.tags.remove(tag)
+        db.session.add(item)
+        db.session.commit()
+
+    if request.method == 'POST' and form.validate_on_submit():
+        for tag_name in form.tag.data:
+            tag_ = Tag.query.filter_by(tag=tag_name).first()
+            if tag_ is None:
+                tag_ = Tag(tag=tag_name, creator=current_user)
+            item.tags.append(tag_)
+        db.session.add(item)
+        db.session.commit()
+
+    template = ''
+    for tag in item.tags:
+        template += f'''
+        <div class="control">
+            <span class="tags has-addons">
+                <span class="tag is-warning">{tag}</span>
+                <span class="tag is-delete is-dark"
+                      hx-headers='{{"X-CSRF-Token": "{generate_csrf()}" }}'
+                      hx-delete="{url_for('webadmin.edit_tag', tag_id=tag.id, item_id=item_id, _method='DELETE')}"
+                      hx-confirm="ท่านต้องการลบแท็กนี้หรือไม่">
+                </span>
+            </span>
+        </div>
+        '''
+    resp = make_response(template)
+    resp.headers['HX-Trigger-After-Swap'] = 'closeModal'
+    resp.headers['HX-Retarget'] = '#item-tags'
+    return resp

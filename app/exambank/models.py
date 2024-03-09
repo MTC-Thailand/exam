@@ -11,6 +11,10 @@ assoc_group_items = db.Table('assoc_group_items',
                              db.Column('item_id', db.Integer, db.ForeignKey('items.id'))
                              )
 
+assoc_tag_items = db.Table('assoc_tag_items',
+                             db.Column('tag_id', db.Integer, db.ForeignKey('tags.id')),
+                             db.Column('item_id', db.Integer, db.ForeignKey('items.id'))
+                             )
 
 class Subject(db.Model):
     __tablename__ = 'subjects'
@@ -147,6 +151,7 @@ class Item(db.Model):
     peer_decision = db.Column('peer_decision', db.String(),
                               info={'label': 'Decision',
                                     'choices': [(c, c) for c in ['Accepted', 'Rejected']]})
+    tags = db.relationship('Tag', backref=db.backref('items'), secondary=assoc_tag_items)
 
     def __str__(self):
         return self.question[:40]
@@ -434,3 +439,14 @@ class RandomItemSetTestDriveAnswer(db.Model):
                                                                       uselist=False,
                                                                       cascade='all, delete-orphan'))
     submitted_at = db.Column('submitted_at', db.DateTime(timezone=True))
+
+
+class Tag(db.Model):
+    __tablename__ = 'tags'
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    tag = db.Column('tag', db.String(), nullable=False)
+    creator_id = db.Column('creator_id', db.ForeignKey('users.id'))
+    creator = db.relationship(User)
+
+    def __str__(self):
+        return self.tag

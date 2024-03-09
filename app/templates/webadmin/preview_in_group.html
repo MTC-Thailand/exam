@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Review Questions In A Group{% endblock %}
+{% block head %}
+{{ super() }}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
 
 {% block page_content %}
     <div id="group-modal-container"></div>
@@ -35,9 +39,32 @@
                                 <span class="tag is-success">{{ s.set.created_at.strftime('%m/%Y') }}</span>
                             {% endfor %}
                         </p>
+                        <div id="tag-form-modal" class="tags"></div>
                         <p class="label">โจทย์คำถาม</p>
                         <div class="notification">
                             {{ item.question|safe }}
+                            <div class="field is-grouped is-grouped-multiline" id="item-tags">
+                                {% for tag in item.tags %}
+                                    <div class="control">
+                                        <span class="tags has-addons">
+                                            <span class="tag is-warning">{{ tag }}</span>
+                                            <span class="tag is-delete is-dark"
+                                                  hx-headers='{"X-CSRF-Token": {{ csrf_token()|tojson|safe }} }'
+                                                  hx-delete="{{ url_for('webadmin.edit_tag', tag_id=tag.id, item_id=item.id, _method='DELETE') }}"
+                                                  hx-confirm="ท่านต้องการลบแท็กนี้หรือไม่">
+                                            </span>
+                                        </span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="buttons">
+                            <a hx-get="{{ url_for('webadmin.edit_tag', item_id=item.id) }}"
+                               hx-target="#tag-form-modal"
+                               hx-swap="innerHTML" class="button is-small is-link">
+                                <span class="icon"><i class="fas fa-plus"></i></span>
+                                <span>เพิ่มคำสำคัญ/แท็ก</span>
+                            </a>
                         </div>
                         <p class="label">ภาพประกอบ</p>
                         {% if item.figure %}
@@ -185,4 +212,8 @@
             </div>
         </div>
     </section>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 {% endblock %}
