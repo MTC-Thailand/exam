@@ -698,9 +698,10 @@ def get_items_in_group(group_id):
                     })
 
 
+@webadmin.route('/items/<int:item_id>/preview', methods=['GET'])
 @webadmin.route('/groups/<int:group_id>/items/<int:item_id>/preview', methods=['GET'])
 @superuser
-def preview_group_item(item_id, group_id):
+def preview_group_item(item_id, group_id=None):
     next = request.args.get('next')
     item = Item.query.get(item_id)
     return render_template('webadmin/modals/item_preview.html',
@@ -769,6 +770,12 @@ def get_questions(bank_id, status):
                 else:
                     status = 'is-warning'
                 question += f'<span class="tag {status}">your thought: {comment.status}</span>'
+        question += f'''
+        <a class="tag is-warning is-light" hx-get={url_for('webadmin.preview_group_item', item_id=item.id)} hx-target="#item-preview-container" hx-swap="innerHTML">
+            <span class="icon"><i class="fas fa-eye"></i></span>
+            <span>quick view</span>
+        </a>
+        '''
         boxes = []
         for group in item.groups:
             box = f'<a href={url_for("webadmin.list_items_in_group", group_id=group.id)}><span class="icon"><i class="fas fa-box-open has-text-info"></i></span><span><small>{group.name}</small></span></a>'

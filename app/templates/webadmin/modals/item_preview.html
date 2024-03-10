@@ -59,11 +59,19 @@
             </div>
         </section>
         <footer class="modal-card-foot">
-            <a class="button is-link"
-               href="{{ url_for('webadmin.preview_in_group', item_id=item.id, group_id=group_id, next=next) }}">
-                <span class="icon"><i class="fas fa-cog"></i></span>
-                <span>จัดการข้อสอบ</span>
-            </a>
+            {% if group_id %}
+                <a class="button is-link"
+                   href="{{ url_for('webadmin.preview_in_group', item_id=item.id, group_id=group_id, next=next) }}">
+                    <span class="icon"><i class="fas fa-cog"></i></span>
+                    <span>จัดการข้อสอบ</span>
+                </a>
+            {% else %}
+                <a class="button is-link"
+                   href="{{ url_for('webadmin.preview', item_id=item.id) }}">
+                    <span class="icon"><i class="fas fa-cog"></i></span>
+                    <span>จัดการข้อสอบ</span>
+                </a>
+            {% endif %}
         </footer>
     </div>
 </div>
