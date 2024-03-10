@@ -569,7 +569,7 @@ def get_groups_from_spec(subject_id):
         <div class="control">
         <label class="checkbox label">
             <input type="checkbox" name="groups" {'checked' if group in item.groups else ''} value={group.id}>
-            {group.name}
+            {group.name} ({group.items.count()} ข้อ) 
         </label>
         <br/>
         </div>

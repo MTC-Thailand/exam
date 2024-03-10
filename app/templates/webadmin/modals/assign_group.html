@@ -13,7 +13,7 @@
             {% for group in spec.groups.filter_by(subject=item.bank.subject)|sort(attribute='name') %}
                 <label class="label checkbox">
                     <input type="checkbox" name="group" value="{{ group.id }}" {% if group in item.groups %}checked{% endif %}>
-                    {{ group.name }}
+                    {{ group.name }} ({{ group.items.count() }} ข้อ)
                 </label>
                 <br/>
             {% endfor %}
