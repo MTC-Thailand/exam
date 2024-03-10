@@ -1,0 +1,78 @@
+<div class="modal is-active animate__animated" id="item-preview-modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">คำถาม</p>
+            <button type="button" id="cancelButton" class="delete" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+            <h1 class="subtitle has-text-centered">รหัสข้อสอบ: {{ item.id }}</h1>
+            <div class="columns">
+                <div class="column">
+                    <p class="label">โจทย์คำถาม</p>
+                    <div class="notification">
+                        {{ item.question|safe }}
+                        <div class="field is-grouped is-grouped-multiline" id="item-tags">
+                            {% for tag in item.tags %}
+                                <div class="control">
+                                    <span class="tag is-warning">{{ tag }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <p class="label">ภาพประกอบ</p>
+                    {% if item.figure %}
+                        <div class="notification is-white">
+                            <img src="https://drive.google.com/thumbnail?&id={{ item.figure.url }}&sz=w1000">
+                            <p class="label">คำอธิบายภาพ</p>
+                            <p>{{ item.figure.desc }}</p>
+                            <p class="label">ที่มาของภาพ</p>
+                            <p>{{ item.figure.ref }}</p>
+                        </div>
+                    {% else %}
+                        N/A
+                    {% endif %}
+                    <label class="label">คำตอบ</label>
+                    <table class="table is-fullwidth">
+                        <tr>
+                            <td style="border: 3px solid #34ad03">
+                                {{ item.answer.desc|safe }}
+                            </td>
+                        </tr>
+                    </table>
+                    <table class="table is-fullwidth">
+                        <thead>
+                        <th>ข้อที่</th>
+                        <th>คำตอบ</th>
+                        </thead>
+                        <tbody>
+                        <p class="label">ตัวเลือกลวง</p>
+                        {% for choice in item.choices if not choice.answer %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ choice.desc|safe }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        <footer class="modal-card-foot">
+            <a class="button is-link"
+               href="{{ url_for('webadmin.preview_in_group', item_id=item.id, group_id=group_id, next=next) }}">
+                <span class="icon"><i class="fas fa-cog"></i></span>
+                <span>จัดการข้อสอบ</span>
+            </a>
+        </footer>
+    </div>
+</div>
+<script>
+    window.document.getElementById("cancelButton").addEventListener("click", function (event) {
+        console.log('closing..')
+        htmx.removeClass(htmx.find('#item-preview-modal'), 'is-active')
+    })
+    window.addEventListener('closeModal', (evt) => {
+        htmx.removeClass(htmx.find('#item-preview-modal'), 'is-active')
+    })
+</script>

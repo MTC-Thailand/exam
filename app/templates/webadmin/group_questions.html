@@ -61,6 +61,7 @@
                         {% endfor %}
                         </tbody>
                     </table>
+                    <div id="item-preview-container"></div>
                     <table id="myTable" class="table is-striped is-fullwidth">
                         <thead>
                         <tr>
@@ -101,6 +102,9 @@
             $('#myTable').DataTable({
                     processing: true,
                     serverSide: true,
+                    drawCallback: function () {
+                        htmx.process(document.body)
+                    },
                     ajax: {
                         url: "{{ url_for('webadmin.get_items_in_group', group_id=group.id, next=request.url) }}",
                     },

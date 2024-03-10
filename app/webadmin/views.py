@@ -677,10 +677,16 @@ def get_items_in_group(group_id):
 
         template = '<span class="tags">'
         for tag in item.tags:
-            template += f'<span class="tag is-warning">{tag.tag}</span>'
-        template += '</span>'
+            template += f'''<span class="tag is-warning">{tag}</span>'''
 
         d['question'] += template
+        d['question'] += f'''
+        <a class="tag is-light" hx-get={url_for('webadmin.preview_group_item', item_id=item.id, group_id=group_id, next=request.args.get('next'))} hx-target="#item-preview-container" hx-swap="innerHTML">
+            <span class="icon"><i class="fas fa-eye"></i></span>
+            <span>quick view</span>
+        </a>
+        </span>
+        '''
 
         data.append(d)
 
@@ -692,7 +698,17 @@ def get_items_in_group(group_id):
                     })
 
 
+@webadmin.route('/groups/<int:group_id>/items/<int:item_id>/preview', methods=['GET'])
+@superuser
+def preview_group_item(item_id, group_id):
+    next = request.args.get('next')
+    item = Item.query.get(item_id)
+    return render_template('webadmin/modals/item_preview.html',
+                           item=item, group_id=group_id, next=next)
+
+
 @webadmin.route('/api/banks/<int:bank_id>/questions/<status>')
+@superuser
 def get_questions(bank_id, status):
     start = request.args.get('start', type=int)
     length = request.args.get('length', type=int)
