@@ -681,7 +681,7 @@ def get_items_in_group(group_id):
 
         d['question'] += template
         d['question'] += f'''
-        <a class="tag is-light" hx-get={url_for('webadmin.preview_group_item', item_id=item.id, group_id=group_id, next=request.args.get('next'))} hx-target="#item-preview-container" hx-swap="innerHTML">
+        <a class="tag is-light is-warning" hx-get={url_for('webadmin.preview_group_item', item_id=item.id, group_id=group_id, next=request.args.get('next'))} hx-target="#item-preview-container" hx-swap="innerHTML">
             <span class="icon"><i class="fas fa-eye"></i></span>
             <span>quick view</span>
         </a>
