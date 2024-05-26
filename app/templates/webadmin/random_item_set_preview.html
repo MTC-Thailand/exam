@@ -9,7 +9,12 @@
             <div class="columns">
                 <div class="column has-text-centered">
                     <a href="{{ url_for('webadmin.export_to_html', subject_id=subject_id, spec_id=spec_id, random_set_id=random_set.id) }}"
-                       class="button is-info">Export</a>
+                       class="button is-info">
+                        <span class="icon">
+                            <i class="fas fa-file-export"></i>
+                        </span>
+                        <span>Export</span>
+                    </a>
                 </div>
             </div>
             <div class="columns">
