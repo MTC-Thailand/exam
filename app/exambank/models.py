@@ -198,6 +198,9 @@ class Choice(db.Model):
     def __str__(self):
         return self.desc[:40]
 
+    def to_json(self):
+        return {'answer': self.answer, 'desc': self.desc}
+
 
 class NumChoice(db.Model):
     __tablename__ = 'number_choice'
@@ -282,6 +285,9 @@ class RandomSet(db.Model):
     creator_id = db.Column('creator_id', db.ForeignKey('users.id'))
     creator = db.relationship(User)
 
+    def to_json(self):
+        return [item.to_json() for item in self.item_sets]
+
 
 class RandomItemSet(db.Model):
     __tablename__ = 'random_item_sets'
@@ -297,6 +303,16 @@ class RandomItemSet(db.Model):
     group_id = db.Column('group_id', db.ForeignKey('item_groups.id'))
     group = db.relationship(ItemGroup, backref=db.backref('sample_items', lazy='dynamic'))
     choices_order = db.Column('choices_order', db.String())
+
+    def to_json(self):
+        return {
+            'question_id': self.item_id,
+            'tag': [f'{tag}' for tag in self.item.tags],
+            'content': f'{self.item.category or "-"}; {self.item.subcategory or "-"}; {self.item.subsubcategory or "-"}',
+            'question': self.item.question,
+            'figure': f'https://drive.google.com/thumbnail?&id={ self.item.figure.url }&sz=w1000' if self.item.figure else None,
+            'choices': [c.to_json() for c in self.ordered_choices],
+        }
 
     @hybrid_property
     def subject_id(self):

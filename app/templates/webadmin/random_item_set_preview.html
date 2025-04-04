@@ -15,6 +15,22 @@
                         </span>
                         <span>Export</span>
                     </a>
+                    <a hx-get="{{ url_for('webadmin.export_to_json', subject_id=subject_id, spec_id=spec_id, random_set_id=random_set.id) }}"
+                       hx-prompt="โปรดระบุรอบการสอบในรูปแบบ dd/mm/yyyy"
+                       class="button is-info">
+                        <span class="icon">
+                            <i class="fas fa-file"></i>
+                        </span>
+                        <span>Export JSON</span>
+                    </a>
+                    <a hx-get="{{ url_for('webadmin.push_to_inet', subject_id=subject_id, spec_id=spec_id, random_set_id=random_set.id) }}"
+                       hx-prompt="โปรดระบุรอบการสอบในรูปแบบ dd/mm/yyyy"
+                       class="button is-info">
+                        <span class="icon">
+                            <i class="fas fa-file"></i>
+                        </span>
+                        <span>Push to INET</span>
+                    </a>
                 </div>
             </div>
             <div class="columns">

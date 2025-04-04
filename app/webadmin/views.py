@@ -1,7 +1,6 @@
 import csv
 import os
 from io import StringIO
-from pprint import pprint
 
 import arrow
 import requests
@@ -31,6 +30,8 @@ gauth.credentials = ServiceAccountCredentials.from_json_keyfile_dict(keyfile_dic
 drive = GoogleDrive(gauth)
 
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'tiff'}
+
+INET_API_BASE_URL = 'https://api-mtc-license-exam.dtn-exam.com/api/v1/import_exam'
 
 
 @webadmin.route('/banks')
@@ -671,7 +672,8 @@ def get_items_in_group(group_id):
     data = []
     for item in query:
         d = item.to_dict()
-        d['question'] = f"<a href={url_for('webadmin.preview_in_group', item_id=item.id, group_id=group_id, next=request.args.get('next'))}>{item.question}</a>"
+        d[
+            'question'] = f"<a href={url_for('webadmin.preview_in_group', item_id=item.id, group_id=group_id, next=request.args.get('next'))}>{item.question}</a>"
         if item.parent_id:
             d['question'] += '<span class="icon"><i class="fas fa-code-branch"></i></span>'
 
@@ -1005,6 +1007,65 @@ def export_to_html(spec_id, random_set_id):
                            subject_id=subject_id,
                            random_set=random_set,
                            spec_id=spec_id)
+
+
+@webadmin.route('/specification/<int:spec_id>/random_set/<int:random_set_id>/export/json')
+@superuser
+def export_to_json(spec_id, random_set_id):
+    subject_id = request.args.get('subject_id', -1, type=int)
+    round = request.headers.get('HX-Prompt')
+    resp = make_response()
+    resp.headers['HX-Reswap'] = 'none'
+    resp.headers['HX-Redirect'] = url_for('webadmin.download_json_file',
+                                          round=round,
+                                          spec_id=spec_id,
+                                          random_set_id=random_set_id,
+                                          subject_id=subject_id)
+    return resp
+
+
+@webadmin.route('/specification/<int:spec_id>/random_set/<int:random_set_id>/push/INET')
+@superuser
+def push_to_inet(spec_id, random_set_id):
+    round = request.headers.get('HX-Prompt')
+    random_set = RandomSet.query.get(random_set_id)
+    subject_id = request.args.get('subject_id', -1, type=int)
+    subject = Subject.query.get(subject_id)
+    data = {
+        'round': round,
+        'course_id': 13,  # default
+        'account_id': '401175085568',  # default
+        'subject': subject.name if subject else "All",
+        'specification': random_set.spec.name,
+        'created_datetime': random_set.created_at.isoformat(),
+        'items': random_set.to_json(),
+    }
+    resp = requests.post(INET_API_BASE_URL, json=data, verify=False)
+    if resp.status_code != 200:
+        print(resp.text)
+    else:
+        print(resp.json())
+
+    resp = make_response()
+    resp.headers['HX-Reswap'] = 'none'
+
+    return resp
+
+
+@webadmin.route('/specification/<int:spec_id>/random_set/<int:random_set_id>/export/json/download')
+@superuser
+def download_json_file(spec_id, random_set_id):
+    random_set = RandomSet.query.get(random_set_id)
+    subject_id = request.args.get('subject_id', -1, type=int)
+    subject = Subject.query.get(subject_id)
+    data = {
+        'round': request.args.get('round'),
+        'subject': subject.name if subject else "All",
+        'specification': random_set.spec.name,
+        'created_datetime': random_set.created_at.isoformat(),
+        'items': random_set.to_json(),
+    }
+    return jsonify(data=data)
 
 
 @webadmin.route('/questions/<int:item_id>/preview-before-moving')
