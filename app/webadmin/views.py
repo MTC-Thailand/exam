@@ -31,7 +31,7 @@ drive = GoogleDrive(gauth)
 
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'tiff'}
 
-INET_API_BASE_URL = 'https://api-mtc-license-exam.dtn-exam.com/api/v1/import_exam'
+INET_API_BASE_URL ='https://api-mtc-license-exam.dtn-exam.com/api/v1/import_exam'
 
 
 @webadmin.route('/banks')
@@ -1034,13 +1034,13 @@ def push_to_inet(spec_id, random_set_id):
     data = {
         'round': round,
         'course_id': 13,  # default
-        'account_id': '401175085568',  # default
+        'account_id': '3130330142',  # default
         'subject': subject.name if subject else "All",
         'specification': random_set.spec.name,
         'created_datetime': random_set.created_at.isoformat(),
         'items': random_set.to_json(),
     }
-    resp = requests.post(INET_API_BASE_URL, json=data, verify=False)
+    resp = requests.post(INET_API_BASE_URL, json=data, verify=True)
     if resp.status_code != 200:
         print(resp.text)
     else:
