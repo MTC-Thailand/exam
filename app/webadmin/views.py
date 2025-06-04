@@ -1040,7 +1040,7 @@ def push_to_inet(spec_id, random_set_id):
         'created_datetime': random_set.created_at.isoformat(),
         'items': random_set.to_json(),
     }
-    print(data)
+    print(jsonify(data))
     resp = requests.post(INET_API_BASE_URL, json=data, verify=True)
     if resp.status_code != 200:
         print(resp.text)
