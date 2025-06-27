@@ -1040,17 +1040,13 @@ def push_to_inet(spec_id, random_set_id):
         'created_datetime': random_set.created_at.isoformat(),
         'items': random_set.to_json(),
     }
-    print(jsonify(data))
-    resp = requests.post(INET_API_BASE_URL, json=data, verify=True)
+    resp = requests.post(INET_API_BASE_URL, json={'data': data}, verify=True)
     if resp.status_code != 200:
         print(resp.text)
     else:
         print(resp.json())
 
-    resp = make_response()
-    resp.headers['HX-Reswap'] = 'none'
-
-    return resp
+    return jsonify({'data': data})
 
 
 @webadmin.route('/specification/<int:spec_id>/random_set/<int:random_set_id>/export/json/download')

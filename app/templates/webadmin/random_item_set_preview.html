@@ -24,6 +24,8 @@
                         <span>Export JSON</span>
                     </a>
                     <a hx-get="{{ url_for('webadmin.push_to_inet', subject_id=subject_id, spec_id=spec_id, random_set_id=random_set.id) }}"
+                       hx-target="#preview"
+                       hx-swap="innerHTML"
                        hx-prompt="โปรดระบุรอบการสอบในรูปแบบ dd/mm/yyyy"
                        class="button is-info">
                         <span class="icon">
@@ -33,6 +35,7 @@
                     </a>
                 </div>
             </div>
+            <pre id="preview"></pre>
             <div class="columns">
                 <div class="column is-two-thirds is-offset-2">
                     {% include "messages.html" %}
