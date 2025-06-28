@@ -1031,11 +1031,13 @@ def push_to_inet(spec_id, random_set_id):
     random_set = RandomSet.query.get(random_set_id)
     subject_id = request.args.get('subject_id', -1, type=int)
     subject = Subject.query.get(subject_id)
+    # TODO: subject must be included in the payload.
     data = {
         'round': round,
         'course_id': 13,  # default
         'account_id': '3130330142',  # default
-        'subject': subject.name if subject else "All",
+        'subject': subject.name,
+        'subject_id': subject_id,
         'specification': random_set.spec.name,
         'created_datetime': random_set.created_at.isoformat(),
         'items': random_set.to_json(),
@@ -1057,7 +1059,8 @@ def download_json_file(spec_id, random_set_id):
     subject = Subject.query.get(subject_id)
     data = {
         'round': request.args.get('round'),
-        'subject': subject.name if subject else "All",
+        'subject': subject.name,
+        'subject_id': subject_id,
         'specification': random_set.spec.name,
         'created_datetime': random_set.created_at.isoformat(),
         'items': random_set.to_json(),
