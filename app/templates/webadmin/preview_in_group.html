@@ -13,6 +13,31 @@
                 <div class="column">
                     <h1 class="title has-text-centered">Preview</h1>
                     <h1 class="subtitle has-text-centered">รหัสข้อสอบ: {{ item.id }}</h1>
+                    <div class="has-text-centered" id="item-bookmark">
+                        {% if item_bookmark %}
+                            <a hx-delete="{{ url_for('webadmin.edit_bookmark', item_id=item.id, bookmark_id=item_bookmark.id) }}"
+                               hx-headers='{"X-CSRFToken": "{{ csrf_token() }}"}'
+                               hx-target="#item-bookmark"
+                               hx-swap="innerHTML"
+                            >
+                                <span class="icon is-medium">
+                                    <i class="fas fa-bookmark fa-2x"></i>
+                                </span>
+                                <span>{{ item_bookmark.created_at|localdatetime }}</span>
+                            </a>
+                        {% else %}
+                            <a hx-post="{{ url_for('webadmin.edit_bookmark', item_id=item.id) }}"
+                               hx-headers='{"X-CSRFToken": "{{ csrf_token() }}"}'
+                               hx-target="#item-bookmark"
+                               hx-swap="innerHTML"
+                            >
+                                <span class="icon is-medium">
+                                    <i class="far fa-bookmark fa-2x"></i>
+                                </span>
+                                <span>Bookmark</span>
+                            </a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             <div class="columns">

@@ -258,6 +258,7 @@ def preview(item_id):
 def preview_in_group(group_id, item_id):
     item = Item.query.get(item_id)
     group = ItemGroup.query.get(group_id)
+    item_bookmark = item.bookmarks.filter_by(creator=current_user).first()
 
     prev_item = group.items.order_by(Item.id.desc()).filter(Item.id < item_id).first()
     next_item = group.items.order_by(Item.id.asc()).filter(Item.id > item_id).first()
@@ -267,6 +268,7 @@ def preview_in_group(group_id, item_id):
                            group_id=group_id,
                            group=group,
                            next=request.args.get('next'),
+                           item_bookmark=item_bookmark,
                            prev_item_id=prev_item.id if prev_item else None,
                            next_item_id=next_item.id if next_item else None)
 
@@ -672,10 +674,13 @@ def get_items_in_group(group_id):
     data = []
     for item in query:
         d = item.to_dict()
+        item_bookmark = item.bookmarks.filter_by(creator=current_user).first()
         d[
             'question'] = f"<a href={url_for('webadmin.preview_in_group', item_id=item.id, group_id=group_id, next=request.args.get('next'))}>{item.question}</a>"
         if item.parent_id:
             d['question'] += '<span class="icon"><i class="fas fa-code-branch"></i></span>'
+        if item_bookmark:
+            d['question'] += '<span class="icon"><i class="fas fa-bookmark has-text-info"></i></span>'
 
         template = '<span class="tags">'
         for tag in item.tags:
@@ -1370,3 +1375,45 @@ def edit_tag(item_id, tag_id=None):
     resp.headers['HX-Trigger-After-Swap'] = 'closeModal'
     resp.headers['HX-Retarget'] = '#item-tags'
     return resp
+
+
+@webadmin.route('/items/<int:item_id>/bookmarks', methods=['POST'])
+@webadmin.route('/items/<int:item_id>/bookmarks/<int:bookmark_id>', methods=['DELETE'])
+@superuser
+def edit_bookmark(item_id, bookmark_id=None):
+    csrf_token = generate_csrf()
+    if request.method == 'POST':
+        bookmark = ItemBookmark.query.filter_by(creator=current_user, item_id=item_id).first()
+        if bookmark is None:
+            bookmark = ItemBookmark(creator=current_user,
+                                    item_id=item_id,
+                                    created_at=arrow.now('Asia/Bangkok').datetime)
+            db.session.add(bookmark)
+            db.session.commit()
+            delete_url = url_for('webadmin.edit_bookmark',
+                                 bookmark_id=bookmark.id, item_id=item_id, _method='DELETE')
+            return f'''
+            <a hx-delete="{delete_url}" hx-headers='{{"X-CSRF-Token": "{csrf_token}" }}'>
+                <span class="icon is-medium">
+                    <i class="fas fa-bookmark fa-2x"></i>
+                </span>
+                <span>{bookmark.created_at.strftime('%d/%m/%Y %H:%M')}</span>
+            </a>
+            '''
+        else:
+            resp = make_response()
+            resp.headers['HX-Swap'] = 'none'
+            return resp
+    elif request.method == 'DELETE':
+        bookmark = ItemBookmark.query.get(bookmark_id)
+        db.session.delete(bookmark)
+        db.session.commit()
+        add_url = url_for('webadmin.edit_bookmark', item_id=item_id, _method='POST')
+        return f'''
+        <a hx-post="{add_url}" hx-headers='{{"X-CSRF-Token": "{csrf_token}" }}'>
+            <span class="icon is-medium">
+                <i class="far fa-bookmark fa-2x"></i>
+            </span>
+            <span>Bookmark</span>
+        </a>
+        '''

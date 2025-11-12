@@ -202,6 +202,19 @@ class Choice(db.Model):
         return {'answer': self.answer, 'desc': self.desc}
 
 
+class ItemBookmark(db.Model):
+    __tablename__ = 'item_bookmarks'
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    item_id = db.Column('item_id', db.ForeignKey('items.id'))
+    item = db.relationship('Item', backref=db.backref('bookmarks', lazy='dynamic',
+                                                      cascade='all, delete-orphan'))
+    created_at = db.Column('created_at', db.DateTime(timezone=True))
+    creator_id = db.Column('creator_id', db.ForeignKey('users.id'))
+    creator = db.relationship('User', backref=db.backref('item_bookmarks',
+                                                         lazy='dynamic',
+                                                         cascade='all, delete-orphan'))
+
+
 class NumChoice(db.Model):
     __tablename__ = 'number_choice'
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
