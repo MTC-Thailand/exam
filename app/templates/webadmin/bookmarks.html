@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Admin: Questions{% endblock %}
+
+{% block page_content %}
+<section class="section">
+    <div class="container" id="app">
+        {% include "messages.html" %}
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="{{ url_for('webadmin.list_banks') }}">คลังข้อสอบ</a></li>
+                <li class="is-active"><a href="#">Bookmarked Items</a></li>
+            </ul>
+        </nav>
+        <div class="columns">
+            <div class="column">
+                <h1 class="title">{{ title }}</h1>
+                <h1 class="title is-size-5">รายวิชา</h1>
+                <div class="field">
+                    <div class="select">
+                        <select class="bank">
+                            <option value="-1">ทั้งหมด</option>
+                            {% for bank in banks %}
+                                <option value="{{ bank.id }}">{{  bank.subject }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="columns">
+            <div class="column">
+                {% include "messages.html" %}
+                <h1 class="title has-text-centered is-size-4">{{ bank.subject }}</h1>
+                <div id="item-preview-container"></div>
+                <table id="myTable" class="table is-striped is-fullwidth">
+                    <thead>
+                    <tr>
+                        <th>หมวดสมรรถนะ</th>
+                        <th>สมรรถนะ</th>
+                        <th>สมรรถนะย่อย</th>
+                        <th>โจทย์</th>
+                        <th>กล่อง</th>
+                        <th>Subject</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script>
+        let selectedBank = null
+        $(document).ready( function () {
+            let table = $('#myTable').DataTable({
+                processing: true,
+                serverSide: true,
+                drawCallback: function () {
+                    htmx.process(document.body)
+                },
+                ajax: {
+                    url: {{ url_for('webadmin.get_bookmarks')|tojson|safe }},
+                    data: function (d) {
+                        d.bank_id = selectedBank
+                    }
+                },
+                columns: [
+                    {"data": "category", "width": "10%"},
+                    {"data": "subcategory", "width": "10%"},
+                    {"data": "subsubcategory", "width": "10%"},
+                    {"data": "question", "searchable": true},
+                    {"data": "groups"},
+                    {"data": "subject"}
+                ]
+            });
+            $('select.bank').change(()=>{
+                selectedBank = $('.bank').find(":selected").val();
+                console.log(selectedBank)
+                table.ajax.reload()
+            })
+        } );
+    </script>
+{% endblock %}

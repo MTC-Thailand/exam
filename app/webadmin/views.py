@@ -65,6 +65,23 @@ def list_questions(bank_id, status=None):
                            status=status)
 
 
+@webadmin.route('/banks/<int:bank_id>/bookmarks')
+@webadmin.route('/banks/bookmarks')
+@superuser
+def list_bookmarks(bank_id=None):
+    if bank_id is None:
+        bank = None
+    else:
+        bank = Bank.query.get(bank_id)
+    title = request.args.get('title', 'Not specified')
+    return render_template('webadmin/bookmarks.html',
+                           title=title,
+                           bank=bank,
+                           bank_id=bank.id if bank else None,
+                           banks=[bank for bank in Bank.query.all()]
+                           )
+
+
 @webadmin.route('/questions/<int:item_id>/edit', methods=['GET', 'POST'])
 @superuser
 def edit_question(item_id):
@@ -802,6 +819,88 @@ def get_questions(bank_id, status):
             'subsubcategory': subsubcategory,
             'submittedAt': item.submitted_at.isoformat() if item.submitted_at else None,
             'user': item.user.name,
+            'groups': ''.join(boxes)
+        })
+
+    return jsonify({
+        'data': data,
+        'records': total_count,
+        'recordsFiltered': total_count,
+        'draw': request.args.get('draw', type=int)
+    })
+
+
+
+@webadmin.route('/api/banks/bookmarked-questions')
+@superuser
+def get_bookmarks():
+    bank_id = request.args.get('bank_id', -1, type=int)
+    start = request.args.get('start', type=int)
+    length = request.args.get('length', type=int)
+    search = request.args.get('search[value]')
+
+    if bank_id < 0:
+        query = current_user.item_bookmarks
+    else:
+        query = current_user.item_bookmarks.filter(ItemBookmark.item.has(bank_id=bank_id))
+
+    if search:
+        query = query.filter(Item.question.like(f'%{search}%'))
+
+    total_count = query.count()
+    query = query.offset(start).limit(length)
+
+    data = []
+    for bookmark_item in query:
+        item = bookmark_item.item
+        if item.subcategory:
+            subcategory = f"<a href={url_for('webadmin.show_subcategory', subcategory_id=item.subcategory.id, bank_id=item.bank_id, status=item.status)}>{item.subcategory.name}</a>"
+        else:
+            subcategory = None
+        if item.subsubcategory:
+            subsubcategory = f"<a href={url_for('webadmin.show_subsubcategory', subsubcategory_id=item.subcategory.id, bank_id=item.bank_id, status=item.status)}>{item.subcategory.name}</a>"
+        else:
+            subsubcategory = None
+        question = f"<a href={url_for('webadmin.preview', item_id=item.id)}>{item.question} <span class='tag is-rounded is-info is-light'>ID: {item.id}</span></a>"
+        question += f' <span class="tag is-rounded">comments: {len(item.approvals)}</span>'
+        if item.parent_id:
+            question += '<span class="icon"><i class="fas fa-code-branch"></i></span>'
+        for comment in item.approvals:
+            if comment.user == current_user:
+                if comment.status == 'เหมาะสม':
+                    status = 'is-success'
+                elif comment.status == 'ไม่เหมาะสม':
+                    status = 'is-danger'
+                else:
+                    status = 'is-warning'
+                question += f'<span class="tag {status} is-rounded">your thought: {comment.status}</span>'
+        question += f'''
+        <a class="tag is-warning is-light is-rounded" hx-get={url_for('webadmin.preview_group_item', item_id=item.id)} hx-target="#item-preview-container" hx-swap="innerHTML">
+            <span class="icon"><i class="fas fa-eye"></i></span>
+            <span>quick view</span>
+        </a>
+        '''
+        question += f'''
+        <a class="tag is-rounded is-link" hx-get={url_for('webadmin.preview_group_item', item_id=item.id)} hx-target="#item-preview-container" hx-swap="innerHTML">
+            <span class="icon"><i class="fas fa-bookmark"></i></span>
+            <span>{bookmark_item.created_at.strftime('%d/%m/%Y %H:%M:%S')}</span>
+        </a>
+        '''
+        boxes = []
+        for group in item.groups:
+            box = f'<a href={url_for("webadmin.list_items_in_group", group_id=group.id)}><span class="icon"><i class="fas fa-box-open has-text-info"></i></span><span><small>{group.name}</small></span></a>'
+            boxes.append(box)
+
+        data.append({
+            'id': item.id,
+            'question': question,
+            'bankId': item.bank.id,
+            'bank': item.bank.name,
+            'subjectId': item.bank.subject.id,
+            'subject': item.bank.subject.name,
+            'category': item.category.name if item.category else None,
+            'subcategory': subcategory,
+            'subsubcategory': subsubcategory,
             'groups': ''.join(boxes)
         })
 
