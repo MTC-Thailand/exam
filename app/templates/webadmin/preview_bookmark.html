@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Review Bookmarked Question{% endblock %}
+
+{% block page_content %}
+    <div id="group-modal-container"></div>
+    <section class="section">
+        <div class="container" id="app">
+            <div class="columns">
+                <div class="column">
+                    <h1 class="title has-text-centered">Bookmark Item Preview</h1>
+                    <h1 class="subtitle has-text-centered">รหัสข้อสอบ: {{ item.id }}</h1>
+                    <div class="has-text-centered" id="item-bookmark">
+                        {% if item_bookmark %}
+                            <a hx-delete="{{ url_for('webadmin.edit_bookmark', item_id=item.id, bookmark_id=item_bookmark.id) }}"
+                               hx-headers='{"X-CSRFToken": "{{ csrf_token() }}"}'
+                               hx-confirm="Want to remove this bookmark?"
+                               hx-target="#item-bookmark"
+                               hx-swap="innerHTML"
+                            >
+                                <span class="icon is-medium" title="{{ item_bookmark.created_at|localdatetime }}">
+                                    <i class="fas fa-bookmark fa-2x"></i>
+                                </span>
+                            </a>
+                        {% else %}
+                            <a hx-post="{{ url_for('webadmin.edit_bookmark', item_id=item.id) }}"
+                               hx-headers='{"X-CSRFToken": "{{ csrf_token() }}"}'
+                               hx-target="#item-bookmark"
+                               hx-swap="innerHTML"
+                            >
+                                <span class="icon is-medium">
+                                    <i class="far fa-bookmark fa-2x"></i>
+                                </span>
+                            </a>
+                        {% endif %}
+                    </div>
+                    <p class="help has-text-centered">
+                        (click the icon to add/remove bookmark)
+                    </p>
+                </div>
+            </div>
+            <div class="columns">
+                <div class="column">
+                    {% include "messages.html" %}
+                    <div class="box">
+                        <div class="notification is-warning has-text-centered">
+                            <strong>{{ item.status|upper }}</strong>
+                            {% if item.parent_id %}
+                                <span class="icon"><i class="fas fa-code-branch"></i></span>
+                            {% endif %}
+                        </div>
+                        <p class="label">วิชา</p>
+                        <div class="notification">{{ item.bank.subject }}</div>
+                        <p class="label">หมวดสมรรถนะ</p>
+                        <div class="notification">{{ item.category.name }}</div>
+                        <p class="label">สมรรถนะ</p>
+                        <div class="notification">{{ item.subcategory.name }}</div>
+                        <p class="label">สมรรถนะย่อย</p>
+                        <div class="notification">{{ item.subsubcategory.name }}</div>
+                        <p class="label">ประวัติการใช้งาน</p>
+                        <p class="tags">
+                            {% for s in item.item_sets %}
+                                <span class="tag is-success">{{ s.set.created_at.strftime('%m/%Y') }}</span>
+                            {% endfor %}
+                        </p>
+                        <div id="tag-form-modal" class="tags"></div>
+                        <p class="label">โจทย์คำถาม</p>
+                        <div class="notification">
+                            {{ item.question|safe }}
+                            <div class="field is-grouped is-grouped-multiline" id="item-tags">
+                                {% for tag in item.tags %}
+                                    <div class="control">
+                                        <span class="tags has-addons">
+                                            <span class="tag is-warning">{{ tag }}</span>
+                                            <span class="tag is-delete is-dark"
+                                                  hx-headers='{"X-CSRF-Token": {{ csrf_token()|tojson|safe }} }'
+                                                  hx-delete="{{ url_for('webadmin.edit_tag', tag_id=tag.id, item_id=item.id, _method='DELETE') }}"
+                                                  hx-confirm="ท่านต้องการลบแท็กนี้หรือไม่">
+                                            </span>
+                                        </span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="buttons">
+                            <a hx-get="{{ url_for('webadmin.edit_tag', item_id=item.id) }}"
+                               hx-target="#tag-form-modal"
+                               hx-swap="innerHTML" class="button is-small is-link">
+                                <span class="icon"><i class="fas fa-plus"></i></span>
+                                <span>เพิ่มคำสำคัญ/แท็ก</span>
+                            </a>
+                        </div>
+                        <p class="label">ภาพประกอบ</p>
+                        {% if item.figure %}
+                            <div class="notification is-white">
+                                <img src="https://drive.google.com/thumbnail?&id={{ item.figure.url }}&sz=w1000">
+                                <p class="label">คำอธิบายภาพ</p>
+                                <p>{{ item.figure.desc }}</p>
+                                <p class="label">ที่มาของภาพ</p>
+                                <p>{{ item.figure.ref }}</p>
+                            </div>
+                        {% else %}
+                            N/A
+                        {% endif %}
+                        <label class="label">คำตอบ</label>
+                        <table class="table is-fullwidth">
+                            <tr>
+                                <td style="border: 3px solid #34ad03">
+                                    {{ item.answer.desc|safe }}
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="table is-fullwidth">
+                            <thead>
+                            <th>ข้อที่</th>
+                            <th>คำตอบ</th>
+                            </thead>
+                            <tbody>
+                            <p class="label">ตัวเลือกลวง</p>
+                            {% for choice in item.choices if not choice.answer %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ choice.desc|safe }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="buttons is-centered">
+                            <a class="button is-primary is-outlined"
+                               href="{{ url_for('webadmin.edit_question_inplace', bank_id=item.bank_id, item_id=item.id, next=request.url) }}">
+                                <span class="icon">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </span>
+                                <span>แก้ไขข้อสอบเพื่อแทนที่ (in-place)</span>
+                            </a>
+                        </div>
+                        <div class="buttons is-centered">
+                            <a href="{{ next or url_for('webadmin.list_bookmarks', bank_id=item.bank_id) }}"
+                               class="button is-light">
+                                <span class="icon">
+                                    <i class="fas fa-chevron-left"></i>
+                                </span>
+                                <span>กลับ</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

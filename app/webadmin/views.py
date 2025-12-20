@@ -290,6 +290,18 @@ def preview_in_group(group_id, item_id):
                            next_item_id=next_item.id if next_item else None)
 
 
+@webadmin.route('/questions/<int:item_id>/bookmark-preview', methods=['GET', 'POST'])
+@superuser
+def preview_bookmark(item_id):
+    print('previewing a bookmark..')
+    item = Item.query.get(item_id)
+    item_bookmark = item.bookmarks.filter_by(creator=current_user).first()
+
+    return render_template('webadmin/preview_bookmark.html',
+                           item=item,
+                           item_bookmark=item_bookmark)
+
+
 @webadmin.route('/approvals/<int:approval_id>/delete')
 @superuser
 def delete_comment(approval_id):
@@ -861,7 +873,7 @@ def get_bookmarks():
             subsubcategory = f"<a href={url_for('webadmin.show_subsubcategory', subsubcategory_id=item.subcategory.id, bank_id=item.bank_id, status=item.status)}>{item.subcategory.name}</a>"
         else:
             subsubcategory = None
-        question = f"<a href={url_for('webadmin.preview', item_id=item.id)}>{item.question} <span class='tag is-rounded is-info is-light'>ID: {item.id}</span></a>"
+        question = f"<a href={url_for('webadmin.preview_bookmark', item_id=item.id)}>{item.question} <span class='tag is-rounded is-info is-light'>ID: {item.id}</span></a>"
         question += f' <span class="tag is-rounded">comments: {len(item.approvals)}</span>'
         if item.parent_id:
             question += '<span class="icon"><i class="fas fa-code-branch"></i></span>'
@@ -881,7 +893,7 @@ def get_bookmarks():
         </a>
         '''
         question += f'''
-        <a class="tag is-rounded is-link" hx-get={url_for('webadmin.preview_group_item', item_id=item.id)} hx-target="#item-preview-container" hx-swap="innerHTML">
+        <a class="tag is-rounded is-link" href="{url_for('webadmin.preview_bookmark', item_id=item.id)}">
             <span class="icon"><i class="fas fa-bookmark"></i></span>
             <span>{bookmark_item.created_at.strftime('%d/%m/%Y %H:%M:%S')}</span>
         </a>
@@ -1481,38 +1493,43 @@ def edit_tag(item_id, tag_id=None):
 @superuser
 def edit_bookmark(item_id, bookmark_id=None):
     csrf_token = generate_csrf()
+    print(request.method)
+    if request.method == 'DELETE':
+        bookmark = ItemBookmark.query.get(bookmark_id)
+        print(f'deleting {bookmark_id}')
+        if bookmark:
+            db.session.delete(bookmark)
+            db.session.commit()
+            add_url = url_for('webadmin.edit_bookmark', item_id=item_id, _method='POST')
+            return f'''
+            <a hx-post="{add_url}" hx-headers='{{"X-CSRF-Token": "{csrf_token}" }}'
+                hx-target="#item-bookmark" hx-swap="innerHTML">
+                <span class="icon is-medium">
+                    <i class="far fa-bookmark fa-2x"></i>
+                </span>
+            </a>
+            '''
+        else:
+            return f'{bookmark_id} not exists'
     if request.method == 'POST':
-        bookmark = ItemBookmark.query.filter_by(creator=current_user, item_id=item_id).first()
-        if bookmark is None:
+        if bookmark_id is None:
             bookmark = ItemBookmark(creator=current_user,
                                     item_id=item_id,
                                     created_at=arrow.now('Asia/Bangkok').datetime)
             db.session.add(bookmark)
             db.session.commit()
-            delete_url = url_for('webadmin.edit_bookmark',
-                                 bookmark_id=bookmark.id, item_id=item_id, _method='DELETE')
-            return f'''
-            <a hx-delete="{delete_url}" hx-headers='{{"X-CSRF-Token": "{csrf_token}" }}'>
-                <span class="icon is-medium">
-                    <i class="fas fa-bookmark fa-2x"></i>
-                </span>
-                <span>{bookmark.created_at.strftime('%d/%m/%Y %H:%M')}</span>
-            </a>
-            '''
+            print(f'added {bookmark.id}')
         else:
-            resp = make_response()
-            resp.headers['HX-Swap'] = 'none'
-            return resp
-    elif request.method == 'DELETE':
-        bookmark = ItemBookmark.query.get(bookmark_id)
-        db.session.delete(bookmark)
-        db.session.commit()
-        add_url = url_for('webadmin.edit_bookmark', item_id=item_id, _method='POST')
+            bookmark = ItemBookmark.query.get(bookmark_id)
+
+        delete_url = url_for('webadmin.edit_bookmark',
+                             bookmark_id=bookmark.id, item_id=item_id, _method='DELETE')
         return f'''
-        <a hx-post="{add_url}" hx-headers='{{"X-CSRF-Token": "{csrf_token}" }}'>
-            <span class="icon is-medium">
-                <i class="far fa-bookmark fa-2x"></i>
+        <a hx-delete="{delete_url}" hx-headers='{{"X-CSRF-Token": "{csrf_token}" }}'
+            hx-target="#item-bookmark" hx-swap="innerHTML" hx-confirm="Want to remove this bookmark?">
+            <span class="icon is-medium" title="{bookmark.created_at.strftime('%d/%m/%Y %H:%M')}">
+                <i class="fas fa-bookmark fa-2x"></i>
             </span>
-            <span>Bookmark</span>
         </a>
         '''
+    return f'''What da heck!'''
