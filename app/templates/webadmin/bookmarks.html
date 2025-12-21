@@ -30,6 +30,15 @@
         <div class="columns">
             <div class="column">
                 {% include "messages.html" %}
+                <div class="has-text-centered">
+                    <a href="{{ url_for('webadmin.preview_bookmarked_items', bank_id=bank_id) }}"
+                       class="button is-link is-outlined is-rounded">
+                        <span class="icon">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                        <span>Preview All</span>
+                    </a>
+                </div>
                 <h1 class="title has-text-centered is-size-4">{{ bank.subject }}</h1>
                 <div id="item-preview-container"></div>
                 <table id="myTable" class="table is-striped is-fullwidth">

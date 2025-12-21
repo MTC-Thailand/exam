@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Random Items Preview{% endblock %}
+
+{% block page_content %}
+    <section class="section">
+        <div class="container" id="app">
+            <h1 class="title has-text-centered">Preview Bookmarked Items</h1>
+            <div class="columns">
+                <div class="column has-text-centered">
+{#                    <a href="#"#}
+{#                       class="button is-info">#}
+{#                        <span class="icon">#}
+{#                            <i class="fas fa-file-export"></i>#}
+{#                        </span>#}
+{#                        <span>Export</span>#}
+{#                    </a>#}
+                </div>
+            </div>
+            <div class="columns">
+                <div class="column is-two-thirds is-offset-2">
+                    {% include "messages.html" %}
+                    {% for item in items %}
+                        <div class="box">
+                            <h1 class="title is-size-5 has-text-centered">ข้อ {{ loop.index }}</h1>
+                            <div class="notification">
+                                {{ item.question|safe }}
+                                <div class="tags">
+                                    {% for tag in item.tags %}
+                                        <span class="tag is-warning">{{ tag }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% if item.updated_at %}
+                                <span class="icon">
+                                    <i class="fas fa-history"></i>
+                                </span>
+                                <span>
+                                    {{ item.updated_at|localdatetime }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            <label class="label">กล่อง</label>
+                                {% for group in item.groups %}
+                                    <span class="icon">
+                                        <i class="fas fa-box-open"></i>
+                                    </span>
+                                    <span>{{ group.name }}</span>
+                                {% endfor %}
+                            {% if item.figure %}
+                                <p class="label">ภาพประกอบ</p>
+                                <div class="notification is-white">
+                                    <img src="https://drive.google.com/thumbnail?&id={{ item.figure.url }}&sz=w1000">
+                                    <p class="label">คำอธิบายภาพ</p>
+                                    <p>{{ item.figure.desc }}</p>
+                                    <p class="label">ที่มาของภาพ</p>
+                                    <p>{{ item.figure.ref }}</p>
+                                </div>
+                            {% endif %}
+                            <table class="table is-fullwidth">
+                                <thead>
+                                <tr>
+                                    <td>ข้อที่</td>
+                                    <td style="width:80%">ตัวเลือก</td>
+                                    <td>เฉลย</td>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for choice in item.choices %}
+                                    {% if choice.answer %}
+                                    <tr>
+                                        <td>{{ loop.index }}</td>
+                                        <td>{{ choice.desc|safe }}</td>
+                                        <td>
+                                            <span class="icon is-large">
+                                                <i class="fas fa-2x has-text-success fa-check-circle"></i>
+                                            </span>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td>{{ loop.index }}</td>
+                                        <td>{{ choice.desc|safe }}</td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    {% endif %}
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endfor %}
+                <div class="buttons is-centered">
+                    <a class="button is-light"
+                       href="{{ url_for('webadmin.list_bookmarks', bank_id=bank_id) }}">
+                        <span class="icon">
+                            <i class="fas fa-chevron-left"></i>
+                        </span>
+                        <span>Back</span>
+                    </a>
+                </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

@@ -302,6 +302,18 @@ def preview_bookmark(item_id):
                            item_bookmark=item_bookmark)
 
 
+@webadmin.route('/questions/<int:bank_id>/bookmarked-items-preview')
+@webadmin.route('/questions/bookmarked-items-preview')
+@superuser
+def preview_bookmarked_items(bank_id=None):
+    if bank_id:
+        items = [b.item for b in ItemBookmark.query.filter(ItemBookmark.item.has(bank_id=bank_id))]
+    else:
+        items = [b.item for b in ItemBookmark.query]
+
+    return render_template('webadmin/bookmarked_items_preview.html', items=items, bank_id=bank_id)
+
+
 @webadmin.route('/approvals/<int:approval_id>/delete')
 @superuser
 def delete_comment(approval_id):
@@ -852,9 +864,9 @@ def get_bookmarks():
     search = request.args.get('search[value]')
 
     if bank_id < 0:
-        query = current_user.item_bookmarks
+        query = ItemBookmark.query
     else:
-        query = current_user.item_bookmarks.filter(ItemBookmark.item.has(bank_id=bank_id))
+        query = ItemBookmark.query.filter(ItemBookmark.item.has(bank_id=bank_id))
 
     if search:
         query = query.filter(Item.question.like(f'%{search}%'))
