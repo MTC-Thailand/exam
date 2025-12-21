@@ -62,19 +62,33 @@
                     <h1 class="title is-size-4">จำนวนข้อสอบในการสุ่มทั้งหมดเท่ากับ {{ total_num_sample_items }} ข้อ จาก {{ total_num_groups }} กล่อง</h1>
                     <table class="table is-fullwidth" id="table">
                         <thead>
-                        <th>ลำดับ</th>
-                        <th>ชื่อกล่อง</th>
-                        <th>สถานะ</th>
-                        <th>รายวิชา</th>
-                        <th>จำนวนคำถามในกล่อง</th>
-                        <th>จำนวนข้อในการสุ่ม</th>
-                        <th></th>
+                        <tr>
+                            <td>ลำดับ</td>
+                            <td>ชื่อกล่อง</td>
+                            <td>สถานะ</td>
+                            <td>รายวิชา</td>
+                            <td>จำนวนคำถามในกล่อง</td>
+                            <td>จำนวนข้อในการสุ่ม</td>
+                            <td>จัดการกล่อง</td>
+                        </tr>
                         </thead>
                         <tbody>
                         {% for group in groups %}
                             <tr>
                                 <td>{{ loop.index }}</td>
-                                <td>{{ group.name }}</td>
+                                <td>
+                                    {{ group.name }}
+                                    {% if group.bookmarks_count %}
+                                        <div class="tags has-addons">
+                                            <span class="tag is-small is-dark">
+                                                bookmarks
+                                            </span>
+                                            <span class="tag is-small is-info">
+                                                {{ group.bookmarks_count }}
+                                            </span>
+                                        </div>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     {% if group.latest_note_status == 'ready' %}
                                     <span class="tag is-success is-rounded">
@@ -118,21 +132,23 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                  <div class="buttons">
-                                    <a href="{{ url_for('webadmin.edit_group', group_id=group.id, subject_id=subject_id) }}"
-                                       class="button is-rounded is-small">
-                                        <span class="icon">
-                                            <i class="fas fa-pencil-alt has-text-info"></i>
-                                        </span>
-                                        <span class="has-text-info">แก้ไข</span>
-                                    </a>
-                                    <a href="{{ url_for('webadmin.clone_group', group_id=group.id, subject_id=subject_id) }}"
-                                       class="button is-small is-rounded">
-                                      <span class="icon">
-                                        <i class="fas fa-copy has-text-info"></i>
-                                      </span>
-                                        <span class="has-text-info">คัดลอกกล่อง</span>
-                                    </a>
+                                  <div class="field has-addons">
+                                      <div class="control">
+                                          <a href="{{ url_for('webadmin.edit_group', group_id=group.id, subject_id=subject_id) }}"
+                                            class="button" title="edit">
+                                              <span class="icon">
+                                                    <i class="fas fa-pencil-alt has-text-info"></i>
+                                              </span>
+                                          </a>
+                                      </div>
+                                      <div class="control">
+                                          <a href="{{ url_for('webadmin.clone_group', group_id=group.id, subject_id=subject_id) }}"
+                                            class="button" title="make a copy">
+                                              <span class="icon">
+                                                <i class="fas fa-copy has-text-info"></i>
+                                              </span>
+                                          </a>
+                                      </div>
                                   </div>
                                 </td>
                             </tr>

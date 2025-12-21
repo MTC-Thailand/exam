@@ -275,6 +275,16 @@ class ItemGroup(db.Model):
     def latest_note_status(self):
         return self.notes[0].status if self.notes else 'n/a'
 
+    @property
+    def bookmarks_count(self):
+        unique_items = set()
+        bookmarks_count = 0
+        for item in self.items:
+            if item not in unique_items and item.bookmarks.count():
+                bookmarks_count += 1
+                unique_items.add(item)
+        return bookmarks_count
+
 
 class ItemGroupNote(db.Model):
     __tablename__ = 'item_group_notes'

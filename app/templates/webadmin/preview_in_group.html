@@ -17,13 +17,13 @@
                         {% if item_bookmark %}
                             <a hx-delete="{{ url_for('webadmin.edit_bookmark', item_id=item.id, bookmark_id=item_bookmark.id) }}"
                                hx-headers='{"X-CSRFToken": "{{ csrf_token() }}"}'
+                               hx-confirm="Do you want to remove this bookmark?"
                                hx-target="#item-bookmark"
                                hx-swap="innerHTML"
                             >
-                                <span class="icon is-medium">
+                                <span class="icon is-medium" title="{{ item_bookmark.created_at|localdatetime }}">
                                     <i class="fas fa-bookmark fa-2x"></i>
                                 </span>
-                                <span>{{ item_bookmark.created_at|localdatetime }}</span>
                             </a>
                         {% else %}
                             <a hx-post="{{ url_for('webadmin.edit_bookmark', item_id=item.id) }}"
@@ -34,7 +34,6 @@
                                 <span class="icon is-medium">
                                     <i class="far fa-bookmark fa-2x"></i>
                                 </span>
-                                <span>Bookmark</span>
                             </a>
                         {% endif %}
                     </div>

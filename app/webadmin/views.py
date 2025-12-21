@@ -275,7 +275,7 @@ def preview(item_id):
 def preview_in_group(group_id, item_id):
     item = Item.query.get(item_id)
     group = ItemGroup.query.get(group_id)
-    item_bookmark = item.bookmarks.filter_by(creator=current_user).first()
+    item_bookmark = item.bookmarks.first()
 
     prev_item = group.items.order_by(Item.id.desc()).filter(Item.id < item_id).first()
     next_item = group.items.order_by(Item.id.asc()).filter(Item.id > item_id).first()
@@ -718,13 +718,11 @@ def get_items_in_group(group_id):
     data = []
     for item in query:
         d = item.to_dict()
-        item_bookmark = item.bookmarks.filter_by(creator=current_user).first()
-        d[
-            'question'] = f"<a href={url_for('webadmin.preview_in_group', item_id=item.id, group_id=group_id, next=request.args.get('next'))}>{item.question}</a>"
+        d['question'] = f"<a href={url_for('webadmin.preview_in_group', item_id=item.id, group_id=group_id, next=request.args.get('next'))}>{item.question}</a>"
         if item.parent_id:
             d['question'] += '<span class="icon"><i class="fas fa-code-branch"></i></span>'
-        if item_bookmark:
-            d['question'] += '<span class="icon"><i class="fas fa-bookmark has-text-info"></i></span>'
+        for b in item.bookmarks:
+            d['question'] += f'<span class="icon"><i class="fas fa-bookmark has-text-info"></i></span><span>{b.creator.name}</span>'
 
         template = '<span class="tags">'
         for tag in item.tags:
@@ -857,7 +855,6 @@ def get_questions(bank_id, status):
     })
 
 
-
 @webadmin.route('/api/banks/bookmarked-questions')
 @superuser
 def get_bookmarks():
@@ -876,10 +873,16 @@ def get_bookmarks():
 
     total_count = query.count()
     query = query.offset(start).limit(length)
+    unique_items = set()
 
     data = []
     for bookmark_item in query:
         item = bookmark_item.item
+
+        if item in unique_items:
+            continue
+
+        unique_items.add(item)
         if item.subcategory:
             subcategory = f"<a href={url_for('webadmin.show_subcategory', subcategory_id=item.subcategory.id, bank_id=item.bank_id, status=item.status)}>{item.subcategory.name}</a>"
         else:

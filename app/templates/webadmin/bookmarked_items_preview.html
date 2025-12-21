@@ -40,10 +40,14 @@
                             </div>
                             <label class="label">กล่อง</label>
                                 {% for group in item.groups %}
-                                    <span class="icon">
-                                        <i class="fas fa-box-open"></i>
-                                    </span>
-                                    <span>{{ group.name }}</span>
+                                    <a class="button is-rounded is-small is-link"
+                                       href="{{ url_for('webadmin.list_items_in_group', group_id=group.id) }}"
+                                    >
+                                        <span class="icon">
+                                            <i class="fas fa-box-open"></i>
+                                        </span>
+                                        <span>{{ group.name }}</span>
+                                    </a>
                                 {% endfor %}
                             {% if item.figure %}
                                 <p class="label">ภาพประกอบ</p>
