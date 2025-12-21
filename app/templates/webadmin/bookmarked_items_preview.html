@@ -7,13 +7,13 @@
             <h1 class="title has-text-centered">Preview Bookmarked Items</h1>
             <div class="columns">
                 <div class="column has-text-centered">
-{#                    <a href="#"#}
-{#                       class="button is-info">#}
-{#                        <span class="icon">#}
-{#                            <i class="fas fa-file-export"></i>#}
-{#                        </span>#}
-{#                        <span>Export</span>#}
-{#                    </a>#}
+                    <a href="{{ url_for('webadmin.export_bookmarks_to_html', bank_id=bank_id) }}"
+                       class="button is-info">
+                        <span class="icon">
+                            <i class="fas fa-file-export"></i>
+                        </span>
+                        <span>Export</span>
+                    </a>
                 </div>
             </div>
             <div class="columns">

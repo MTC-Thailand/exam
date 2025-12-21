@@ -311,7 +311,10 @@ def preview_bookmarked_items(bank_id=None):
     else:
         items = [b.item for b in ItemBookmark.query]
 
-    return render_template('webadmin/bookmarked_items_preview.html', items=items, bank_id=bank_id)
+    return render_template('webadmin/bookmarked_items_preview.html',
+                           items=items,
+                           bank_id=bank_id,
+                           )
 
 
 @webadmin.route('/approvals/<int:approval_id>/delete')
@@ -1135,6 +1138,24 @@ def export_to_html(spec_id, random_set_id):
                            subject_id=subject_id,
                            random_set=random_set,
                            spec_id=spec_id)
+
+
+@webadmin.route('/banks/<int:bank_id>/bookmarks/export/html')
+@webadmin.route('/bookmarks/export/html')
+@superuser
+def export_bookmarks_to_html(bank_id=None):
+    if bank_id:
+        bank = Bank.query.get(bank_id)
+        query = ItemBookmark.query.filter(ItemBookmark.item.has(bank_id=bank_id))
+    else:
+        bank = None
+        query = ItemBookmark.query.all()
+    items = [b.item for b in query]
+    return render_template('webadmin/bookmarks_plain_html.html',
+                           bank_id=bank_id,
+                           items=items,
+                           bank=bank
+                           )
 
 
 @webadmin.route('/specification/<int:spec_id>/random_set/<int:random_set_id>/export/json')

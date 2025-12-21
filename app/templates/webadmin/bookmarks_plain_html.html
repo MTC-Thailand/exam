@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h1>{{ bank.subject or 'ทุกรายวิชา' }}</h1>
+{% for item in items %}
+    <h1>{{ loop.index }}) {{ item.question|safe }}</h1>
+    {% if item.figure %}
+        <p class="label">ภาพประกอบ</p>
+        <div>
+            <img src="https://drive.google.com/uc?id={{ item.figure.url }}" width="700">
+        </div>
+    {% endif %}
+    <ol>
+        {% for choice in item.choices %}
+            {% if choice.answer %}
+                <li>******ข้อถูกคือ{{ choice.desc|safe }}******</li>
+            {% else %}
+                <li>{{ choice.desc|safe }}</li>
+            {% endif %}
+        {% endfor %}
+    </ol>
+{% endfor %}
+</body>
+</html>
