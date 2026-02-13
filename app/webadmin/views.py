@@ -490,9 +490,9 @@ def get_groups_list(spec_id):
     length = request.args.get('length', type=int)
     specification = Specification.query.get(spec_id)
     if subject_id != -1:
-        query = specification.groups.filter_by(subject_id=subject_id).order_by(ItemGroup.name)
+        query = specification.groups.filter_by(subject_id=subject_id).order_by(ItemGroup.subject_id)
     else:
-        query = specification.groups.order_by(ItemGroup.subject_id, ItemGroup.name)
+        query = specification.groups.order_by(ItemGroup.subject_id)
 
     data = []
     query = query.offset(start).limit(length)
