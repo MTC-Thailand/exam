@@ -477,6 +477,46 @@ def list_groups(spec_id):
                            subjects=subjects)
 
 
+@webadmin.route('/api/specification/<int:spec_id>/groups/number')
+@superuser
+def get_groups_list(spec_id):
+    if 'subject_id' not in request.args:
+        subject_id = int(session.get('subject_id', -1))
+    else:
+        subject_id = request.args.get('subject_id', type=int)
+        session['subject_id'] = subject_id
+
+    start = request.args.get('start', type=int)
+    length = request.args.get('length', type=int)
+    specification = Specification.query.get(spec_id)
+    if subject_id != -1:
+        query = specification.groups.filter_by(subject_id=subject_id).order_by(ItemGroup.name)
+    else:
+        query = specification.groups.order_by(ItemGroup.subject_id, ItemGroup.name)
+
+    data = []
+    query = query.offset(start).limit(length)
+    for group in query:
+        data.append({
+            'name': group.name,
+            'id': group.id,
+            'status': group.latest_note_status,
+            'bookmarks_count': group.bookmarks_count,
+            'subject': group.subject.name,
+            'items_count': group.items.count(),
+            'num_sample_items': group.num_sample_items,
+            'edit_url': url_for('webadmin.edit_group', subject_id=subject_id, group_id=group.id),
+            'copy_url': url_for('webadmin.clone_group', subject_id=subject_id, group_id=group.id),
+            'list_items_url': url_for('webadmin.list_items_in_group', group_id=group.id),
+        })
+
+    return jsonify({'data': data,
+                    'draw': request.args.get('draw', type=int),
+                    'recordsTotal': specification.groups.count(),
+                    'recordsFiltered': query.count()
+                    })
+
+
 @webadmin.route('/specification/<int:spec_id>/groups/number')
 @superuser
 def list_all_groups(spec_id):

@@ -63,7 +63,6 @@
                     <table class="table is-fullwidth" id="table">
                         <thead>
                         <tr>
-                            <td>ลำดับ</td>
                             <td>ชื่อกล่อง</td>
                             <td>สถานะ</td>
                             <td>รายวิชา</td>
@@ -73,86 +72,86 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for group in groups %}
-                            <tr>
-                                <td>{{ loop.index }}</td>
-                                <td>
-                                    {{ group.name }}
-                                    {% if group.bookmarks_count %}
-                                        <div class="tags has-addons">
-                                            <span class="tag is-small is-dark">
-                                                bookmarks
-                                            </span>
-                                            <span class="tag is-small is-info">
-                                                {{ group.bookmarks_count }}
-                                            </span>
-                                        </div>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if group.latest_note_status == 'ready' %}
-                                    <span class="tag is-success is-rounded">
-                                        {{ group.latest_note_status }}
-                                    </span>
-                                    {% elif group.latest_note_status == 'working' %}
-                                        <span class="tag is-warning is-rounded">
-                                        {{ group.latest_note_status }}
-                                    </span>
-                                    {% else %}
-                                        <span class="tag is-rounded">
-                                        {{ group.latest_note_status }}
-                                    </span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {{ group.subject }}
-                                </td>
-                                <td>
-                                    <a href="{{ url_for('webadmin.list_items_in_group', group_id=group.id) }}">
-                                        {% if group.items.count() >= 10 %}
-                                            <span class="tag is-success is-rounded">
-                                            {{ group.items.count() }}
-                                        </span>
-                                        {% elif group.items.count() >= 5 %}
-                                            <span class="tag is-warning is-rounded">
-                                            {{ group.items.count() }}
-                                        </span>
-                                        {% else %}
-                                            <span class="tag is-danger is-rounded">
-                                            {{ group.items.count() }}
-                                        </span>
-                                        {% endif %}
-                                    </a>
-                                </td>
-                                <td>
-                                    {% if group.num_sample_items != None %}
-                                    <span class="tag is-rounded">
-                                        {{ group.num_sample_items }}
-                                    </span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                  <div class="field has-addons">
-                                      <div class="control">
-                                          <a href="{{ url_for('webadmin.edit_group', group_id=group.id, subject_id=subject_id) }}"
-                                            class="button" title="edit">
-                                              <span class="icon">
-                                                    <i class="fas fa-pencil-alt has-text-info"></i>
-                                              </span>
-                                          </a>
-                                      </div>
-                                      <div class="control">
-                                          <a href="{{ url_for('webadmin.clone_group', group_id=group.id, subject_id=subject_id) }}"
-                                            class="button" title="make a copy">
-                                              <span class="icon">
-                                                <i class="fas fa-copy has-text-info"></i>
-                                              </span>
-                                          </a>
-                                      </div>
-                                  </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
+{#                        {% for group in groups %}#}
+{#                            <tr>#}
+{#                                <td>{{ loop.index }}</td>#}
+{#                                <td>#}
+{#                                    {{ group.name }}#}
+{#                                    {% if group.bookmarks_count %}#}
+{#                                        <div class="tags has-addons">#}
+{#                                            <span class="tag is-small is-dark">#}
+{#                                                bookmarks#}
+{#                                            </span>#}
+{#                                            <span class="tag is-small is-info">#}
+{#                                                {{ group.bookmarks_count }}#}
+{#                                            </span>#}
+{#                                        </div>#}
+{#                                    {% endif %}#}
+{#                                </td>#}
+{#                                <td>#}
+{#                                    {% if group.latest_note_status == 'ready' %}#}
+{#                                    <span class="tag is-success is-rounded">#}
+{#                                        {{ group.latest_note_status }}#}
+{#                                    </span>#}
+{#                                    {% elif group.latest_note_status == 'working' %}#}
+{#                                        <span class="tag is-warning is-rounded">#}
+{#                                        {{ group.latest_note_status }}#}
+{#                                    </span>#}
+{#                                    {% else %}#}
+{#                                        <span class="tag is-rounded">#}
+{#                                        {{ group.latest_note_status }}#}
+{#                                    </span>#}
+{#                                    {% endif %}#}
+{#                                </td>#}
+{#                                <td>#}
+{#                                    {{ group.subject }}#}
+{#                                </td>#}
+{#                                <td>#}
+{#                                    <a href="{{ url_for('webadmin.list_items_in_group', group_id=group.id) }}">#}
+{#                                        {% if group.items.count() >= 10 %}#}
+{#                                            <span class="tag is-success is-rounded">#}
+{#                                            {{ group.items.count() }}#}
+{#                                        </span>#}
+{#                                        {% elif group.items.count() >= 5 %}#}
+{#                                            <span class="tag is-warning is-rounded">#}
+{#                                            {{ group.items.count() }}#}
+{#                                        </span>#}
+{#                                        {% else %}#}
+{#                                            <span class="tag is-danger is-rounded">#}
+{#                                            {{ group.items.count() }}#}
+{#                                        </span>#}
+{#                                        {% endif %}#}
+{#                                    </a>#}
+{#                                </td>#}
+{#                                <td>#}
+{#                                    {% if group.num_sample_items != None %}#}
+{#                                    <span class="tag is-rounded">#}
+{#                                        {{ group.num_sample_items }}#}
+{#                                    </span>#}
+{#                                    {% endif %}#}
+{#                                </td>#}
+{#                                <td>#}
+{#                                  <div class="field has-addons">#}
+{#                                      <div class="control">#}
+{#                                          <a href="{{ url_for('webadmin.edit_group', group_id=group.id, subject_id=subject_id) }}"#}
+{#                                            class="button" title="edit">#}
+{#                                              <span class="icon">#}
+{#                                                    <i class="fas fa-pencil-alt has-text-info"></i>#}
+{#                                              </span>#}
+{#                                          </a>#}
+{#                                      </div>#}
+{#                                      <div class="control">#}
+{#                                          <a href="{{ url_for('webadmin.clone_group', group_id=group.id, subject_id=subject_id) }}"#}
+{#                                            class="button" title="make a copy">#}
+{#                                              <span class="icon">#}
+{#                                                <i class="fas fa-copy has-text-info"></i>#}
+{#                                              </span>#}
+{#                                          </a>#}
+{#                                      </div>#}
+{#                                  </div>#}
+{#                                </td>#}
+{#                            </tr>#}
+{#                        {% endfor %}#}
                         </tbody>
                     </table>
                     <div class="buttons is-centered">
@@ -172,7 +171,100 @@
     <script src="https://cdn.datatables.net/1.11.4/js/dataTables.bulma.min.js"></script>
     <script>
         $(document).ready( function () {
-            $('#table').DataTable()
+            let table = $('#table').DataTable({
+                ajax: '{{ url_for("webadmin.get_groups_list", spec_id=spec.id) }}',
+                columns: [
+                    {
+                        data: 'name',
+                        render: function (data, type, row) {
+                            return `
+                                <strong>${data}</strong>
+                                <div class="tags has-addons">
+                                    <span class="tag is-small is-dark">
+                                        <i class="far fa-bookmark"></i>
+                                    </span>
+                                    <span class="tag is-small is-info">
+                                        <strong>${row.bookmarks_count}</strong>
+                                    </span>
+                                </div>
+                            `
+                        }
+                    },
+                    {
+                        data: 'status',
+                        render: function (data, type) {
+                            if (data) {
+                                if (data === 'ready') {
+                                    return `
+                                    <a href='/' + ''
+                                    <span class="tag is-success is-rounded">${data}</span>
+                                    `
+                                } else if (data === 'working') {
+                                    return `<span class="tag is-warning is-rounded">${data}</span>`
+                                } else {
+                                    return ''
+                                }
+                            } else {
+                                return ''
+                            }
+                        }
+                    },
+                    { data: 'subject' },
+                    {
+                        data: 'items_count',
+                        render: function (data, type, row) {
+                            if (data >= 10) {
+                                return `
+                                <a href=${row.list_items_url}>
+                                    <span class="tag is-success is-rounded">${data}</span>
+                                </a>
+                                `
+                            } else if (data >= 5) {
+                                return `
+                                <a href=${row.list_items_url}>
+                                    <span class="tag is-warning is-rounded">${data}</span>
+                                </a>
+                                `
+                            } else {
+                                return `
+                                <a href=${row.list_items_url}>
+                                    <span class="tag is-danger is-rounded">${data}</span>
+                                </a>
+                                `
+                            }
+                        }
+                    },
+                    {
+                        data: 'num_sample_items',
+                        render: function (data, type) {
+                            return `<span class="tag is-rounded">${data}</span>`
+                        }
+
+                    },
+                    {
+                        data: 'edit_url',
+                        render: function (data, type, row, meta) {
+                            return `<div class="field has-addons">
+                                <div class="control">
+                                    <a class="button is-rounded" href=${data}>
+                                      <span class="icon">
+                                            <i class="fas fa-pencil-alt has-text-dark"></i>
+                                      </span>
+                                    </a>
+                                </div>
+                                <div class="control">
+                                    <a class="button is-rounded" href=${row.copy_url}>
+                                        <span class="icon">
+                                            <i class="fas fa-copy has-text-dark"></i>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                            `
+                        }
+                    },
+                ]
+            })
             $('select.subcategory').change(()=>{
                 let selectedSubject = $('.subcategory').find(":selected").val();
                 window.location.href = '/webadmin/specification/{{ spec.id }}/groups?subject_id=' + selectedSubject
