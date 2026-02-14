@@ -78,7 +78,7 @@ def list_bookmarks(bank_id=None):
                            title=title,
                            bank=bank,
                            bank_id=bank.id if bank else None,
-                           banks=[bank for bank in Bank.query.all()]
+                           banks=Bank.query.all()
                            )
 
 
