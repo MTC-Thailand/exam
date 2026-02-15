@@ -488,11 +488,19 @@ def get_groups_list(spec_id):
 
     start = request.args.get('start', type=int)
     length = request.args.get('length', type=int)
+
     specification = Specification.query.get(spec_id)
+
     if subject_id != -1:
         query = specification.groups.filter_by(subject_id=subject_id).order_by(ItemGroup.subject_id)
     else:
         query = specification.groups.order_by(ItemGroup.subject_id)
+
+    search = request.args.get('search[value]')
+
+    if search:
+        query = query.filter(ItemGroup.name.like(f'%{search}%'))
+    total_filtered = query.count()
 
     data = []
     query = query.offset(start).limit(length)
@@ -513,7 +521,7 @@ def get_groups_list(spec_id):
     return jsonify({'data': data,
                     'draw': request.args.get('draw', type=int),
                     'recordsTotal': specification.groups.count(),
-                    'recordsFiltered': query.count()
+                    'recordsFiltered': total_filtered,
                     })
 
 
