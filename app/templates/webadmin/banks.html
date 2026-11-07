@@ -16,6 +16,14 @@
         </div>
         <div class="columns">
             <div class="column is-two-thirds is-offset-2">
+                {% include "messages.html" %}
+                <div class="buttons">
+                    <a class="button is-primary"
+                       href="{{ url_for('webadmin.add_subject') }}">
+                        <span class="icon"><i class="fas fa-plus" aria-hidden="true"></i></span>
+                        <span>New Subject</span>
+                    </a>
+                </div>
                 <table class="table is-fullwidth">
                     <thead>
                     <th>Subject</th>

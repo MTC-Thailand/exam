@@ -47,13 +47,14 @@
                                 <div class="control">
                                     <a href="{{ url_for('webadmin.list_groups', spec_id=spec_id) }}"
                                        class="button is-light">Cancel</a>
-                                    <a href="{{ url_for('webadmin.remove_group', group_id=group_id) }}"
-                                       class="button is-danger">
+                                    <button type="submit" formaction="{{ url_for('webadmin.remove_group', group_id=group_id) }}"
+                                            formnovalidate class="button is-danger"
+                                            onclick="return confirm('Remove this group? Its question items will remain in the bank.')">
                                         <span class="icon">
                                             <i class="fas fa-trash-alt"></i>
                                         </span>
                                         <span>Remove</span>
-                                    </a>
+                                    </button>
                                     <button class="button is-success">Save</button>
                                 </div>
                             </div>

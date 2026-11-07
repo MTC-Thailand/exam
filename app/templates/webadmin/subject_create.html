@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}New Subject{% endblock %}
+
+{% block page_content %}
+    <section class="section">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-half">
+                    <h1 class="title">New Subject</h1>
+                    <form method="post" class="box">
+                        {{ form.hidden_tag() }}
+                        <div class="field">
+                            {{ form.name.label(class="label") }}
+                            <div class="control">
+                                {{ form.name(class="input", autofocus=true) }}
+                            </div>
+                            {% for error in form.name.errors %}
+                                <p class="help is-danger">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                        <div class="buttons">
+                            <button type="submit" class="button is-primary">Save</button>
+                            <a class="button is-light" href="{{ url_for('webadmin.list_banks') }}">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
