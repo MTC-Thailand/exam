@@ -142,10 +142,7 @@ class Item(db.Model):
     user = db.relationship(User, backref=db.backref('questions'))
     parent_id = db.Column('parent_id', db.ForeignKey('items.id'))
     expired_at = db.Column('expired_at', db.DateTime(timezone=True))
-    children = db.relationship('Item', backref=db.backref('parent',
-                                                          remote_side=[id],
-                                                          lazy='dynamic',
-                                                          uselist=True))
+    children = db.relationship('Item', backref=db.backref('parent', remote_side=[id]))
     peer_evaluated_at = db.Column('approved_at', db.DateTime(timezone=True))
     peer_summary = db.Column('peer_summary', db.Text(), info={'label': 'Peer Summary'})
     peer_decision = db.Column('peer_decision', db.String(),
@@ -190,10 +187,7 @@ class Choice(db.Model):
                            foreign_keys=[item_id])
     answer = db.Column('answer', db.Boolean(), default=False)
     parent_id = db.Column('parent_id', db.ForeignKey('choices.id'))
-    children = db.relationship('Choice', backref=db.backref('parent',
-                                                            lazy='dynamic',
-                                                            remote_side=[id],
-                                                            uselist=True))
+    children = db.relationship('Choice', backref=db.backref('parent', remote_side=[id]))
 
     def __str__(self):
         return self.desc[:40]

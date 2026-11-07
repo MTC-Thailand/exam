@@ -14,7 +14,7 @@ class UserAdminView(ModelView):
     column_searchable_list = ('username',)
     column_sortable_list = ('username',)
     column_exclude_list = ('password_hash',)
-    form_excluded_columns = ('password_hash', 'questions')
+    form_columns = ('username', 'role', 'name', 'email')
     form_edit_rules = ('username',
                        'role', 'name', 'email',
                        rules.Header('Reset Password'),
@@ -23,10 +23,18 @@ class UserAdminView(ModelView):
     form_create_rules = ('username', 'role', 'password', 'confirm', 'name', 'email')
 
     def scaffold_form(self):
-        form_class = super(UserAdminView, self).scaffold_form()
-        form_class.password = PasswordField('Password')
-        form_class.new_password = PasswordField('New Password')
+        form_class = super().scaffold_form()
         form_class.confirm = PasswordField('Confirm New Password')
+        return form_class
+
+    def get_create_form(self):
+        form_class = super().get_create_form()
+        form_class.password = PasswordField('Password')
+        return form_class
+
+    def get_edit_form(self):
+        form_class = super().get_edit_form()
+        form_class.new_password = PasswordField('New Password')
         return form_class
 
     def create_model(self, form):
