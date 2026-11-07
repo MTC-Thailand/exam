@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Admin: Specification Summary{% endblock %}
+
+{% block page_content %}
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Specification Summary</h1>
+            <h2 class="subtitle">{{ spec.name }}</h2>
+            <div class="buttons">
+                <a class="button is-light" href="{{ url_for('webadmin.specification') }}">Specifications</a>
+                <a class="button is-link" href="{{ url_for('webadmin.list_groups', spec_id=spec.id) }}">View Groups</a>
+                <a class="button is-success" href="{{ url_for('webadmin.export_specification_groups', spec_id=spec.id) }}">
+                    <span class="icon"><i class="fas fa-download"></i></span>
+                    <span>Download Groups (Excel)</span>
+                </a>
+            </div>
+            <div class="box">
+                <table class="table is-fullwidth">
+                    <tbody>
+                        <tr><th>Total groups</th><td>{{ groups|length }}</td></tr>
+                        <tr><th>Active groups</th><td>{{ active_groups }}</td></tr>
+                        <tr><th>Unique question items</th><td>{{ unique_items }}</td></tr>
+                        <tr><th>Total sampling target</th><td>{{ sample_items }}</td></tr>
+                        <tr><th>Empty groups</th><td>{{ empty_groups }}</td></tr>
+                        <tr><th>Groups below sampling target</th><td>{{ short_groups }}</td></tr>
+                    </tbody>
+                </table>
+                <p>Totals include all groups. Unique question items count each question once across the specification.
+                    Sampling targets are added across groups.</p>
+            </div>
+            <h2 class="title is-4">Questions by subject</h2>
+            <p class="mb-4">Counts include questions in this specification's groups.
+                Each question is counted once per subject, including when it belongs to several groups.</p>
+            <div class="columns is-multiline">
+                {% for subject in subjects %}
+                    <div class="column is-one-third">
+                        <div class="card">
+                            <div class="card-content">
+                                <p class="heading">{{ subject.name }}</p>
+                                <p class="title">{{ subject_counts.get(subject.id, 0) }}</p>
+                                <p>Question items</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                {% if none in subject_counts %}
+                    <div class="column is-one-third">
+                        <div class="card">
+                            <div class="card-content">
+                                <p class="heading">Unassigned subject</p>
+                                <p class="title">{{ subject_counts[none] }}</p>
+                                <p>Question items</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+{% endblock %}

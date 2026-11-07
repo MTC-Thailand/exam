@@ -6,10 +6,13 @@
         <div class="container" id="app">
             <div class="columns">
                 <div class="column is-two-thirds is-offset-2 box">
+                    {% include "messages.html" %}
                     <table class="table is-fullwidth">
                         <thead>
                         <th>Name</th>
                         <th>Total Groups</th>
+                        <th></th>
+                        <th></th>
                         <th></th>
                         </thead>
                         <tbody>
@@ -19,9 +22,32 @@
                                     <a href="{{ url_for('webadmin.list_groups', spec_id=spec.id) }}">
                                         {{ spec.name }}
                                     </a>
+                                    <button type="button" class="button is-small is-white js-rename-specification"
+                                            data-url="{{ url_for('webadmin.rename_specification', spec_id=spec.id) }}"
+                                            data-name="{{ spec.name }}"
+                                            aria-label="Rename {{ spec.name }}" aria-haspopup="dialog" title="Rename">
+                                        <span class="icon"><i class="fas fa-pencil-alt" aria-hidden="true"></i></span>
+                                    </button>
                                 </td>
                                 <td>
                                     {{ spec.groups.all()|length }}
+                                </td>
+                                <td>
+                                    <a class="button is-link is-outlined"
+                                       href="{{ url_for('webadmin.specification_summary', spec_id=spec.id) }}">
+                                        <span class="icon"><i class="fas fa-chart-bar"></i></span>
+                                        <span>Summary</span>
+                                    </a>
+                                </td>
+                                <td>
+                                    <form method="post"
+                                          action="{{ url_for('webadmin.clone_specification', spec_id=spec.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="button is-info">
+                                            <span class="icon"><i class="fas fa-copy"></i></span>
+                                            <span>Clone</span>
+                                        </button>
+                                    </form>
                                 </td>
                                 <td>
                                     <a class="button is-primary" href="{{ url_for('webadmin.add_item_group', spec_id=spec.id) }}">
@@ -44,4 +70,32 @@
             </div>
         </div>
     </section>
+    <dialog id="rename-specification" class="box" aria-labelledby="rename-specification-title" style="margin: auto; border: 0; width: min(28rem, 90vw);">
+        <h2 id="rename-specification-title" class="title is-4">Rename specification</h2>
+        <form method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="field">
+                <label class="label" for="specification-name">Name</label>
+                <input class="input" id="specification-name" name="name" required autofocus>
+            </div>
+            <div class="buttons is-right">
+                <button type="button" class="button" id="cancel-rename">Cancel</button>
+                <button type="submit" class="button is-primary">Save</button>
+            </div>
+        </form>
+    </dialog>
+    <script>
+        const renameDialog = document.getElementById('rename-specification');
+        const renameForm = renameDialog.querySelector('form');
+        const nameInput = document.getElementById('specification-name');
+        document.querySelectorAll('.js-rename-specification').forEach(button => {
+            button.addEventListener('click', () => {
+                renameForm.action = button.dataset.url;
+                nameInput.value = button.dataset.name;
+                renameDialog.showModal();
+                nameInput.select();
+            });
+        });
+        document.getElementById('cancel-rename').addEventListener('click', () => renameDialog.close());
+    </script>
 {% endblock %}

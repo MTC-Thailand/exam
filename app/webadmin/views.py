@@ -1,11 +1,14 @@
 import csv
 import os
-from io import StringIO
+from io import BytesIO, StringIO
+
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill
 
 import arrow
 import requests
 from flask_wtf.csrf import generate_csrf
-from sqlalchemy import or_
+from sqlalchemy import func, or_
 from flask_login import current_user
 from werkzeug.utils import secure_filename
 
@@ -409,6 +412,82 @@ def specification():
                            specifications=specifications)
 
 
+@webadmin.route('/specification/<int:spec_id>/summary')
+@superuser
+def specification_summary(spec_id):
+    spec = Specification.query.get_or_404(spec_id)
+    groups = spec.groups.order_by(ItemGroup.subject_id, ItemGroup.name).all()
+    item_counts = dict(db.session.query(
+        assoc_group_items.c.group_id,
+        func.count(db.distinct(assoc_group_items.c.item_id))
+    ).join(ItemGroup, ItemGroup.id == assoc_group_items.c.group_id)
+        .filter(ItemGroup.spec_id == spec_id)
+        .group_by(assoc_group_items.c.group_id).all())
+    unique_items = db.session.query(
+        func.count(db.distinct(assoc_group_items.c.item_id))
+    ).join(ItemGroup, ItemGroup.id == assoc_group_items.c.group_id) \
+        .filter(ItemGroup.spec_id == spec_id).scalar()
+    subject_counts = dict(db.session.query(
+        ItemGroup.subject_id,
+        func.count(db.distinct(assoc_group_items.c.item_id))
+    ).outerjoin(assoc_group_items, ItemGroup.id == assoc_group_items.c.group_id)
+        .filter(ItemGroup.spec_id == spec_id)
+        .group_by(ItemGroup.subject_id).all())
+    return render_template(
+        'webadmin/specification_summary.html',
+        spec=spec,
+        groups=groups,
+        subjects=Subject.query.order_by(Subject.name).all(),
+        subject_counts=subject_counts,
+        unique_items=unique_items,
+        active_groups=sum(bool(group.is_active) for group in groups),
+        sample_items=sum(group.num_sample_items or 0 for group in groups),
+        empty_groups=sum(item_counts.get(group.id, 0) == 0 for group in groups),
+        short_groups=sum(item_counts.get(group.id, 0) < (group.num_sample_items or 0)
+                         for group in groups))
+
+
+@webadmin.route('/specification/<int:spec_id>/groups/export/xlsx')
+@superuser
+def export_specification_groups(spec_id):
+    Specification.query.get_or_404(spec_id)
+    rows = db.session.query(
+        ItemGroup.name,
+        Subject.name,
+        func.count(db.distinct(assoc_group_items.c.item_id))
+    ).outerjoin(Subject, ItemGroup.subject_id == Subject.id) \
+        .outerjoin(assoc_group_items, ItemGroup.id == assoc_group_items.c.group_id) \
+        .filter(ItemGroup.spec_id == spec_id) \
+        .group_by(ItemGroup.id, ItemGroup.name, Subject.name) \
+        .order_by(Subject.name, ItemGroup.name, ItemGroup.id)
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = 'Groups'
+    sheet.append(['Group', 'Subject', 'Total questions'])
+    for name, subject, count in rows:
+        sheet.append([name, subject or 'Unassigned', count])
+        # Store names literally, including names beginning with an equals sign.
+        sheet.cell(sheet.max_row, 1).data_type = 's'
+        sheet.cell(sheet.max_row, 2).data_type = 's'
+        sheet.cell(sheet.max_row, 3).number_format = '#,##0'
+    for cell in sheet[1]:
+        cell.font = Font(bold=True, color='FFFFFF')
+        cell.fill = PatternFill('solid', fgColor='3273DC')
+    sheet.column_dimensions['A'].width = 60
+    sheet.column_dimensions['B'].width = 35
+    sheet.column_dimensions['C'].width = 20
+    sheet.freeze_panes = 'A2'
+    sheet.auto_filter.ref = sheet.dimensions
+    output = BytesIO()
+    workbook.save(output)
+    response = make_response(output.getvalue())
+    response.headers['Content-Type'] = (
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response.headers['Content-Disposition'] = (
+        f'attachment; filename=specification-{spec_id}-groups.xlsx')
+    return response
+
+
 @webadmin.route('/specification/new', methods=['GET', 'POST'])
 @superuser
 def add_specification():
@@ -424,6 +503,49 @@ def add_specification():
             flash('New specification added.', 'success')
             return redirect(url_for('webadmin.specification'))
     return render_template('webadmin/specification_form.html', form=form)
+
+
+@webadmin.route('/specification/<int:spec_id>/rename', methods=['POST'])
+@superuser
+def rename_specification(spec_id):
+    spec = Specification.query.get_or_404(spec_id)
+    form = SpecificationForm()
+    if form.validate_on_submit() and form.name.data.strip():
+        spec.name = form.name.data.strip()
+        db.session.commit()
+        flash('Specification name updated.', 'success')
+    else:
+        flash('Enter a valid specification name.', 'danger')
+    return redirect(url_for('webadmin.specification'))
+
+
+@webadmin.route('/specification/<int:spec_id>/clone', methods=['POST'])
+@superuser
+def clone_specification(spec_id):
+    original = Specification.query.get_or_404(spec_id)
+    created_at = arrow.now(tz='Asia/Bangkok').datetime
+    spec = Specification(name=f'{original.name} (copy)',
+                         created_at=created_at,
+                         user=current_user)
+    db.session.add(spec)
+    try:
+        for original_group in original.groups:
+            group = ItemGroup(name=original_group.name,
+                              desc=original_group.desc,
+                              num_sample_items=original_group.num_sample_items,
+                              subject_id=original_group.subject_id,
+                              is_active=original_group.is_active,
+                              created_at=created_at,
+                              user=current_user,
+                              spec=spec)
+            group.items.extend(original_group.items.all())
+            db.session.add(group)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        raise
+    flash('Specification and groups cloned.', 'success')
+    return redirect(url_for('webadmin.specification'))
 
 
 @webadmin.route('/specification/<int:spec_id>/group/new', methods=['GET', 'POST'])
